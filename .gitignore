@@ -98,6 +98,9 @@ coverage/
 tasks.json
 tasks/
 .taskmaster/
+.roomodes
+.windsurfrules
+.taskmasterconfig
 
 # Cursor AI files
 .cursor/
@@ -139,3 +142,4 @@ storybook-static
 # Temporary folders
 tmp/
 temp/
+
