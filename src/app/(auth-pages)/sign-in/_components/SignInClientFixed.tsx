@@ -2,6 +2,7 @@
 
 import SignIn from '@/components/auth/SignIn'
 import handleOauthSignIn from '@/server/actions/auth/handleOauthSignIn'
+import SupabaseAuthService from '@/services/SupabaseAuthService'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
@@ -27,27 +28,33 @@ const SignInClient = () => {
         setMessage('')
 
         try {
-            // Use NextAuth with credentials provider (which handles Supabase internally)
-            const result = await signIn('credentials', {
+            // Try Supabase authentication first
+            const { error: supabaseError } = await SupabaseAuthService.signIn(
+                values.email,
+                values.password
+            )
+
+            if (supabaseError) {
+                const errorMessage = (supabaseError as any)?.message || 'Authentication failed'
+                setMessage(errorMessage)
+                setSubmitting(false)
+                return
+            }
+
+            // If Supabase auth succeeds, also create NextAuth session
+            const nextAuthResult = await signIn('credentials', {
                 email: values.email,
                 password: values.password,
                 redirect: false,
             })
 
-            if (result?.error) {
-                // Show error toast
-                toast.push(
-                    <Notification type="danger" title="Sign In Failed">
-                        Please check your email and password, and ensure your email is verified.
-                    </Notification>,
-                    { placement: 'top-end' }
-                )
-                setMessage('Authentication failed. Please check your credentials.')
+            if (nextAuthResult?.error) {
+                setMessage('Authentication failed. Please try again.')
                 setSubmitting(false)
                 return
             }
 
-            // Success - show toast and redirect
+            // Success - redirect to callback URL
             toast.push(
                 <Notification type="success" title="Welcome Back!">
                     You have been successfully signed in.
@@ -55,19 +62,9 @@ const SignInClient = () => {
                 { placement: 'top-end' }
             )
 
-            // Small delay to show the success toast before redirect
-            setTimeout(() => {
-                router.push(callbackUrl)
-            }, 1000)
-
+            router.push(callbackUrl)
         } catch (error) {
             console.error('Sign in error:', error)
-            toast.push(
-                <Notification type="danger" title="Sign In Error">
-                    An unexpected error occurred. Please try again.
-                </Notification>,
-                { placement: 'top-end' }
-            )
             setMessage('An unexpected error occurred. Please try again.')
             setSubmitting(false)
         }

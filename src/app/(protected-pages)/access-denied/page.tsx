@@ -18,7 +18,7 @@ const Page = () => {
     // Redirect to login if not authenticated, but only once
     useEffect(() => {
         if (status === 'loading' || hasRedirected) return
-        
+
         if (status === 'unauthenticated') {
             setHasRedirected(true)
             // Simple redirect without callback URL to prevent loops
@@ -28,8 +28,8 @@ const Page = () => {
     }, [status, router, hasRedirected])
 
     const handleSignOut = async () => {
-        await signOut({ 
-            callbackUrl: appConfig.unAuthenticatedEntryPath 
+        await signOut({
+            callbackUrl: appConfig.unAuthenticatedEntryPath
         })
     }
 
@@ -60,7 +60,7 @@ const Page = () => {
                         <p className="text-base mb-6">
                             You need to sign in to access this page.
                         </p>
-                        
+
                         <Button
                             variant="solid"
                             className="w-full"
@@ -82,7 +82,7 @@ const Page = () => {
                     <p className="text-base mb-4">
                         You don&apos;t have permission to access this page.
                     </p>
-                    
+
                     {session?.user && (
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                             Current role: <span className="font-medium">
@@ -90,7 +90,7 @@ const Page = () => {
                             </span>
                         </p>
                     )}
-                    
+
                     <div className="space-y-3">
                         <Button
                             variant="solid"
@@ -99,7 +99,7 @@ const Page = () => {
                         >
                             Go to Dashboard
                         </Button>
-                        
+
                         <Button
                             variant="plain"
                             className="w-full"
@@ -116,10 +116,10 @@ const Page = () => {
                             Sign Out & Login as Different User
                         </Button>
                     </div>
-                    
+
                     <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                         <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                            If you believe you should have access to this page, 
+                            If you believe you should have access to this page,
                             please contact your administrator or try signing in with a different account.
                         </p>
                     </div>

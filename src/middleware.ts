@@ -54,25 +54,25 @@ export default auth((req) => {
     }    /** Enhanced role-based access control */
     if (isSignedIn && nextUrl.pathname !== '/access-denied') {
         const routeMeta = protectedRoutes[nextUrl.pathname]
-        
+
         if (routeMeta && routeMeta.authority && routeMeta.authority.length > 0) {
             const userRole = req.auth?.user?.role as UserRole
             const userAuthority = req.auth?.user?.authority || []
-            
+
             // Check if user has required role using role hierarchy
             const hasRequiredRole = routeMeta.authority.some((requiredRole: string) => {
                 // Check both legacy authority array and new role-based system
-                return userAuthority.includes(requiredRole) || 
+                return userAuthority.includes(requiredRole) ||
                        hasRole(userRole, requiredRole as UserRole)
             })
-            
+
             if (!hasRequiredRole) {
                 return Response.redirect(
                     new URL('/access-denied', nextUrl),
                 )
             }
         }
-        
+
         // Additional role-based route protection
         const roleBasedRoutes: Record<string, UserRole[]> = {
             '/admin': ['admin'],
@@ -86,18 +86,18 @@ export default auth((req) => {
             '/tasks': ['admin', 'project_manager', 'member'],
             '/files': ['admin', 'project_manager', 'member'],
         }
-        
+
         // Check if current path matches any role-based route
-        const currentRoute = Object.keys(roleBasedRoutes).find(route => 
+        const currentRoute = Object.keys(roleBasedRoutes).find(route =>
             nextUrl.pathname.startsWith(route)
         )
-        
+
         if (currentRoute) {
             const requiredRoles = roleBasedRoutes[currentRoute]
             const userRole = req.auth?.user?.role as UserRole
-            
+
             const hasAccess = requiredRoles.some(role => hasRole(userRole, role))
-            
+
             if (!hasAccess) {
                 return Response.redirect(
                     new URL('/access-denied', nextUrl),

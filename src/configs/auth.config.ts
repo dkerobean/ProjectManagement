@@ -81,7 +81,7 @@ export default {
             if (account?.provider !== 'credentials') {
                 try {
                     const supabase = await createSupabaseServerClient()
-                    
+
                     // Check if user exists in our database
                     const { data: existingUser } = await supabase
                         .from('users')

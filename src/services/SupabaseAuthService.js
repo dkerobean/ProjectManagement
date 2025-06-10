@@ -293,7 +293,7 @@ class SupabaseAuthService {
   // Check if user has role
   hasRole(user, requiredRole) {
     if (!user || !user.user_metadata) return false
-    
+
     const userRole = user.user_metadata.role || 'member'
     const roleHierarchy = {
       viewer: 1,
