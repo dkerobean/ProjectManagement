@@ -32,17 +32,29 @@ const validateCredential = async (values: SignInCredential) => {
 
         console.log('Supabase auth successful for user:', authData.user.id)
         console.log('User email confirmed:', authData.user.email_confirmed_at)
+        console.log('User metadata:', authData.user.user_metadata)
+        console.log('User app metadata:', authData.user.app_metadata)
 
         // For now, skip the complex database query that causes policy recursion
         // and create a user profile from the auth data directly
         console.log('Creating profile from auth data to avoid policy issues')
 
+        // Try to get role from multiple sources
+        const userRole = authData.user.user_metadata?.role ||
+                        authData.user.app_metadata?.role ||
+                        'member'
+
+        console.log('Role sources:')
+        console.log('  - user_metadata.role:', authData.user.user_metadata?.role)
+        console.log('  - app_metadata.role:', authData.user.app_metadata?.role)
+        console.log('  - final selected role:', userRole)
+
         const userProfile = {
             id: authData.user.id,
             email: authData.user.email!,
             name: authData.user.user_metadata?.name || authData.user.email!.split('@')[0],
-            role: 'member',
-            timezone: 'UTC'
+            role: userRole,
+            timezone: authData.user.user_metadata?.timezone || 'UTC'
         }
 
         console.log('Profile created:', userProfile)
