@@ -1,6 +1,6 @@
 import type { Routes } from '@/@types/routes'
 
-const dashboardsRoute: Routes = {
+const authRoute: Routes = {
     '/sign-in': {
         key: 'signIn',
         authority: [],
@@ -23,4 +23,4 @@ const dashboardsRoute: Routes = {
     },
 }
 
-export default dashboardsRoute
+export default authRoute

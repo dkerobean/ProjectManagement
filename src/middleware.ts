@@ -4,9 +4,11 @@ import authConfig from '@/configs/auth.config'
 import {
     authRoutes as _authRoutes,
     publicRoutes as _publicRoutes,
+    protectedRoutes,
 } from '@/configs/routes.config'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import appConfig from '@/configs/app.config'
+import { hasRole, type UserRole } from '@/utils/roleBasedAccess'
 
 const { auth } = NextAuth(authConfig)
 
@@ -49,18 +51,60 @@ export default auth((req) => {
                 nextUrl,
             ),
         )
+    }    /** Enhanced role-based access control */
+    if (isSignedIn && nextUrl.pathname !== '/access-denied') {
+        const routeMeta = protectedRoutes[nextUrl.pathname]
+        
+        if (routeMeta && routeMeta.authority && routeMeta.authority.length > 0) {
+            const userRole = req.auth?.user?.role as UserRole
+            const userAuthority = req.auth?.user?.authority || []
+            
+            // Check if user has required role using role hierarchy
+            const hasRequiredRole = routeMeta.authority.some((requiredRole: string) => {
+                // Check both legacy authority array and new role-based system
+                return userAuthority.includes(requiredRole) || 
+                       hasRole(userRole, requiredRole as UserRole)
+            })
+            
+            if (!hasRequiredRole) {
+                return Response.redirect(
+                    new URL('/access-denied', nextUrl),
+                )
+            }
+        }
+        
+        // Additional role-based route protection
+        const roleBasedRoutes: Record<string, UserRole[]> = {
+            '/admin': ['admin'],
+            '/user-management': ['admin'],
+            '/system-settings': ['admin'],
+            '/audit-logs': ['admin'],
+            '/project-management': ['admin', 'project_manager'],
+            '/team-management': ['admin', 'project_manager'],
+            '/analytics': ['admin', 'project_manager'],
+            '/projects': ['admin', 'project_manager', 'member'],
+            '/tasks': ['admin', 'project_manager', 'member'],
+            '/files': ['admin', 'project_manager', 'member'],
+        }
+        
+        // Check if current path matches any role-based route
+        const currentRoute = Object.keys(roleBasedRoutes).find(route => 
+            nextUrl.pathname.startsWith(route)
+        )
+        
+        if (currentRoute) {
+            const requiredRoles = roleBasedRoutes[currentRoute]
+            const userRole = req.auth?.user?.role as UserRole
+            
+            const hasAccess = requiredRoles.some(role => hasRole(userRole, role))
+            
+            if (!hasAccess) {
+                return Response.redirect(
+                    new URL('/access-denied', nextUrl),
+                )
+            }
+        }
     }
-
-    /** Uncomment this and `import { protectedRoutes } from '@/configs/routes.config'` if you want to enable role based access */
-    // if (isSignedIn && nextUrl.pathname !== '/access-denied') {
-    //     const routeMeta = protectedRoutes[nextUrl.pathname]
-    //     const includedRole = routeMeta?.authority.some((role) => req.auth?.user?.authority.includes(role))
-    //     if (!includedRole) {
-    //         return Response.redirect(
-    //             new URL('/access-denied', nextUrl),
-    //         )
-    //     }
-    // }
 })
 
 export const config = {
