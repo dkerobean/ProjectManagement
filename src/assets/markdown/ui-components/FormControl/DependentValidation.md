@@ -6,28 +6,31 @@ import { FormItem, Form } from '@/components/ui/Form'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { ZodType } from 'zod'
 
-const validationSchema = z
-    .object({
-        password: z.string().min(1, { message: 'Password Required' }),
-        confirmPassword: z
-            .string()
-            .min(1, { message: 'Confirm Password Required' }),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-        message: 'Password not match',
-        path: ['confirmPassword'],
-    })
+type FormSchema = {
+    password: string
+    confirmPassword: string,
+}
+
+const validationSchema: ZodType<FormSchema> = z.object({
+    password: z.string().min(1, {message: 'Password Required'}),
+    confirmPassword: z.string().min(1, {message: 'Confirm Password Required'}),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: 'Password not match',
+    path: ['confirmPassword'],
+})
 
 const DependentValidation = () => {
+
     const [submitting, setSubmitting] = useState(false)
 
     const {
         handleSubmit,
         formState: { errors },
         control,
-        reset,
-    } = useForm({
+        reset
+    } = useForm<FormSchema>({
         defaultValues: {
             password: '',
             confirmPassword: '',
@@ -35,7 +38,8 @@ const DependentValidation = () => {
         resolver: zodResolver(validationSchema),
     })
 
-    const onSubmit = (values) => {
+
+    const onSubmit = (values: FormSchema) => {
         setSubmitting(true)
         setTimeout(() => {
             window.alert(JSON.stringify(values, null, 2))
@@ -54,14 +58,14 @@ const DependentValidation = () => {
                 <Controller
                     name="password"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="password"
                             autoComplete="off"
                             placeholder="Password"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem
@@ -72,22 +76,29 @@ const DependentValidation = () => {
                 <Controller
                     name="confirmPassword"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="password"
                             autoComplete="off"
                             placeholder="Confirm Password"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem>
                 <div className="flex gap-2">
-                    <Button type="reset" onClick={() => reset()}>
+                    <Button
+                        type="reset"
+                        onClick={() => reset()}
+                    >
                         Reset
                     </Button>
-                    <Button variant="solid" type="submit" loading={submitting}>
+                    <Button
+                        variant="solid"
+                        type="submit"
+                        loading={submitting}
+                    >
                         Submit
                     </Button>
                 </div>

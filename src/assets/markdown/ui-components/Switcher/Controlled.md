@@ -5,7 +5,7 @@ import Switcher from '@/components/ui/Switcher'
 const Controlled = () => {
     const [checked, setChecked] = useState(false)
 
-    const onSwitcherToggle = (val) => {
+    const onSwitcherToggle = (val: boolean) => {
         console.log('value', val)
         setChecked(!val)
     }

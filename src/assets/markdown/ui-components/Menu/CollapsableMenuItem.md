@@ -1,17 +1,15 @@
 ```jsx
 import Menu from '@/components/ui/Menu'
+import type { MouseEvent } from 'react'
 
 const CollapsableMenuItem = () => {
-    const handleToggle = (expanded, e) => {
+    const handleToggle = (expanded: boolean, e: MouseEvent) => {
         console.log('expanded', expanded)
         console.log('event', e)
     }
 
     return (
-        <div
-            className="border border-gray-200 dark:border-gray-700 rounded-md p-2"
-            style={{ maxWidth: 250 }}
-        >
+        <div className="border border-gray-200 dark:border-gray-700 rounded-md p-2" style={{ maxWidth: 250 }}>
             <Menu>
                 <Menu.MenuItem eventKey="item-1">Item 1</Menu.MenuItem>
                 <Menu.MenuItem eventKey="item-2">Item 2</Menu.MenuItem>
@@ -35,12 +33,8 @@ const CollapsableMenuItem = () => {
                         label="Item 4.3"
                         onToggle={handleToggle}
                     >
-                        <Menu.MenuItem eventKey="item-4-3-1">
-                            Item 4.3.1
-                        </Menu.MenuItem>
-                        <Menu.MenuItem eventKey="item-4-2-1">
-                            Item 4.3.2
-                        </Menu.MenuItem>
+                        <Menu.MenuItem eventKey="item-4-3-1">Item 4.3.1</Menu.MenuItem>
+                        <Menu.MenuItem eventKey="item-4-2-1">Item 4.3.2</Menu.MenuItem>
                     </Menu.MenuCollapse>
                 </Menu.MenuCollapse>
             </Menu>
@@ -49,4 +43,5 @@ const CollapsableMenuItem = () => {
 }
 
 export default CollapsableMenuItem
+
 ```

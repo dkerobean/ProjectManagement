@@ -6,27 +6,27 @@ import { FormItem, Form } from '@/components/ui/Form'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { ZodType } from 'zod'
 
-const validationSchema = z.object({
-    email: z
-        .string()
-        .min(1, { message: 'Required' })
-        .email({ message: 'Invalid email' }),
-    userName: z
-        .string()
-        .min(1, { message: 'Required' })
-        .min(3, 'Too Short!')
-        .max(12, 'Too Long!'),
+type FormSchema = {
+    email: string
+    userName: string,
+}
+
+const validationSchema: ZodType<FormSchema> = z.object({
+    email: z.string().min(1, {message: 'Required'}).email({ message: 'Invalid email' }),
+    userName: z.string().min(1, {message: 'Required'}).min(3, 'Too Short!').max(12, 'Too Long!'),
 })
 
 const SchemaValidation = () => {
+
     const [submitting, setSubmitting] = useState(false)
 
     const {
         handleSubmit,
         formState: { errors },
-        control,
-    } = useForm({
+        control
+    } = useForm<FormSchema>({
         defaultValues: {
             email: '',
             userName: '',
@@ -34,7 +34,7 @@ const SchemaValidation = () => {
         resolver: zodResolver(validationSchema),
     })
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: FormSchema) => {
         setSubmitting(true)
         setTimeout(() => {
             window.alert(JSON.stringify(values, null, 2))
@@ -52,14 +52,14 @@ const SchemaValidation = () => {
                 <Controller
                     name="email"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="email"
                             autoComplete="off"
                             placeholder="Email"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem
@@ -70,20 +70,18 @@ const SchemaValidation = () => {
                 <Controller
                     name="userName"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="text"
                             autoComplete="off"
                             placeholder="User Name"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem>
-                <Button type="submit" variant="solid" loading={submitting}>
-                    Submit
-                </Button>
+                <Button type="submit" variant="solid" loading={submitting}>Submit</Button>
             </FormItem>
         </Form>
     )

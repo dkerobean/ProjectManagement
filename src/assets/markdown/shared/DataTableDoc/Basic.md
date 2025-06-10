@@ -3,11 +3,25 @@ import { useState, useEffect, useMemo } from 'react'
 import Button from '@/components/ui/Button'
 import DataTable from '@/components/shared/DataTable'
 import { apiGetCustomers } from '@/services/CustomersService'
+import type { ColumnDef, OnSortParam } from '@/components/shared/DataTable'
+
+type Customer = {
+    id: string
+    name: string
+    email: string
+}
 
 const Basic = () => {
-    const [data, setData] = useState([])
+    const [data, setData] = useState<Customer[]>([])
     const [loading, setLoading] = useState(false)
-    const [tableData, setTableData] = useState({
+    const [tableData, setTableData] = useState<{
+        pageIndex: number
+        pageSize: number
+        order: '' | 'asc' | 'desc'
+        key: string | number
+        query: string
+        total: number
+    }>({
         total: 0,
         pageIndex: 1,
         pageSize: 10,
@@ -16,7 +30,7 @@ const Basic = () => {
         key: '',
     })
 
-    const columns = useMemo(() => {
+    const columns: ColumnDef<Customer>[] = useMemo(() => {
         return [
             {
                 header: 'Name',
@@ -41,15 +55,15 @@ const Basic = () => {
         ]
     }, [])
 
-    const handlePaginationChange = (pageIndex) => {
+    const handlePaginationChange = (pageIndex: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageIndex } }))
     }
 
-    const handleSelectChange = (pageSize) => {
+    const handleSelectChange = (pageSize: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageSize } }))
     }
 
-    const handleSort = ({ order, key }) => {
+    const handleSort = ({ order, key }: OnSortParam) => {
         setTableData((prevData) => ({
             ...prevData,
             sort: { order, key },
@@ -59,7 +73,10 @@ const Basic = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-            const response = await apiGetCustomers(tableData)
+            const response = await apiGetCustomers<
+                { list: Customer[]; total: number },
+                NonNullable<unknown>
+            >(tableData)
             if (response) {
                 setData(response.list)
                 setLoading(false)
@@ -71,15 +88,10 @@ const Basic = () => {
         }
         fetchData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        tableData.pageIndex,
-        tableData.order,
-        tableData.key,
-        tableData.pageSize,
-    ])
+    }, [tableData.pageIndex, tableData.order, tableData.key, tableData.pageSize])
 
     return (
-        <DataTable
+        <DataTable<Customer>
             columns={columns}
             data={data}
             loading={loading}

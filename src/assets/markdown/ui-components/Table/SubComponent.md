@@ -9,11 +9,19 @@ import {
 } from '@tanstack/react-table'
 import { dataWithSubRows } from './data'
 import { HiOutlineChevronRight, HiOutlineChevronDown } from 'react-icons/hi'
+import type { PersonWithSubRow } from './data'
+import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ReactElement } from 'react'
+
+type ReactTableProps<T> = {
+    renderRowSubComponent: (props: { row: Row<T> }) => ReactElement
+    getRowCanExpand: (row: Row<T>) => boolean
+}
 
 const { Tr, Th, Td, THead, TBody } = Table
 
-function ReactTable({ renderRowSubComponent, getRowCanExpand }) {
-    const columns = useMemo(
+function ReactTable({ renderRowSubComponent, getRowCanExpand }: ReactTableProps<PersonWithSubRow>) {
+    const columns = useMemo<ColumnDef<PersonWithSubRow>[]>(
         () => [
             {
                 // Make an expander cell
@@ -63,7 +71,7 @@ function ReactTable({ renderRowSubComponent, getRowCanExpand }) {
                 accessorKey: 'progress',
             },
         ],
-        [],
+        []
     )
 
     const table = useReactTable({
@@ -88,7 +96,7 @@ function ReactTable({ renderRowSubComponent, getRowCanExpand }) {
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext(),
+                                            header.getContext()
                                         )}
                                     </Th>
                                 )
@@ -107,7 +115,7 @@ function ReactTable({ renderRowSubComponent, getRowCanExpand }) {
                                             <td key={cell.id}>
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
-                                                    cell.getContext(),
+                                                    cell.getContext()
                                                 )}
                                             </td>
                                         )
@@ -134,7 +142,7 @@ function ReactTable({ renderRowSubComponent, getRowCanExpand }) {
     )
 }
 
-const renderSubComponent = ({ row }) => {
+const renderSubComponent = ({ row }: { row: Row<PersonWithSubRow> }) => {
     return (
         <pre style={{ fontSize: '10px' }}>
             <code>{JSON.stringify(row.original, null, 2)}</code>

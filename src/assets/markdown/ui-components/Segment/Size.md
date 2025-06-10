@@ -2,10 +2,12 @@
 import { useState } from 'react'
 import Segment from '@/components/ui/Segment'
 
-const Size = () => {
-    const [size, setSize] = useState('md')
+type SizeType = 'lg' | 'md' | 'sm' | 'xs'
 
-    const onSizeChange = (val) => {
+const Size = () => {
+    const [size, setSize] = useState<SizeType>('md')
+
+    const onSizeChange = (val: SizeType) => {
         setSize(val)
     }
 
@@ -13,7 +15,7 @@ const Size = () => {
         <Segment
             size={size}
             value={size}
-            onChange={(value) => onSizeChange(value)}
+            onChange={(value) => onSizeChange(value as SizeType)}
         >
             <Segment.Item value="xs">Extra Small</Segment.Item>
             <Segment.Item value="sm">Small</Segment.Item>

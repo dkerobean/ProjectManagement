@@ -3,11 +3,12 @@ import { useState, useEffect } from 'react'
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 import { scaleQuantile } from 'd3-scale'
 import { csv } from 'd3-fetch'
+import type { DSVRowArray } from 'd3-dsv'
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
 const ChoroplethQuantile = () => {
-    const [data, setData] = useState()
+    const [data, setData] = useState<DSVRowArray<string>>()
 
     useEffect(() => {
         // https://www.bls.gov/lau/
@@ -20,13 +21,11 @@ const ChoroplethQuantile = () => {
         return null
     }
 
-    const colorScale = scaleQuantile()
-        .domain(
-            data.map((d) => {
-                const unemploymentRate = Number(d.unemployment_rate)
-                return isNaN(unemploymentRate) ? null : unemploymentRate
-            }),
-        )
+    const colorScale = scaleQuantile<string>()
+        .domain(data.map((d) => {
+            const unemploymentRate = Number(d.unemployment_rate);
+            return isNaN(unemploymentRate) ? null : unemploymentRate;
+          }))
         .range([
             '#ffedea',
             '#ffcec5',
@@ -53,13 +52,7 @@ const ChoroplethQuantile = () => {
                             <Geography
                                 key={geo.rsmKey}
                                 geography={geo}
-                                fill={
-                                    cur
-                                        ? colorScale(
-                                              Number(cur.unemployment_rate),
-                                          )
-                                        : '#EEE'
-                                }
+                                fill={cur ? colorScale(Number(cur.unemployment_rate)) : '#EEE'}
                             />
                         )
                     })

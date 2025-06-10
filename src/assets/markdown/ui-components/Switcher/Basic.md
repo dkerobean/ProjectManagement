@@ -1,8 +1,9 @@
 ```jsx
 import Switcher from '@/components/ui/Switcher'
+import type { ChangeEvent } from 'react'
 
 const Basic = () => {
-    const onSwitcherToggle = (val, e) => {
+    const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {
         console.log(val, e)
     }
 

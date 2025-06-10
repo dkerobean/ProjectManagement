@@ -4,14 +4,16 @@ import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 
 const NotificationType = () => {
-    const openNotification = (type) => {
+    const openNotification = (
+        type: 'success' | 'warning' | 'danger' | 'info'
+    ) => {
         toast.push(
             <Notification
                 title={type.charAt(0).toUpperCase() + type.slice(1)}
                 type={type}
             >
                 The fat cat sat on the mat bat away with paws annoy owner.
-            </Notification>,
+            </Notification>
         )
     }
 

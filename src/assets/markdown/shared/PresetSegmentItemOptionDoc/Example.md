@@ -5,16 +5,21 @@ import Segment from '@/components/ui/Segment'
 
 import { HiOutlineCode, HiOutlineCube, HiOutlinePencil } from 'react-icons/hi'
 
-const roles = [
+const roles: {
+    value: string
+    label: string
+    icon: JSX.Element
+    disabled?: boolean
+}[] = [
     { value: 'softwareEngineer', label: 'Developer', icon: <HiOutlineCode /> },
     { value: 'productManager', label: 'Manager', icon: <HiOutlineCube /> },
     { value: 'designer', label: 'Designer', icon: <HiOutlinePencil /> },
 ]
 
 const Example = () => {
-    const [value, setValue] = useState([roles[0].value])
+    const [value, setValue] = useState<string[]>([roles[0].value])
 
-    const handleChange = (val) => {
+    const handleChange = (val: string[]) => {
         console.log('val', val)
         setValue(val)
     }
@@ -23,7 +28,7 @@ const Example = () => {
         <Segment
             value={value}
             className="bg-transparent dark:bg-transparent"
-            onChange={(val) => handleChange(val)}
+            onChange={(val) => handleChange(val as string[])}
         >
             <div className="flex flex-col xl:flex-row items-center gap-4">
                 {roles.map((item) => (

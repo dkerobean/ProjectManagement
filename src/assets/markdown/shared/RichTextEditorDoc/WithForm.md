@@ -5,13 +5,14 @@ import RichTextEditor from '@/components/shared/RichTextEditor'
 import { useForm, Controller } from 'react-hook-form'
 
 const WithForm = () => {
+
     const {
         handleSubmit,
         formState: { errors },
-        control,
-    } = useForm()
+        control
+    } = useForm<{textContent?: string}>();
 
-    const onSubmit = (value) => {
+    const onSubmit = (value: {textContent?: string}) => {
         window.alert(JSON.stringify(value))
     }
 
@@ -25,15 +26,15 @@ const WithForm = () => {
                 <Controller
                     name="textContent"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <RichTextEditor
                             content={field.value}
                             invalid={Boolean(errors.textContent)}
-                            onChange={({ html }) => {
+                            onChange={({html}) => {
                                 field.onChange(html)
                             }}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <Button variant="solid" type="submit" block>
@@ -44,4 +45,5 @@ const WithForm = () => {
 }
 
 export default WithForm
+
 ```

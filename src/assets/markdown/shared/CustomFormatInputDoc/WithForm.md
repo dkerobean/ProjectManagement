@@ -4,7 +4,7 @@ import { Form, FormItem } from '@/components/ui/Form'
 import FormCustomFormatInput from '@/components/shared/CustomFormatInput'
 import { useForm, Controller } from 'react-hook-form'
 
-function limit(val, max) {
+function limit(val: string, max: string) {
     if (val.length === 1 && val[0] > max[0]) {
         val = '0' + val
     }
@@ -20,7 +20,7 @@ function limit(val, max) {
     return val
 }
 
-function cardExpiryFormat(val) {
+function cardExpiryFormat(val: string) {
     const month = limit(val.substring(0, 2), '12')
     const date = limit(val.substring(2, 4), '31')
 
@@ -28,13 +28,14 @@ function cardExpiryFormat(val) {
 }
 
 const WithForm = () => {
+
     const {
         handleSubmit,
         formState: { errors },
-        control,
-    } = useForm()
+        control
+    } = useForm<{cardExpiry?: string}>();
 
-    const onSubmit = (value) => {
+    const onSubmit = (value: {cardExpiry?: string}) => {
         console.log(value)
     }
 
@@ -48,7 +49,7 @@ const WithForm = () => {
                 <Controller
                     name="cardExpiry"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <FormCustomFormatInput
                             placeholder="••/••"
                             format={cardExpiryFormat}
@@ -57,7 +58,7 @@ const WithForm = () => {
                             }}
                             value={field.value}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <Button variant="solid" type="submit" block>

@@ -4,9 +4,15 @@ import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
 
+import type { Dispatch, SetStateAction } from 'react'
+
 const geoUrl = '/data/features.json'
 
-const _MapChart = ({ setTooltipContent }) => {
+const _MapChart = ({
+    setTooltipContent,
+}: {
+    setTooltipContent: Dispatch<SetStateAction<string>>
+}) => {
     return (
         <div id="map">
             <ComposableMap
@@ -35,7 +41,7 @@ const _MapChart = ({ setTooltipContent }) => {
                                     },
                                 }}
                                 onMouseEnter={() => {
-                                    setTooltipContent(`${geo.properties.name}`)
+                                    setTooltipContent(`${geo.properties.name}`);
                                 }}
                                 onMouseLeave={() => {
                                     setTooltipContent('')

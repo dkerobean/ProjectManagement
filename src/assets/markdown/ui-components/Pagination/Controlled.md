@@ -5,7 +5,7 @@ import Pagination from '@/components/ui/Pagination'
 const Controlled = () => {
     const [page, setPage] = useState(60)
 
-    const onPaginationChange = (val) => {
+    const onPaginationChange = (val: number) => {
         setPage(val)
     }
 

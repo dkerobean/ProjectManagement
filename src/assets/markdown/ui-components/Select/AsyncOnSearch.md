@@ -3,7 +3,15 @@ import { useState } from 'react'
 import Select from '@/components/ui/Select'
 import AsyncSelect from 'react-select/async'
 
-const colourOptions = [
+type Option = {
+    value: string
+    label: string
+    color: string
+    isFixed?: boolean
+    isDisabled?: boolean
+}
+
+const colourOptions: Option[] = [
     { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
     { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
     { value: 'purple', label: 'Purple', color: '#5243AA' },
@@ -16,13 +24,16 @@ const colourOptions = [
     { value: 'silver', label: 'Silver', color: '#666666' },
 ]
 
-const filterColors = (inputValue) => {
+const filterColors = (inputValue: string) => {
     return colourOptions.filter((i) =>
         i.label.toLowerCase().includes(inputValue.toLowerCase()),
     )
 }
 
-const loadOptions = (inputValue, callback) => {
+const loadOptions = (
+    inputValue: string,
+    callback: (options: Option[]) => void,
+) => {
     setTimeout(() => {
         const filteredOptions = filterColors(inputValue)
         callback(filteredOptions)
@@ -32,7 +43,7 @@ const loadOptions = (inputValue, callback) => {
 const AsyncOnSearch = () => {
     const [_, setValue] = useState('')
 
-    const handleInputChange = (newValue) => {
+    const handleInputChange = (newValue: string) => {
         const inputValue = newValue.replace(/\W/g, '')
         setValue(inputValue)
         return inputValue

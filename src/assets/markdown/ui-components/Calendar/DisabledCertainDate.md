@@ -5,7 +5,7 @@ import Calendar from '@/components/ui/Calendar'
 const DisabledCertainDate = () => {
     const [value, setValue] = (useState < Date) | (null > null)
 
-    const disableCertainDate = (date) => {
+    const disableCertainDate = (date: Date) => {
         const banDate = [7, 15, 21]
         return banDate.includes(date.getDate())
     }

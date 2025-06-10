@@ -1,5 +1,6 @@
 ```jsx
 import Dropdown from '@/components/ui/Dropdown'
+import type { SyntheticEvent } from 'react'
 
 const Default = () => {
     const dropdownItems = [
@@ -9,11 +10,11 @@ const Default = () => {
         { key: 'd', name: 'Item D' },
     ]
 
-    const onDropdownItemClick = (eventKey, e) => {
+    const onDropdownItemClick = (eventKey: string, e: SyntheticEvent) => {
         console.log('Dropdown Item Clicked', eventKey, e)
     }
 
-    const onDropdownClick = (e) => {
+    const onDropdownClick = (e: SyntheticEvent) => {
         console.log('Dropdown Clicked', e)
     }
 

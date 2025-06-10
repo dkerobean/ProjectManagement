@@ -10,10 +10,27 @@ import {
 import Table from '@/components/ui/Table'
 import Checkbox from '@/components/ui/Checkbox'
 import { data10 } from './data'
+import type { ChangeEvent } from 'react'
+import type { CheckboxProps } from '@/components/ui/Checkbox'
+import type { Person } from './data'
+import type { ColumnDef } from '@tanstack/react-table'
+
+type CheckBoxChangeEvent = ChangeEvent<HTMLInputElement>
+
+interface IndeterminateCheckboxProps extends Omit<CheckboxProps, 'onChange'> {
+    onChange: (event: CheckBoxChangeEvent) => void;
+    indeterminate: boolean;
+    onCheckBoxChange?: (event: CheckBoxChangeEvent) => void;
+    onIndeterminateCheckBoxChange?: (event: CheckBoxChangeEvent) => void;
+}
 
 const { Tr, Th, Td, THead, TBody } = Table
 
-function IndeterminateCheckbox({ indeterminate, onChange, ...rest }) {
+function IndeterminateCheckbox({
+    indeterminate,
+    onChange,
+    ...rest
+}: IndeterminateCheckboxProps) {
     const ref = useRef < HTMLInputElement > null
 
     useEffect(() => {
@@ -107,7 +124,7 @@ function RowSelection() {
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext(),
+                                            header.getContext()
                                         )}
                                     </Th>
                                 )
@@ -124,7 +141,7 @@ function RowSelection() {
                                         <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext(),
+                                                cell.getContext()
                                             )}
                                         </Td>
                                     )

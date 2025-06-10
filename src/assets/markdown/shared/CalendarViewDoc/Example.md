@@ -2,7 +2,7 @@
 import CalendarView from '@/components/shared/CalendarView'
 
 const Example = () => {
-    function getDate(dayString) {
+    function getDate(dayString: string) {
         const today = new Date()
         const year = today.getFullYear().toString()
         let month = (today.getMonth() + 1).toString()

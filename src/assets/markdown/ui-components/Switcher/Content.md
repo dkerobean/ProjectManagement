@@ -1,8 +1,9 @@
 ```jsx
 import Switcher from '@/components/ui/Switcher'
 import { RiMoonClearLine, RiSunLine } from 'react-icons/ri'
+import type { ReactNode } from 'react'
 
-const withIcon = (component) => {
+const withIcon = (component: ReactNode) => {
     return <div className="text-lg">{component}</div>
 }
 

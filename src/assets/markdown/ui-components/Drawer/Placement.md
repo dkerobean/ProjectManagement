@@ -3,8 +3,14 @@ import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Radio from '@/components/ui/Radio'
 import Drawer from '@/components/ui/Drawer'
+import type { MouseEvent } from 'react'
 
-const placementList = [
+type Direction = 'top' | 'right' | 'bottom' | 'left'
+
+const placementList: {
+    name: string,
+    value: Direction,
+}[] = [
     { name: 'Top', value: 'top' },
     { name: 'Right', value: 'right' },
     { name: 'Bottom', value: 'bottom' },
@@ -20,12 +26,12 @@ const Placement = () => {
         setIsOpen(true)
     }
 
-    const onDrawerClose = (e) => {
+    const onDrawerClose = (e: MouseEvent) => {
         console.log('onDrawerClose', e)
         setIsOpen(false)
     }
 
-    const onPlacementChange = (val) => {
+    const onPlacementChange = (val: Direction) => {
         setPlacement(val)
     }
 

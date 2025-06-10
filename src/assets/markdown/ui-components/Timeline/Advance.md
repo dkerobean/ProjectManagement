@@ -5,8 +5,11 @@ import Badge from '@/components/ui/Badge'
 import Card from '@/components/ui/Card'
 import Tag from '@/components/ui/Tag'
 import { HiTag } from 'react-icons/hi'
+import type { AvatarProps } from '@/components/ui/Avatar'
 
-const TimelineAvatar = ({ children, ...rest }) => {
+type TimelineAvatarProps = AvatarProps
+
+const TimelineAvatar = ({ children, ...rest }: TimelineAvatarProps) => {
     return (
         <Avatar {...rest} size={25} shape="circle">
             {children}

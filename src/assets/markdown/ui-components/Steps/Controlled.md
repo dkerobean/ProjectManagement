@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button'
 const Controlled = () => {
     const [step, setStep] = useState(0)
 
-    const onChange = (nextStep) => {
+    const onChange = (nextStep: number) => {
         if (nextStep < 0) {
             setStep(0)
         } else if (nextStep > 3) {

@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import FormCustomFormatInput from '@/components/shared/CustomFormatInput'
 
-const format = (numStr) => {
+const format = (numStr: string) => {
     if (numStr === '') {
         return ''
     }
@@ -17,9 +17,13 @@ const format = (numStr) => {
 const Simple = () => {
     const [value, setValue] = useState(0)
 
-    const handleValueChange = (e) => {
+    const handleValueChange = (e: {
+        floatValue?: number
+        formattedValue: string
+        value: string
+    }) => {
         console.log(e)
-        setValue(e.floatValue)
+        setValue(e.floatValue as number)
     }
 
     return (

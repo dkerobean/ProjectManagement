@@ -4,7 +4,15 @@ import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 
 const Placement = () => {
-    const openNotification = (placement) => {
+    const openNotification = (
+        placement:
+            | 'top-start'
+            | 'top-center'
+            | 'top-end'
+            | 'bottom-start'
+            | 'bottom-center'
+            | 'bottom-end'
+    ) => {
         toast.push(<Notification type="success" title="Message" />, {
             placement: placement,
         })

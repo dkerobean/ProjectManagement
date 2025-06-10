@@ -1,4 +1,5 @@
 ```jsx
+
 import { FormItem, Form } from '@/components/ui/Form'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
@@ -6,31 +7,33 @@ import Checkbox from '@/components/ui/Checkbox'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { ZodType } from 'zod'
 
-const validationSchema = z.object({
-    email: z
-        .string()
-        .min(1, { message: 'Email Required' })
-        .email({ message: 'Invalid email' }),
+type FormSchema = {
+    email: string
+    userName: string,
+    password: string,
+    rememberMe: boolean
+}
+
+const validationSchema: ZodType<FormSchema> = z.object({
+    email: z.string().min(1,{message: 'Email Required'} ).email({ message: 'Invalid email' }),
     userName: z.string().min(3, 'Too Short!').max(12, 'Too Long!'),
-    password: z
-        .string()
+    password: z.string()
         .min(1, { message: 'Password Required' })
-        .min(8, { message: 'Too Short!' })
-        .refine(
-            (value) => /^[A-Za-z0-9_-]*$/.test(value),
-            'Only Letters & Numbers Allowed',
-        ),
-    rememberMe: z.boolean(),
+        .min(8, {message: 'Too Short!'})
+        .refine((value) => /^[A-Za-z0-9_-]*$/.test(value), 'Only Letters & Numbers Allowed'),
+    rememberMe: z.boolean()
 })
 
 const Basic = () => {
+
     const {
         handleSubmit,
         reset,
         formState: { errors },
-        control,
-    } = useForm({
+        control
+    } = useForm<FormSchema>({
         defaultValues: {
             email: '',
             userName: '',
@@ -38,9 +41,9 @@ const Basic = () => {
             rememberMe: false,
         },
         resolver: zodResolver(validationSchema),
-    })
+    });
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: FormSchema) => {
         window.alert(JSON.stringify(values))
     }
 
@@ -54,14 +57,14 @@ const Basic = () => {
                 <Controller
                     name="email"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="email"
                             autoComplete="off"
                             placeholder="Email"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem
@@ -72,14 +75,14 @@ const Basic = () => {
                 <Controller
                     name="userName"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="text"
                             autoComplete="off"
                             placeholder="User Name"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem
@@ -90,23 +93,23 @@ const Basic = () => {
                 <Controller
                     name="password"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="password"
                             autoComplete="off"
                             placeholder="Password"
                             {...field}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem>
                 <Controller
                     name="rememberMe"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Checkbox {...field}>Remember me</Checkbox>
-                    )}
+                    }
                 />
             </FormItem>
             <FormItem>

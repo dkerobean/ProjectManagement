@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button'
 import Notification from '@/components/ui/Notification'
 
 const CustomClose = () => {
-    function closeNotification(key) {
+    function closeNotification(key: string | Promise<string>) {
         if (typeof key !== 'string') {
             key.then((resolvedValue) => {
                 toast.remove(resolvedValue)
@@ -25,18 +25,22 @@ const CustomClose = () => {
                         size="sm"
                         variant="solid"
                         className="mr-2"
-                        onClick={() => closeNotification(notificationKey)}
+                        onClick={() =>
+                            closeNotification(notificationKey as string | Promise<string>)
+                        }
                     >
                         Confirm
                     </Button>
                     <Button
                         size="sm"
-                        onClick={() => closeNotification(notificationKey)}
+                        onClick={() =>
+                            closeNotification(notificationKey as string | Promise<string>)
+                        }
                     >
                         Close
                     </Button>
                 </div>
-            </Notification>,
+            </Notification>
         )
     }
 

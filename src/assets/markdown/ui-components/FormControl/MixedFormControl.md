@@ -16,8 +16,28 @@ import CreatableSelect from 'react-select/creatable'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { ZodType } from 'zod'
 
-const options = [
+type Option = {
+    value: string
+    label: string
+}
+
+type FormSchema = {
+    input: string
+    select: string
+    multipleSelect: Option[]
+    date: Date | null
+    time: Date | null
+    singleCheckbox: boolean
+    multipleCheckbox: Array<string | number>
+    radio: string
+    switcher: boolean
+    segment: string[]
+    upload: File[]
+}
+
+const options: Option[] = [
     { value: 'foo', label: 'Foo' },
     { value: 'bar', label: 'Bar' },
 ]
@@ -30,7 +50,7 @@ const segmentSelections = [
 
 const MAX_UPLOAD = 2
 
-const validationSchema = z.object({
+const validationSchema: ZodType<FormSchema> = z.object({
     input: z
         .string()
         .min(1, 'Please input user name!')
@@ -48,14 +68,14 @@ const validationSchema = z.object({
         required_error: 'Time Required!',
         invalid_type_error: 'Invalid Time',
     }),
-    singleCheckbox: z.literal(true, {
+    singleCheckbox: z.literal<boolean>(true, {
         errorMap: () => ({ message: 'You must tick this!' }),
     }),
     multipleCheckbox: z
         .array(z.union([z.string(), z.number()]))
         .nonempty('Select at least one option!'),
     radio: z.string().min(1, 'Please select one!'),
-    switcher: z.literal(true, {
+    switcher: z.literal<boolean>(true, {
         errorMap: () => ({ message: 'You must turn this on!' }),
     }),
     upload: z.array(z.instanceof(File)).nonempty('At least one file uploaded!'),
@@ -68,7 +88,7 @@ const MixedFormControl = () => {
         reset,
         formState: { errors, isSubmitting },
         control,
-    } = useForm({
+    } = useForm<FormSchema>({
         defaultValues: {
             input: '',
             select: '',
@@ -85,8 +105,8 @@ const MixedFormControl = () => {
         resolver: zodResolver(validationSchema),
     })
 
-    const beforeUpload = (file, fileList) => {
-        let valid = true
+    const beforeUpload = (file: FileList | null, fileList: File[]) => {
+        let valid: string | boolean = true
 
         const allowedFileType = ['image/jpeg', 'image/png']
         const MAX_FILE_SIZE = 500000
@@ -110,7 +130,7 @@ const MixedFormControl = () => {
         return valid
     }
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: FormSchema) => {
         setTimeout(() => {
             alert(JSON.stringify(values, null, 2))
         }, 400)
@@ -169,7 +189,7 @@ const MixedFormControl = () => {
                     name="multipleSelect"
                     control={control}
                     render={({ field }) => (
-                        <Select
+                        <Select<Option, true>
                             isMulti
                             componentAs={CreatableSelect}
                             options={options}
@@ -225,7 +245,7 @@ const MixedFormControl = () => {
                     control={control}
                     render={({ field }) => (
                         <Checkbox.Group
-                            value={field.value}
+                            value={field.value as string[]}
                             onChange={field.onChange}
                         >
                             <Checkbox name={field.name} value="Apple">

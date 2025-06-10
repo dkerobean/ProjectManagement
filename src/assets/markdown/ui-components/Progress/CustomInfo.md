@@ -2,7 +2,7 @@
 import Progress from '@/components/ui/Progress'
 import { HiXCircle, HiCheckCircle } from 'react-icons/hi'
 
-const CircleCustomInfo = ({ percent }) => {
+const CircleCustomInfo = ({ percent }: { percent: number }) => {
     return (
         <div className="text-center">
             <h3>{percent}%</h3>

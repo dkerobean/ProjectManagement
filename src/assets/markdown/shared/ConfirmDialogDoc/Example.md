@@ -4,7 +4,20 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import Radio from '@/components/ui/Radio'
 import Button from '@/components/ui/Button'
 
-const dialogType = {
+type DialogTypeKey = 'Info' | 'Success' | 'Warning' | 'Danger'
+
+type DialogType = Record<
+    DialogTypeKey,
+    {
+        type: 'info' | 'success' | 'warning' | 'danger'
+        title: string
+        children: string
+        cancelText: string
+        confirmText: string
+    }
+>
+
+const dialogType: DialogType = {
     Info: {
         type: 'info',
         title: 'Note',
@@ -36,7 +49,9 @@ const dialogType = {
 }
 
 const Example = () => {
-    const [selected, setSelected] = useState(Object.keys(dialogType)[0])
+    const [selected, setSelected] = useState<DialogTypeKey>(
+        Object.keys(dialogType)[0] as DialogTypeKey
+    )
     const [open, setOpen] = useState(false)
 
     const handleClose = () => {

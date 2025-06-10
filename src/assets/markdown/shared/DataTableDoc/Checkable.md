@@ -3,12 +3,31 @@ import { useState, useEffect, useMemo } from 'react'
 import Button from '@/components/ui/Button'
 import DataTable from '@/components/shared/DataTable'
 import { apiGetCustomers } from '@/services/CustomersService'
+import type {
+    ColumnDef,
+    OnSortParam,
+    CellContext,
+    Row,
+} from '@/components/shared/DataTable'
+
+type Customer = {
+    id: string
+    name: string
+    email: string
+}
 
 const Checkable = () => {
-    const [data, setData] = useState([])
+    const [data, setData] = useState<Customer[]>([])
     const [loading, setLoading] = useState(false)
-    const [selectedRows, setSelectedRows] = useState([])
-    const [tableData, setTableData] = useState({
+    const [selectedRows, setSelectedRows] = useState<string[]>([])
+    const [tableData, setTableData] = useState<{
+        pageIndex: number
+        pageSize: number
+        order: '' | 'asc' | 'desc'
+        key: string | number
+        query: string
+        total: number
+    }>({
         total: 0,
         pageIndex: 1,
         pageSize: 10,
@@ -17,7 +36,7 @@ const Checkable = () => {
         key: '',
     })
 
-    const handleAction = (cellProps) => {
+    const handleAction = (cellProps: CellContext<Customer, unknown>) => {
         console.log('Action clicked', cellProps)
     }
 
@@ -25,7 +44,7 @@ const Checkable = () => {
         console.log('selectedRows', selectedRows)
     }
 
-    const columns = useMemo(
+    const columns: ColumnDef<Customer>[] = useMemo(
         () => [
             {
                 header: 'Name',
@@ -48,22 +67,22 @@ const Checkable = () => {
         [],
     )
 
-    const handlePaginationChange = (pageIndex) => {
+    const handlePaginationChange = (pageIndex: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageIndex } }))
     }
 
-    const handleSelectChange = (pageSize) => {
+    const handleSelectChange = (pageSize: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageSize } }))
     }
 
-    const handleSort = ({ order, key }) => {
+    const handleSort = ({ order, key }: OnSortParam) => {
         setTableData((prevData) => ({
             ...prevData,
             ...{ sort: { order, key } },
         }))
     }
 
-    const handleRowSelect = (checked, row) => {
+    const handleRowSelect = (checked: boolean, row: Customer) => {
         console.log('row', row)
         if (checked) {
             setSelectedRows((prevData) => {
@@ -82,11 +101,11 @@ const Checkable = () => {
         }
     }
 
-    const handleAllRowSelect = (checked, rows) => {
+    const handleAllRowSelect = (checked: boolean, rows: Row<Customer>[]) => {
         console.log('rows', rows)
         if (checked) {
             const originalRows = rows.map((row) => row.original)
-            const selectedIds = []
+            const selectedIds: string[] = []
             originalRows.forEach((row) => {
                 selectedIds.push(row.name)
             })
@@ -99,7 +118,10 @@ const Checkable = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-            const response = await apiGetCustomers(tableData)
+            const response = await apiGetCustomers<
+                { list: Customer[]; total: number },
+                NonNullable<unknown>
+            >(tableData)
             if (response.list) {
                 setData(response.list)
                 setLoading(false)
@@ -111,12 +133,7 @@ const Checkable = () => {
         }
         fetchData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [
-        tableData.pageIndex,
-        tableData.order,
-        tableData.key,
-        tableData.pageSize,
-    ])
+    }, [tableData.pageIndex, tableData.order, tableData.key, tableData.pageSize])
 
     return (
         <>
@@ -131,7 +148,7 @@ const Checkable = () => {
                     </Button>
                 </div>
             )}
-            <DataTable
+            <DataTable<Customer>
                 selectable
                 columns={columns}
                 data={data}

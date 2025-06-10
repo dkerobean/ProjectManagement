@@ -26,9 +26,9 @@ const CustomIcon = () => {
         </Notification>
     )
 
-    function openNotification(type) {
+    function openNotification(type: string) {
         toast.push(
-            type === 'icon' ? notificationWithIcon : notificationWithAvatar,
+            type === 'icon' ? notificationWithIcon : notificationWithAvatar
         )
     }
 

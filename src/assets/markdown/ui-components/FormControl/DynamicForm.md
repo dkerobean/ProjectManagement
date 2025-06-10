@@ -6,21 +6,30 @@ import { HiMinus } from 'react-icons/hi'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import type { ZodType } from 'zod'
 
-const validationSchema = z.object({
+type FormSchema = {
+    users: {
+        name: string
+        email: string
+    }[]
+    groupName: string
+}
+
+const validationSchema: ZodType<FormSchema> = z.object({
     groupName: z.string().min(1, 'Group Name is required'),
     users: z.array(
-        z.object({
-            name: z.string().min(1, 'Name required'),
-            email: z
-                .string()
-                .min(1, 'Email required')
-                .email('Enter valid email'),
-        }),
-    ),
+        z.object(
+            {
+                name: z.string().min(1, 'Name required'),
+                email: z.string().min(1, 'Email required').email('Enter valid email')
+            }
+        )
+    )
 })
 
 const DynamicForm = () => {
+
     const {
         control,
         handleSubmit,
@@ -37,18 +46,18 @@ const DynamicForm = () => {
                     email: 'kelly.lambert@themenate.com',
                 },
             ],
-            groupName: '',
+            groupName: ''
         },
-        resolver: zodResolver(validationSchema),
+        resolver: zodResolver(validationSchema)
     })
 
-    const onSubmit = (values) => {
+    const onSubmit = (values: FormSchema) => {
         alert(JSON.stringify(values, null, 2))
     }
 
     const { fields, append, remove } = useFieldArray({
         name: 'users',
-        control,
+        control
     })
 
     return (
@@ -65,9 +74,12 @@ const DynamicForm = () => {
                         <Controller
                             name="groupName"
                             control={control}
-                            render={({ field }) => (
-                                <Input placeholder="Group Name" {...field} />
-                            )}
+                            render={({ field }) =>
+                                <Input
+                                    placeholder="Group Name"
+                                    {...field}
+                                />
+                            }
                         />
                     </FormItem>
                 </div>
@@ -75,42 +87,38 @@ const DynamicForm = () => {
                     <div key={userField.id}>
                         <FormItem
                             label="User Name"
-                            invalid={Boolean(
-                                errors.users?.[index]?.name?.message,
-                            )}
+                            invalid={Boolean(errors.users?.[index]?.name?.message)}
                             errorMessage={errors.users?.[index]?.name?.message}
                         >
                             <Controller
                                 name={`users.${index}.name`}
                                 control={control}
-                                render={({ field }) => (
+                                render={({ field }) =>
                                     <Input
                                         type="text"
                                         autoComplete="off"
                                         placeholder="Name"
                                         {...field}
                                     />
-                                )}
+                                }
                             />
                         </FormItem>
                         <FormItem
                             label="Email"
-                            invalid={Boolean(
-                                errors.users?.[index]?.email?.message,
-                            )}
+                            invalid={Boolean(errors.users?.[index]?.email?.message)}
                             errorMessage={errors.users?.[index]?.email?.message}
                         >
                             <Controller
                                 name={`users.${index}.email`}
                                 control={control}
-                                render={({ field }) => (
+                                render={({ field }) =>
                                     <Input
                                         type="email"
                                         autoComplete="off"
                                         placeholder="Email"
                                         {...field}
                                     />
-                                )}
+                                }
                             />
                         </FormItem>
                         <Button
@@ -118,7 +126,7 @@ const DynamicForm = () => {
                             shape="circle"
                             size="sm"
                             icon={<HiMinus />}
-                            onClick={() => remove(index)}
+                            onClick={() =>remove(index)}
                         />
                     </div>
                 ))}
@@ -135,7 +143,10 @@ const DynamicForm = () => {
                     >
                         Add a User
                     </Button>
-                    <Button type="submit" variant="solid">
+                    <Button
+                        type="submit"
+                        variant="solid"
+                    >
                         Submit
                     </Button>
                 </div>

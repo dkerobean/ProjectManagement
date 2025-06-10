@@ -7,8 +7,18 @@ import {
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
+import type { ColumnDef, ColumnSort } from '@tanstack/react-table'
 
-const columns = [
+type Person = {
+    firstName: string
+    lastName: string
+    age: number
+    visits: number
+    progress: number
+    status: string
+}
+
+const columns: ColumnDef<Person>[] = [
     {
         header: 'First Name',
         accessorKey: 'firstName',
@@ -81,7 +91,7 @@ const data = [
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
 const Sorting = () => {
-    const [sorting, setSorting] = useState([])
+    const [sorting, setSorting] = useState<ColumnSort[]>([])
 
     const table = useReactTable({
         data,
@@ -120,7 +130,7 @@ const Sorting = () => {
                                                 {flexRender(
                                                     header.column.columnDef
                                                         .header,
-                                                    header.getContext(),
+                                                    header.getContext()
                                                 )}
                                                 {
                                                     <Sorter
@@ -147,7 +157,7 @@ const Sorting = () => {
                                             <Td key={cell.id}>
                                                 {flexRender(
                                                     cell.column.columnDef.cell,
-                                                    cell.getContext(),
+                                                    cell.getContext()
                                                 )}
                                             </Td>
                                         )

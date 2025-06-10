@@ -5,7 +5,7 @@ import Radio from '@/components/ui/Radio'
 const Group = () => {
     const [value, setValue] = useState('Banana')
 
-    const onChange = (val) => {
+    const onChange = (val: string) => {
         setValue(val)
     }
 

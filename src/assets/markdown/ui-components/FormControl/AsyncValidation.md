@@ -5,30 +5,36 @@ import { FormItem, Form } from '@/components/ui/Form'
 import { useForm, Controller } from 'react-hook-form'
 import Spinner from '@/components/ui/Spinner'
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+type FormSchema = {
+    userName: string
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const AsyncValidation = () => {
+
     const {
         handleSubmit,
         formState: { errors, isValidating },
         control,
         trigger,
         reset,
-    } = useForm({
+    } = useForm<FormSchema>({
         defaultValues: {
             userName: 'Adam',
         },
     })
 
-    const validateAsync = async (value) => {
+    const validateAsync = async (value: string) => {
         await sleep(1000)
         if (value === 'Adam') {
             return true
         }
         return `This User name has been taken (only 'Adam' allow)`
-    }
 
-    const onSubmit = (values) => {
+    };
+
+    const onSubmit = (values: FormSchema) => {
         setTimeout(() => {
             window.alert(JSON.stringify(values, null, 2))
             reset()
@@ -46,7 +52,7 @@ const AsyncValidation = () => {
                     <Controller
                         name="userName"
                         control={control}
-                        render={({ field }) => (
+                        render={({field}) =>
                             <Input
                                 type="text"
                                 autoComplete="off"
@@ -64,9 +70,9 @@ const AsyncValidation = () => {
                                     trigger(['userName'])
                                 }}
                             />
-                        )}
+                        }
                         rules={{
-                            validate: validateAsync,
+                            validate: validateAsync
                         }}
                     />
                 </FormItem>

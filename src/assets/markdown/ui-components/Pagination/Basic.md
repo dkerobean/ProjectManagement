@@ -2,7 +2,7 @@
 import Pagination from '@/components/ui/Pagination'
 
 const Basic = () => {
-    const onPaginationChange = (page) => {
+    const onPaginationChange = (page: number) => {
         console.log('onPaginationChange', page)
     }
 

@@ -2,7 +2,15 @@
 import { useState } from 'react'
 import Select from '@/components/ui/Select'
 
-const colourOptions = [
+type Option = {
+    value: string
+    label: string
+    color: string
+    isFixed?: boolean
+    isDisabled?: boolean
+}
+
+const colourOptions: Option[] = [
     { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
     { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
     { value: 'purple', label: 'Purple', color: '#5243AA' },
@@ -16,7 +24,7 @@ const colourOptions = [
 ]
 
 const LoadOptionOnExpand = () => {
-    const [options, setOptions] = useState([])
+    const [options, setOptions] = useState<Option[]>([])
     const [loading, setLoading] = useState(false)
 
     const promiseOptions = () => {
@@ -35,12 +43,7 @@ const LoadOptionOnExpand = () => {
 
     return (
         <div>
-            <Select
-                instanceId="load-option-on-expand"
-                options={options}
-                isLoading={loading}
-                onFocus={onFocus}
-            />
+            <Select instanceId="load-option-on-expand" options={options} isLoading={loading} onFocus={onFocus} />
         </div>
     )
 }

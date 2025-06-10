@@ -2,11 +2,12 @@
 import { useState } from 'react'
 import Input from '@/components/ui/Input'
 import { HiOutlineEyeOff, HiOutlineEye } from 'react-icons/hi'
+import type { MouseEvent } from 'react'
 
 const PasswordVisible = () => {
     const [pwInputType, setPwInputType] = useState('password')
 
-    const onPasswordVisibleClick = (e) => {
+    const onPasswordVisibleClick = (e: MouseEvent) => {
         e.preventDefault()
         setPwInputType(pwInputType === 'password' ? 'text' : 'password')
     }

@@ -10,10 +10,22 @@ import {
     getPaginationRowModel,
     flexRender,
 } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
+
+type Person = {
+    firstName: string
+    lastName: string
+    age: number
+}
+
+type Option = {
+    value: number
+    label: string
+}
 
 const { Tr, Th, Td, THead, TBody } = Table
 
-const tableData = () => {
+const tableData = (): Person[] => {
     const arr = []
     for (let i = 0; i < 100; i++) {
         arr.push({
@@ -36,7 +48,7 @@ const pageSizeOption = [
 ]
 
 const PaginationTable = () => {
-    const columns = useMemo(
+    const columns = useMemo<ColumnDef<Person>[]>(
         () => [
             {
                 header: 'First Name',
@@ -51,7 +63,7 @@ const PaginationTable = () => {
                 accessorKey: 'age',
             },
         ],
-        [],
+        []
     )
 
     const [data] = useState(() => tableData())
@@ -65,7 +77,7 @@ const PaginationTable = () => {
         getPaginationRowModel: getPaginationRowModel(),
     })
 
-    const onPaginationChange = (page) => {
+    const onPaginationChange = (page: number) => {
         table.setPageIndex(page - 1)
     }
 
@@ -87,7 +99,7 @@ const PaginationTable = () => {
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext(),
+                                            header.getContext()
                                         )}
                                     </Th>
                                 )
@@ -104,7 +116,7 @@ const PaginationTable = () => {
                                         <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext(),
+                                                cell.getContext()
                                             )}
                                         </Td>
                                     )
@@ -122,13 +134,13 @@ const PaginationTable = () => {
                     onChange={onPaginationChange}
                 />
                 <div style={{ minWidth: 130 }}>
-                    <Select
+                    <Select<Option>
                         size="sm"
                         isSearchable={false}
                         value={pageSizeOption.filter(
                             (option) =>
                                 option.value ===
-                                table.getState().pagination.pageSize,
+                                table.getState().pagination.pageSize
                         )}
                         options={pageSizeOption}
                         onChange={(option) => onSelectChange(option?.value)}

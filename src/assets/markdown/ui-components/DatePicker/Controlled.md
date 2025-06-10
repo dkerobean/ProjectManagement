@@ -10,17 +10,17 @@ const Controlled = () => {
         [new Date(2022, 11, 1), new Date(2022, 11, 5)]
     const [dateTime, setDateTime] = (useState < Date) | (null > new Date())
 
-    const handleDatePickerChange = (date) => {
+    const handleDatePickerChange = (date: Date | null) => {
         console.log('Selected date', date)
         setDate(date)
     }
 
-    const handleRangePickerChange = (date) => {
+    const handleRangePickerChange = (date: [Date | null, Date | null]) => {
         console.log('Selected range date', date)
         setDateRange(date)
     }
 
-    const handleDateTimeChange = (val) => {
+    const handleDateTimeChange = (val: Date | null) => {
         console.log('Selected date time: ', val)
         setDateTime(val)
     }

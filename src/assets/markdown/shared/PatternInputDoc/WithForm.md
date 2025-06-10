@@ -8,10 +8,10 @@ const WithForm = () => {
     const {
         handleSubmit,
         formState: { errors },
-        control,
-    } = useForm()
+        control
+    } = useForm<{amount?: string}>();
 
-    const onSubmit = (value) => {
+    const onSubmit = (value: {amount?: string}) => {
         console.log(value)
     }
 
@@ -25,7 +25,7 @@ const WithForm = () => {
                 <Controller
                     name="amount"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <PatternInput
                             format="#### #### #### ####"
                             mask="_"
@@ -35,7 +35,7 @@ const WithForm = () => {
                                 field.onChange(e.floatValue)
                             }}
                         />
-                    )}
+                    }
                 />
             </FormItem>
             <Button variant="solid" type="submit" block>

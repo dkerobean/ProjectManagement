@@ -48,7 +48,7 @@ const Example = () => {
                     {data.map(({ name, coordinates, value, id }) => (
                         <Marker
                             key={name}
-                            coordinates={coordinates}
+                            coordinates={coordinates as [number, number]}
                             className="cursor-pointer group"
                             onMouseEnter={() => setHovering(id)}
                             onMouseLeave={() => setHovering('')}

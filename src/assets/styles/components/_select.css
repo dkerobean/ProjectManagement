@@ -25,7 +25,7 @@
   }
 
   .select-input-container {
-    @apply inline-grid flex-auto text-gray-800 dark:text-gray-100 font-semibold;
+    @apply inline-grid flex-auto text-gray-800 dark:text-gray-100! font-semibold;
     grid-area: 1/1/2/3;
     grid-template-columns: 0 min-content;
   }

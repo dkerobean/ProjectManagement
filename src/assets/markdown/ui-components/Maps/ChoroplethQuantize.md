@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react'
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
 import { scaleQuantize } from 'd3-scale'
 import { csv } from 'd3-fetch'
+import type { DSVRowArray } from 'd3-dsv'
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json'
 
-const colorScale = scaleQuantize()
+const colorScale = scaleQuantize<string>()
     .domain([1, 10])
     .range([
         '#ffedea',
@@ -21,7 +22,7 @@ const colorScale = scaleQuantize()
     ])
 
 const ChoroplethQuantize = () => {
-    const [data, setData] = useState()
+    const [data, setData] = useState<DSVRowArray<string>>()
 
     useEffect(() => {
         // https://www.bls.gov/lau/
@@ -49,13 +50,7 @@ const ChoroplethQuantize = () => {
                                 <Geography
                                     key={geo.rsmKey}
                                     geography={geo}
-                                    fill={
-                                        cur
-                                            ? colorScale(
-                                                  Number(cur.unemployment_rate),
-                                              )
-                                            : '#EEE'
-                                    }
+                                    fill={cur ? colorScale(Number(cur.unemployment_rate)) : '#EEE'}
                                 />
                             )
                         })

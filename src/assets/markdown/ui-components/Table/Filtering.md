@@ -15,6 +15,15 @@ import {
 } from '@tanstack/react-table'
 import { rankItem } from '@tanstack/match-sorter-utils'
 import { data10 } from './data'
+import type { Person } from './data'
+import type { ColumnDef, FilterFn, ColumnFiltersState } from '@tanstack/react-table'
+import type { InputHTMLAttributes } from 'react'
+
+interface DebouncedInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'size' | 'prefix'> {
+    value: string | number
+    onChange: (value: string | number) => void
+    debounce?: number
+}
 
 const { Tr, Th, Td, THead, TBody, Sorter } = Table
 
@@ -23,7 +32,7 @@ function DebouncedInput({
     onChange,
     debounce = 500,
     ...props
-}) {
+}: DebouncedInputProps) {
     const [value, setValue] = useState(initialValue)
 
     useEffect(() => {
@@ -36,7 +45,7 @@ function DebouncedInput({
         }, debounce)
 
         return () => clearTimeout(timeout)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value])
 
     return (
@@ -54,7 +63,7 @@ function DebouncedInput({
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fuzzyFilter = (row, columnId, value, addMeta) => {
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     // Rank the item
     const itemRank = rankItem(row.getValue(columnId), value)
 
@@ -68,16 +77,16 @@ const fuzzyFilter = (row, columnId, value, addMeta) => {
 }
 
 const Filtering = () => {
-    const [columnFilters, setColumnFilters] = useState([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [globalFilter, setGlobalFilter] = useState('')
 
-    const columns = useMemo(
+    const columns = useMemo<ColumnDef<Person>[]>(
         () => [
             { header: 'First Name', accessorKey: 'firstName' },
             { header: 'Last Name', accessorKey: 'lastName' },
             { header: 'Email', accessorKey: 'email' },
         ],
-        [],
+        []
     )
 
     const [data] = useState(() => data10)
@@ -138,7 +147,7 @@ const Filtering = () => {
                                                 {flexRender(
                                                     header.column.columnDef
                                                         .header,
-                                                    header.getContext(),
+                                                    header.getContext()
                                                 )}
                                                 {
                                                     <Sorter
@@ -162,7 +171,7 @@ const Filtering = () => {
                                         <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext(),
+                                                cell.getContext()
                                             )}
                                         </Td>
                                     )

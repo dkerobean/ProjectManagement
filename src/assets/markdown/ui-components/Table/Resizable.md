@@ -7,6 +7,8 @@ import {
     useReactTable,
 } from '@tanstack/react-table'
 import { data10 } from './data'
+import type { Person } from './data'
+import type { ColumnDef } from '@tanstack/react-table'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -53,7 +55,7 @@ function Resizable() {
                                         ? null
                                         : flexRender(
                                               header.column.columnDef.header,
-                                              header.getContext(),
+                                              header.getContext()
                                           )}
                                     {header.column.getCanResize() && (
                                         <div
@@ -84,7 +86,7 @@ function Resizable() {
                                     >
                                         {flexRender(
                                             cell.column.columnDef.cell,
-                                            cell.getContext(),
+                                            cell.getContext()
                                         )}
                                     </Td>
                                 )

@@ -6,30 +6,33 @@ import {
     getCoreRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import { DragDropContext, Draggable } from '@hello-pangea/dnd'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { MdDragIndicator } from 'react-icons/md'
 import { data10 } from './data'
 import { StrictModeDroppable } from '@/components/shared'
+import type { Person } from './data'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { DropResult } from '@hello-pangea/dnd'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
 const DragAndDrop = () => {
     const [data, setData] = useState(data10)
 
-    const reorderData = (startIndex, endIndex) => {
+    const reorderData = (startIndex: number, endIndex: number) => {
         const newData = [...data]
         const [movedRow] = newData.splice(startIndex, 1)
         newData.splice(endIndex, 0, movedRow)
         setData(newData)
     }
 
-    const handleDragEnd = (result) => {
+    const handleDragEnd = (result: DropResult) => {
         const { source, destination } = result
         if (!destination) return
         reorderData(source.index, destination.index)
     }
 
-    const columns = useMemo(
+    const columns: ColumnDef<Person>[] = useMemo(
         () => [
             {
                 id: 'dragger',
@@ -37,7 +40,7 @@ const DragAndDrop = () => {
                 accessorKey: 'dragger',
                 cell: (props) => (
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    <span {...props.dragHandleProps}>
+                    <span {...(props as any).dragHandleProps}>
                         <MdDragIndicator />
                     </span>
                 ),
@@ -46,7 +49,7 @@ const DragAndDrop = () => {
             { header: 'Last Name', accessorKey: 'lastName' },
             { header: 'Email', accessorKey: 'email' },
         ],
-        [],
+        []
     )
 
     const table = useReactTable({
@@ -66,7 +69,7 @@ const DragAndDrop = () => {
                                 <Th key={header.id} colSpan={header.colSpan}>
                                     {flexRender(
                                         header.column.columnDef.header,
-                                        header.getContext(),
+                                        header.getContext()
                                     )}
                                 </Th>
                             )
@@ -117,7 +120,7 @@ const DragAndDrop = () => {
                                                                             .column
                                                                             .columnDef
                                                                             .cell,
-                                                                        cell.getContext(),
+                                                                        cell.getContext()
                                                                     )}
                                                                 </Td>
                                                             )

@@ -10,10 +10,20 @@ import {
     flexRender,
 } from '@tanstack/react-table'
 import { data10 } from './data'
+import type { Person } from './data'
+import type { ColumnDef, CellContext, RowData } from '@tanstack/react-table'
+
+declare module '@tanstack/react-table' {
+    interface TableMeta<TData extends RowData> {
+      updateData: (rowIndex: number, columnId: string, value: unknown, dataPlaceHolder?: TData) => void
+    }
+  }
+
+type EditablePerson = Person
 
 const { Tr, Th, Td, THead, TBody } = Table
 
-const EditableCell = ({ getValue, row: { index }, column: { id }, table }) => {
+const EditableCell = ({ getValue, row: { index }, column: { id }, table }: CellContext<EditablePerson, unknown>) => {
     const initialValue = getValue()
     // We need to keep and update the state of the cell normally
     const [value, setValue] = useState(initialValue)
@@ -32,15 +42,15 @@ const EditableCell = ({ getValue, row: { index }, column: { id }, table }) => {
         <Input
             className="border-transparent bg-transparent hover:border-gray-300 focus:bg-white"
             size="sm"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
+            value={value as string}
+            onChange={e => setValue(e.target.value)}
             onBlur={onBlur}
         />
     )
 }
 
-const defaultColumn = {
-    cell: EditableCell,
+const defaultColumn: Partial<ColumnDef<EditablePerson>> = {
+    cell: EditableCell
 }
 
 function useSkipper() {
@@ -49,24 +59,25 @@ function useSkipper() {
 
     // Wrap a function with this to skip a pagination reset temporarily
     const skip = useCallback(() => {
-        shouldSkipRef.current = false
+      shouldSkipRef.current = false
     }, [])
 
     useEffect(() => {
-        shouldSkipRef.current = true
+      shouldSkipRef.current = true
     })
 
     return [shouldSkip, skip]
 }
 
 function Editable() {
+
     const columns = useMemo(
         () => [
             { header: 'First Name', accessorKey: 'firstName' },
             { header: 'Last Name', accessorKey: 'lastName' },
             { header: 'Email', accessorKey: 'email' },
         ],
-        [],
+        []
     )
 
     const [data, setData] = useState(() => data10)
@@ -80,24 +91,24 @@ function Editable() {
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
-        autoResetPageIndex: autoResetPageIndex,
+        autoResetPageIndex: autoResetPageIndex as boolean,
         // Provide our updateData function to our table meta
         meta: {
-            updateData: (rowIndex, columnId, value) => {
+            updateData: (rowIndex: number, columnId: string, value: unknown) => {
                 // Skip age index reset until after next rerender
-                if (typeof skipAutoResetPageIndex === 'function') {
+                if( typeof skipAutoResetPageIndex === 'function') {
                     skipAutoResetPageIndex()
                 }
-                setData((old) =>
+                setData(old =>
                     old.map((row, index) => {
                         if (index === rowIndex) {
-                            return {
-                                ...old[rowIndex],
-                                [columnId]: value,
-                            }
+                        return {
+                            ...old[rowIndex],
+                            [columnId]: value,
+                        }
                         }
                         return row
-                    }),
+                    })
                 )
             },
         },
@@ -117,7 +128,7 @@ function Editable() {
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext(),
+                                            header.getContext()
                                         )}
                                     </Th>
                                 )
@@ -134,7 +145,7 @@ function Editable() {
                                         <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext(),
+                                                cell.getContext()
                                             )}
                                         </Td>
                                     )

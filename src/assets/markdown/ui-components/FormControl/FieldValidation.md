@@ -4,12 +4,18 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { useForm, Controller } from 'react-hook-form'
 
+type FormSchema = {
+    userName: string,
+    email: string
+}
+
 const FieldValidation = () => {
+
     const {
         handleSubmit,
         formState: { errors },
-        control,
-    } = useForm({
+        control
+    } = useForm<FormSchema>({
         defaultValues: {
             userName: '',
             email: '',
@@ -17,11 +23,9 @@ const FieldValidation = () => {
     })
 
     return (
-        <Form
-            onSubmit={handleSubmit((values) => {
-                window.alert(JSON.stringify(values))
-            })}
-        >
+        <Form onSubmit={handleSubmit((values) => {
+            window.alert(JSON.stringify(values))
+        })}>
             <FormItem
                 label="User Name"
                 invalid={Boolean(errors.userName)}
@@ -30,14 +34,14 @@ const FieldValidation = () => {
                 <Controller
                     name="userName"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             type="text"
                             autoComplete="off"
                             placeholder="User Name"
                             {...field}
                         />
-                    )}
+                    }
                     rules={{
                         validate: {
                             required: (value) => {
@@ -48,8 +52,8 @@ const FieldValidation = () => {
                                     return 'Nice try!'
                                 }
                                 return
-                            },
-                        },
+                            }
+                        }
                     }}
                 />
             </FormItem>
@@ -61,29 +65,25 @@ const FieldValidation = () => {
                 <Controller
                     name="email"
                     control={control}
-                    render={({ field }) => (
+                    render={({ field }) =>
                         <Input
                             autoComplete="off"
                             placeholder="Email"
                             {...field}
                         />
-                    )}
+                    }
                     rules={{
                         validate: {
                             required: (value) => {
                                 let error
                                 if (!value) {
                                     error = 'Required'
-                                } else if (
-                                    !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(
-                                        value,
-                                    )
-                                ) {
+                                } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
                                     error = 'Invalid email address'
                                 }
                                 return error
-                            },
-                        },
+                            }
+                        }
                     }}
                 />
             </FormItem>

@@ -1,15 +1,33 @@
 ```jsx
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, ChangeEvent } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import DataTable from '@/components/shared/DataTable'
 import debounce from 'lodash/debounce'
 import { apiGetCustomers } from '@/services/CustomersService'
+import type {
+    ColumnDef,
+    OnSortParam,
+    CellContext,
+} from '@/components/shared/DataTable'
+
+type Customer = {
+    id: string
+    name: string
+    email: string
+}
 
 const Query = () => {
-    const [data, setData] = useState([])
+    const [data, setData] = useState<Customer[]>([])
     const [loading, setLoading] = useState(false)
-    const [tableData, setTableData] = useState({
+    const [tableData, setTableData] = useState<{
+        pageIndex: number
+        pageSize: number
+        order: '' | 'asc' | 'desc'
+        key: string | number
+        query: string
+        total: number
+    }>({
         total: 0,
         pageIndex: 1,
         pageSize: 10,
@@ -22,7 +40,7 @@ const Query = () => {
 
     const debounceFn = debounce(handleDebounceFn, 500)
 
-    function handleDebounceFn(val) {
+    function handleDebounceFn(val: string) {
         if (typeof val === 'string' && (val.length > 1 || val.length === 0)) {
             setTableData((prevData) => ({
                 ...prevData,
@@ -31,15 +49,15 @@ const Query = () => {
         }
     }
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         debounceFn(e.target.value)
     }
 
-    const handleAction = (cellProps) => {
+    const handleAction = (cellProps: CellContext<Customer, unknown>) => {
         console.log('Action clicked', cellProps)
     }
 
-    const columns = [
+    const columns: ColumnDef<Customer>[] = [
         {
             header: 'Name',
             accessorKey: 'name',
@@ -59,15 +77,15 @@ const Query = () => {
         },
     ]
 
-    const handlePaginationChange = (pageIndex) => {
+    const handlePaginationChange = (pageIndex: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageIndex } }))
     }
 
-    const handleSelectChange = (pageSize) => {
+    const handleSelectChange = (pageSize: number) => {
         setTableData((prevData) => ({ ...prevData, ...{ pageSize } }))
     }
 
-    const handleSort = ({ order, key }) => {
+    const handleSort = ({ order, key }: OnSortParam) => {
         console.log({ order, key })
         setTableData((prevData) => ({
             ...prevData,
@@ -78,7 +96,10 @@ const Query = () => {
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-            const response = await apiGetCustomers(tableData)
+            const response = await apiGetCustomers<
+                { list: Customer[]; total: number },
+                NonNullable<unknown>
+            >(tableData)
             if (response) {
                 setData(response.list)
                 setLoading(false)

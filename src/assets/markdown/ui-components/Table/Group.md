@@ -7,6 +7,8 @@ import {
     flexRender,
 } from '@tanstack/react-table'
 import { data10 } from './data'
+import type { Person } from './data'
+import type { ColumnDef } from '@tanstack/react-table'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -66,7 +68,7 @@ const Group = () => {
                                 <Th key={header.id} colSpan={header.colSpan}>
                                     {flexRender(
                                         header.column.columnDef.header,
-                                        header.getContext(),
+                                        header.getContext()
                                     )}
                                 </Th>
                             )
@@ -83,7 +85,7 @@ const Group = () => {
                                     <Td key={cell.id}>
                                         {flexRender(
                                             cell.column.columnDef.cell,
-                                            cell.getContext(),
+                                            cell.getContext()
                                         )}
                                     </Td>
                                 )

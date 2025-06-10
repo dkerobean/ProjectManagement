@@ -5,7 +5,7 @@ import Steps from '@/components/ui/Steps'
 const Clickable = () => {
     const [step, setStep] = useState(1)
 
-    const onStepChange = (index) => {
+    const onStepChange = (index: number) => {
         setStep(index)
     }
 

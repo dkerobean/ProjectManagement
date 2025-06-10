@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
+import type { MouseEvent } from 'react'
 
 const CloseWithEscBackdrop = () => {
     const [dialogIsOpen, setIsOpen] = useState(false)
@@ -10,12 +11,12 @@ const CloseWithEscBackdrop = () => {
         setIsOpen(true)
     }
 
-    const onDialogClose = (e) => {
+    const onDialogClose = (e: MouseEvent) => {
         console.log('onDialogClose', e)
         setIsOpen(false)
     }
 
-    const onDialogOk = (e) => {
+    const onDialogOk = (e: MouseEvent) => {
         console.log('onDialogOk', e)
         setIsOpen(false)
     }

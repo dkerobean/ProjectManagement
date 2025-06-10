@@ -1,7 +1,17 @@
 ```jsx
 import Select from '@/components/ui/Select'
 
-const groupedOptions = [
+type Option = {
+    label: string
+    options: {
+        value: string
+        label: string
+        color?: string
+        rating?: string
+    }[]
+}
+
+const groupedOptions: Option[] = [
     {
         label: 'Colours',
         options: [
@@ -32,7 +42,7 @@ const groupedOptions = [
     },
 ]
 
-const formatGroupLabel = (data) => (
+const formatGroupLabel = (data: Option) => (
     <div className="font-bold text-xs uppercase text-gray-800 dark:text-white my-2">
         {data.label}
     </div>

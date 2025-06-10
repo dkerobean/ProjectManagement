@@ -5,16 +5,16 @@ import Upload from '@/components/ui/Upload'
 import { HiOutlinePlus } from 'react-icons/hi'
 
 const AvatarImage = () => {
-    const [avatarImg, setAvatarImg] = useState(null)
+    const [avatarImg, setAvatarImg] = useState<string | null>(null)
 
-    const onFileUpload = (files) => {
-        if (files.length > 0) {
+    const onFileUpload = (files: File[]) => {
+        if(files.length > 0) {
             setAvatarImg(URL.createObjectURL(files[0]))
         }
     }
 
-    const beforeUpload = (files) => {
-        let valid = true
+    const beforeUpload = (files: FileList | null) => {
+        let valid: string | boolean = true
 
         const allowedFileType = ['image/jpeg', 'image/png']
         if (files) {
@@ -37,7 +37,7 @@ const AvatarImage = () => {
                 beforeUpload={beforeUpload}
                 onChange={onFileUpload}
             >
-                <Avatar size={80} src={avatarImg} icon={<HiOutlinePlus />} />
+                <Avatar size={80} src={avatarImg as string} icon={<HiOutlinePlus />} />
             </Upload>
         </div>
     )

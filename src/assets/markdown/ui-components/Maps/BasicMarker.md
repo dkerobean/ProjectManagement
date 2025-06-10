@@ -9,7 +9,11 @@ import SouthAmerica from '@/assets/maps/continent_South_America_subunits.json'
 
 const geoUrl = SouthAmerica
 
-const markers = [
+const markers: {
+    markerOffset: number
+    name: string
+    coordinates: [number, number]
+}[] = [
     {
         markerOffset: -15,
         name: 'Buenos Aires',

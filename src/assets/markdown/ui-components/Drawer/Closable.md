@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Drawer from '@/components/ui/Drawer'
+import type { MouseEvent } from 'react'
 
 const Closable = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -10,7 +11,7 @@ const Closable = () => {
         setIsOpen(true)
     }
 
-    const onDrawerClose = (e) => {
+    const onDrawerClose = (e: MouseEvent) => {
         console.log('onDrawerClose', e)
         setIsOpen(false)
     }

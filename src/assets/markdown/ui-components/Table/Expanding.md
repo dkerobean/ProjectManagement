@@ -9,6 +9,8 @@ import {
 } from '@tanstack/react-table'
 import { dataWithSubRows } from './data'
 import { HiOutlinePlusCircle, HiOutlineMinusCircle } from 'react-icons/hi'
+import type { PersonWithSubRow } from './data'
+import type { ColumnDef, ExpandedState } from '@tanstack/react-table'
 
 const { Tr, Th, Td, THead, TBody } = Table
 
@@ -116,7 +118,7 @@ function Exapanding() {
                                     >
                                         {flexRender(
                                             header.column.columnDef.header,
-                                            header.getContext(),
+                                            header.getContext()
                                         )}
                                     </Th>
                                 )
@@ -133,7 +135,7 @@ function Exapanding() {
                                         <Td key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext(),
+                                                cell.getContext()
                                             )}
                                         </Td>
                                     )

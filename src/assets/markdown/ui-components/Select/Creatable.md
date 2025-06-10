@@ -1,6 +1,13 @@
 ```jsx
 import Select from '@/components/ui/Select'
 import CreatableSelect from 'react-select/creatable'
+import type { InputActionMeta, ActionMeta } from 'react-select'
+
+type Option = {
+    value: string
+    label: string
+    color: string
+}
 
 const colourOptions = [
     { value: 'ocean', label: 'Ocean', color: '#00B8D9' },
@@ -16,14 +23,20 @@ const colourOptions = [
 ]
 
 const Creatable = () => {
-    const handleChange = (newValue, actionMeta) => {
+    const handleChange = (
+        newValue: Option | Option[] | null,
+        actionMeta: ActionMeta<Option>,
+    ) => {
         console.group('Value Changed')
         console.log(newValue)
         console.log(`action: ${actionMeta.action}`)
         console.groupEnd()
     }
 
-    const handleInputChange = (inputValue, actionMeta) => {
+    const handleInputChange = (
+        inputValue: string,
+        actionMeta: InputActionMeta,
+    ) => {
         console.group('Input Changed')
         console.log(inputValue)
         console.log(`action: ${actionMeta.action}`)
@@ -32,7 +45,7 @@ const Creatable = () => {
 
     return (
         <div>
-            <Select
+            <Select<Option>
                 instanceId="creatable"
                 isClearable
                 placeholder="Type something..."

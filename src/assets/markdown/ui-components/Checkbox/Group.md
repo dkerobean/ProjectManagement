@@ -1,11 +1,17 @@
 ```jsx
 import { useState } from 'react'
 import Checkbox from '@/components/ui/Checkbox'
+import type { SyntheticEvent } from 'react'
 
 const Group = () => {
-    const [checkboxList, setCheckboxList] = useState(['Selection A'])
+    const [checkboxList, setCheckboxList] = useState<(string)[]>([
+        'Selection A',
+    ])
 
-    const onCheckboxChange = (options, e) => {
+    const onCheckboxChange = (
+        options: string[],
+        e: SyntheticEvent,
+    ) => {
         console.log('Checkbox change', options, e)
         setCheckboxList(options)
     }
@@ -22,4 +28,5 @@ const Group = () => {
 }
 
 export default Group
+
 ```

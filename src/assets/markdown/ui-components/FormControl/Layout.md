@@ -6,27 +6,40 @@ import Button from '@/components/ui/Button'
 import InputGroup from '@/components/ui/InputGroup'
 import { useForm, Controller } from 'react-hook-form'
 
-const options = [
+type FormLayout = 'horizontal' | 'vertical' | 'inline'
+
+type FormSchema = {
+    name: string,
+    email: string
+}
+
+const options: {
+    label: string
+    value: FormLayout
+}[] = [
     { label: 'Vertical', value: 'vertical' },
     { label: 'Horizontal', value: 'horizontal' },
     { label: 'Inline', value: 'inline' },
 ]
 
 const Layout = () => {
-    const [layout, setLayout] = useState('vertical')
+    const [layout, setLayout] = useState<FormLayout>('vertical')
 
-    const onLayoutSelect = (val) => {
+    const onLayoutSelect = (val: FormLayout) => {
         setLayout(val)
     }
 
-    const { handleSubmit, control } = useForm({
+    const {
+        handleSubmit,
+        control
+    } = useForm<FormSchema>({
         defaultValues: {
             email: '',
             name: '',
         },
     })
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: FormSchema) => {
         await new Promise((r) => setTimeout(r, 500))
         alert(JSON.stringify(values, null, 2))
     }
@@ -49,34 +62,32 @@ const Layout = () => {
                     <Controller
                         name="name"
                         control={control}
-                        render={({ field }) => (
+                        render={({ field }) =>
                             <Input
                                 type="text"
                                 autoComplete="off"
                                 placeholder="name"
                                 {...field}
                             />
-                        )}
+                        }
                     />
                 </FormItem>
                 <FormItem label="Email">
                     <Controller
                         name="email"
                         control={control}
-                        render={({ field }) => (
+                        render={({ field }) =>
                             <Input
                                 type="email"
                                 autoComplete="off"
                                 placeholder="Email"
                                 {...field}
                             />
-                        )}
+                        }
                     />
                 </FormItem>
                 <FormItem>
-                    <Button variant="solid" type="submit">
-                        Submit
-                    </Button>
+                    <Button variant="solid" type="submit">Submit</Button>
                 </FormItem>
             </Form>
         </div>

@@ -12,7 +12,7 @@ import allStates from '@/assets/maps/allstates.json'
 
 const geoUrl = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json'
 
-const offsets = {
+const offsets: Record<string, [number, number]> = {
     VT: [50, -8],
     NH: [34, 2],
     MA: [30, -1],
@@ -51,7 +51,7 @@ const UsaStatesMapWithLabels = () => {
                                         centroid[0] > -160 &&
                                         centroid[0] < -67 &&
                                         (Object.keys(offsets).indexOf(
-                                            cur.id,
+                                            cur.id
                                         ) === -1 ? (
                                             <Marker coordinates={centroid}>
                                                 <text

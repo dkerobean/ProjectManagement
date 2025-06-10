@@ -7,8 +7,9 @@ import {
     HiOutlineSupport,
     HiWifi,
 } from 'react-icons/hi'
+import type { ReactNode } from 'react'
 
-const MenuContent = ({ icon, label }) => {
+const MenuContent = ({ icon, label }: { icon: ReactNode, label: string }) => {
     return (
         <div className="flex items-center gap-2">
             <span className={'text-2xl'}>{icon}</span>
@@ -19,10 +20,7 @@ const MenuContent = ({ icon, label }) => {
 
 const MenuWithIcon = () => {
     return (
-        <div
-            className="border border-gray-200 dark:border-gray-700 rounded-md p-2"
-            style={{ maxWidth: 250 }}
-        >
+        <div className="border border-gray-200 dark:border-gray-700 rounded-md p-2" style={{ maxWidth: 250 }}>
             <Menu>
                 <Menu.MenuItem eventKey="settings">
                     <MenuContent icon={<HiOutlineCog />} label="Settings" />

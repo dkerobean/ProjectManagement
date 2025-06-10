@@ -4,8 +4,8 @@ import Upload from '@/components/ui/Upload'
 const BeforeUpload = () => {
     const maxUpload = 2
 
-    const beforeUpload = (files, fileList) => {
-        let valid = true
+    const beforeUpload = (files: FileList | null, fileList: File[]) => {
+        let valid: string | boolean = true
 
         const allowedFileType = ['image/jpeg', 'image/png']
         const maxFileSize = 500000

@@ -3,13 +3,13 @@ import { useState } from 'react'
 import DatePicker from '@/components/ui/DatePicker'
 
 const DisabledCertainDate = () => {
-    const [dateValue, setDateValue] = useState(new Date())
+    const [dateValue, setDateValue] = useState<Date>(new Date())
 
-    const onCertainPeriodChange = (date) => {
+    const onCertainPeriodChange = (date: Date) => {
         setDateValue(date)
     }
 
-    const disableCertainDate = (date) => {
+    const disableCertainDate = (date: Date) => {
         const banDate = [7, 15, 21]
         return banDate.includes(date.getDate())
     }
@@ -19,7 +19,7 @@ const DisabledCertainDate = () => {
             value={dateValue}
             placeholder="Pick your date"
             disableDate={disableCertainDate}
-            onChange={(date) => onCertainPeriodChange(date)}
+            onChange={(date) => onCertainPeriodChange(date as Date)}
         />
     )
 }

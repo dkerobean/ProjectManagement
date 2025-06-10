@@ -1,10 +1,10 @@
 ```jsx
-import DebounceInput from '@/components/shared/DebouceInput'
+import DebounceInput from '@/components/shared/DebouceInput';
 
 function Example() {
-    const handleSearch = (e) => {
-        window.alert(e.target.value)
-    }
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        window.alert(e.target.value);
+    };
 
     return (
         <DebounceInput
@@ -12,7 +12,7 @@ function Example() {
             onChange={handleSearch}
             wait={1000}
         />
-    )
+    );
 }
 
 export default Example

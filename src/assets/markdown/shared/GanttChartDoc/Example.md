@@ -1,7 +1,10 @@
 ```jsx
 import { useState } from 'react'
-import GanttChart, { ViewMode } from '@/components/shared/GanttChart'
+import GanttChart, {
+    ViewMode,
+} from '@/components/shared/GanttChart'
 import getStartEndDateForProject from '@/components/shared/GanttChart/getStartEndDateForProject'
+import type { ExtendedTask } from '@/components/shared/GanttChart'
 
 const colorsMap = {
     color1: '#fbbf24',
@@ -12,7 +15,7 @@ const colorsMap = {
 
 const currentDate = new Date()
 
-const data = [
+const data: ExtendedTask[] = [
     {
         start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
         end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
@@ -128,9 +131,9 @@ const data = [
 ]
 
 const Example = () => {
-    const [tasks, setTasks] = useState(data)
+    const [tasks, setTasks] = useState<ExtendedTask[]>(data)
 
-    const handleTaskChange = (task) => {
+    const handleTaskChange = (task: ExtendedTask) => {
         let newTasks = tasks.map((t) => (t.id === task.id ? task : t))
         if (task.project) {
             const [start, end] = getStartEndDateForProject(
@@ -152,11 +155,11 @@ const Example = () => {
         setTasks(newTasks)
     }
 
-    const handleProgressChange = async (task) => {
+    const handleProgressChange = async (task: ExtendedTask) => {
         setTasks(tasks.map((t) => (t.id === task.id ? task : t)))
     }
 
-    const handleExpanderClick = (task) => {
+    const handleExpanderClick = (task: ExtendedTask) => {
         setTasks(tasks.map((t) => (t.id === task.id ? task : t)))
     }
 

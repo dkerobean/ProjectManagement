@@ -65,7 +65,7 @@ const highlighted = [
     'LBR',
 ]
 
-function generateCircle(deg) {
+function generateCircle(deg: number): [number, number][] {
     if (!deg)
         return [
             [-180, 0],
