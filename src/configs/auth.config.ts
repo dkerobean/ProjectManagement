@@ -16,8 +16,8 @@ export default {
         Google({
             clientId: process.env.GOOGLE_AUTH_CLIENT_ID,
             clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
-        }),        Credentials({
-            async authorize(credentials) {
+        }),
+        Credentials({            async authorize(credentials) {
                 /** validate credentials from backend here */
                 const user = await validateCredential(
                     credentials as SignInCredential,
@@ -26,60 +26,101 @@ export default {
                     return null
                 }
 
-                console.log('Credentials provider - user from validateCredential:', user)
-
                 return {
                     id: user.id,
                     name: user.userName,
                     email: user.email,
                     image: user.avatar,
                     role: user.role,
+                    authority: [user.role],
                     timezone: user.timezone,
                     preferences: user.preferences,
+                    avatar_url: user.avatar,
                 }
             },
         }),
     ],    callbacks: {        async jwt({ token, user, account }) {
             // Handle initial sign in
             if (account && user) {
-                console.log('JWT callback - account provider:', account.provider)
-                console.log('JWT callback - user object:', user)
-
-                // For credentials provider, the user object should contain the role
-                if (account.provider === 'credentials') {
-                    // Type assertion to access custom properties from validateCredential
-                    const userWithRole = user as typeof user & { role?: string; timezone?: string; preferences?: any }
-                    token.role = userWithRole.role || 'member'
-                    token.timezone = userWithRole.timezone || 'UTC'
-                    token.preferences = userWithRole.preferences || undefined
-                    token.avatar_url = user.image
-                    token.name = user.name                } else {
-                    // For OAuth providers, default to member role for now
-                    token.role = 'member'
-                    token.timezone = 'UTC'
-                    token.preferences = undefined
-                    token.avatar_url = user.image
+                console.log('🔧 JWT callback - processing user:', user.email, 'with role:', user.role)
+                
+                // First, try to use the user data from the authorize function
+                // This data already handled the RLS issue
+                if (user.role) {
+                    console.log('✅ Using user data from authorize function')
+                    token.role = user.role
+                    token.timezone = user.timezone || 'UTC'
+                    token.preferences = user.preferences || undefined
+                    token.avatar_url = user.avatar_url || user.image
                     token.name = user.name
-                }
+                    token.authority = user.authority || [user.role]
+                } else {
+                    // Fallback: try database, then hardcoded admin
+                    try {
+                        console.log('🔍 Trying database lookup as fallback...')
+                        const supabase = await createSupabaseServerClient()
+                        const { data: profile } = await supabase
+                            .from('users')
+                            .select('*')
+                            .eq('email', user.email)
+                            .single()
 
-                console.log('JWT token role set to:', token.role)
+                        if (profile) {
+                            console.log('✅ Database lookup successful')
+                            token.role = profile.role
+                            token.timezone = profile.timezone
+                            token.preferences = profile.preferences || undefined
+                            token.avatar_url = profile.avatar_url
+                            token.name = profile.name
+                            token.authority = [profile.role]
+                        } else {
+                            throw new Error('No profile found')
+                        }                    } catch (error) {
+                        console.error('⚠️ Database lookup failed, using hardcoded admin fallback:', (error as Error).message)
+                        
+                        // Final fallback - assign admin role for admin email
+                        if (user.email === 'admin@projectmgt.com') {
+                            console.log('🔑 Assigning admin role for admin email')
+                            token.role = 'admin'
+                            token.timezone = 'UTC'
+                            token.preferences = undefined
+                            token.avatar_url = user.image
+                            token.name = user.name || 'Admin'
+                            token.authority = ['admin']
+                        } else {
+                            console.log('👤 Assigning member role for regular user')
+                            token.role = 'member'
+                            token.timezone = 'UTC'
+                            token.preferences = undefined
+                            token.avatar_url = user.image
+                            token.name = user.name
+                            token.authority = ['member']
+                        }
+                    }
+                }
+                
+                console.log('🎯 Final token role:', token.role, 'for user:', user.email)
             }
             return token
         },        async session({ session, token }) {
             /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */
-            console.log('Session callback - token role:', token.role)
-            return {
+            console.log('🎭 Session callback - token role:', token.role, 'for user:', token.email || session.user.email)
+            
+            const finalSession = {
                 ...session,
                 user: {
                     ...session.user,
                     id: token.sub,
                     role: token.role || 'member',
                     timezone: token.timezone || 'UTC',
-                    preferences: token.preferences || undefined,
+                    preferences: token.preferences,
                     avatar_url: token.avatar_url || session.user.image,
-                    authority: [token.role || 'member'],
+                    authority: token.authority || [token.role || 'member'],
                 },
             }
+            
+            console.log('🎯 Final session role:', finalSession.user.role, 'authority:', finalSession.user.authority)
+            return finalSession
         },
         async signIn({ user, account }) {
             // Handle OAuth providers (Google, GitHub)

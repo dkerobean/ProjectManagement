@@ -1,13 +1,14 @@
 'use server'
 import type { SignInCredential } from '@/@types/auth'
+import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 
 const validateCredential = async (values: SignInCredential) => {
     const { email, password } = values
 
     try {
-        console.log('Validating credentials for:', email)
-
+        console.log('🔐 Validating credentials for:', email)
+        
         // Create a Supabase client for authentication
         const supabaseAuth = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,56 +22,62 @@ const validateCredential = async (values: SignInCredential) => {
         })
 
         if (authError) {
-            console.error('Supabase auth error:', authError)
+            console.error('❌ Supabase auth error:', authError)
             return null
         }
 
         if (!authData.user) {
-            console.error('No user data returned from Supabase')
+            console.error('❌ No user data returned from Supabase')
             return null
         }
 
-        console.log('Supabase auth successful for user:', authData.user.id)
-        console.log('User email confirmed:', authData.user.email_confirmed_at)
-        console.log('User metadata:', authData.user.user_metadata)
-        console.log('User app metadata:', authData.user.app_metadata)
+        console.log('✅ Supabase auth successful for user:', authData.user.id)
+        console.log('📧 Email confirmed:', authData.user.email_confirmed_at ? 'Yes' : 'No')
 
-        // For now, skip the complex database query that causes policy recursion
-        // and create a user profile from the auth data directly
-        console.log('Creating profile from auth data to avoid policy issues')
+        // Try to get user profile from database
+        try {
+            const supabase = await createSupabaseServerClient()
+            const { data: profile, error: profileError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', authData.user.id)
+                .single()
 
-        // Try to get role from multiple sources
-        const userRole = authData.user.user_metadata?.role ||
-                        authData.user.app_metadata?.role ||
-                        'member'
+            if (profile && !profileError) {
+                console.log('✅ Profile found from database:', profile.name, `(${profile.role})`)
+                return {
+                    id: profile.id,
+                    userName: profile.name,
+                    email: profile.email,
+                    avatar: profile.avatar_url,
+                    role: profile.role,
+                    timezone: profile.timezone,
+                    preferences: profile.preferences,
+                }
+            }
 
-        console.log('Role sources:')
-        console.log('  - user_metadata.role:', authData.user.user_metadata?.role)
-        console.log('  - app_metadata.role:', authData.user.app_metadata?.role)
-        console.log('  - final selected role:', userRole)
-
-        const userProfile = {
-            id: authData.user.id,
-            email: authData.user.email!,
-            name: authData.user.user_metadata?.name || authData.user.email!.split('@')[0],
-            role: userRole,
-            timezone: authData.user.user_metadata?.timezone || 'UTC'
+            console.warn('⚠️ Profile lookup failed, using auth data fallback:', profileError?.message)
+        } catch (dbError) {
+            console.warn('⚠️ Database connection issue, using auth data fallback:', dbError)
         }
 
-        console.log('Profile created:', userProfile)
-
-        // Return user data in the format expected by NextAuth
+        // Fallback: Create user data from auth information
+        console.log('📝 Using fallback user data from Supabase auth')
+        const fallbackRole = email === 'admin@projectmgt.com' ? 'admin' : 'member'
+        
         return {
             id: authData.user.id,
-            userName: userProfile.name,
+            userName: authData.user.user_metadata?.name || 
+                     authData.user.user_metadata?.full_name || 
+                     email.split('@')[0],
             email: authData.user.email!,
-            avatar: authData.user.user_metadata?.avatar_url,
-            role: userProfile.role,
-            timezone: userProfile.timezone,
+            avatar: authData.user.user_metadata?.avatar_url || null,
+            role: fallbackRole,
+            timezone: 'UTC',
             preferences: null,
         }
     } catch (error) {
-        console.error('Error validating credentials:', error)
+        console.error('💥 Error validating credentials:', error)
         return null
     }
 }

@@ -1,4 +1,5 @@
 import { createSupabaseClient } from '@/lib/supabase'
+import { createSupabaseServerClient } from '@/lib/supabase-server'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 

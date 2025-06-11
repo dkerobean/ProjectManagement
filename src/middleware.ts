@@ -51,19 +51,20 @@ export default auth((req) => {
                 nextUrl,
             ),
         )
-    }
-
-    /** Enhanced role-based access control */
+    }    /** Enhanced role-based access control */
     if (isSignedIn && nextUrl.pathname !== '/access-denied') {
-        console.log('Middleware check for path:', nextUrl.pathname)
-        console.log('User role:', req.auth?.user?.role)
-        console.log('User authority:', req.auth?.user?.authority)
+        const userRole = req.auth?.user?.role as UserRole
+        const userAuthority = req.auth?.user?.authority || []
+        
+        // Debug logging
+        console.log('🔍 Middleware check for:', nextUrl.pathname)
+        console.log('👤 User role:', userRole)
+        console.log('🔑 User authority:', userAuthority)
+        console.log('📧 User email:', req.auth?.user?.email)
 
         const routeMeta = protectedRoutes[nextUrl.pathname]
 
         if (routeMeta && routeMeta.authority && routeMeta.authority.length > 0) {
-            const userRole = req.auth?.user?.role as UserRole
-            const userAuthority = req.auth?.user?.authority || []
 
             // Check if user has required role using role hierarchy
             const hasRequiredRole = routeMeta.authority.some((requiredRole: string) => {
@@ -72,20 +73,48 @@ export default auth((req) => {
                        hasRole(userRole, requiredRole as UserRole)
             })
 
-            console.log('Route requires authority:', routeMeta.authority)
-            console.log('User has required role:', hasRequiredRole)
+            console.log('📋 Route authority required:', routeMeta.authority)
+            console.log('✅ Has required role:', hasRequiredRole)
 
             if (!hasRequiredRole) {
-                console.log('Access denied: insufficient authority')
+                console.log('❌ Access denied - redirecting to /access-denied')
                 return Response.redirect(
                     new URL('/access-denied', nextUrl),
                 )
             }
         }
 
-        // Temporarily disable additional role-based routing for debugging
-        // Will re-enable once we confirm basic auth is working
-        console.log('Access granted for path:', nextUrl.pathname)
+        // Additional role-based route protection
+        const roleBasedRoutes: Record<string, UserRole[]> = {
+            '/admin': ['admin'],
+            '/user-management': ['admin'],
+            '/system-settings': ['admin'],
+            '/audit-logs': ['admin'],
+            '/project-management': ['admin', 'project_manager'],
+            '/team-management': ['admin', 'project_manager'],
+            '/analytics': ['admin', 'project_manager'],
+            '/projects': ['admin', 'project_manager', 'member'],
+            '/tasks': ['admin', 'project_manager', 'member'],
+            '/files': ['admin', 'project_manager', 'member'],
+        }
+
+        // Check if current path matches any role-based route
+        const currentRoute = Object.keys(roleBasedRoutes).find(route =>
+            nextUrl.pathname.startsWith(route)
+        )
+
+        if (currentRoute) {
+            const requiredRoles = roleBasedRoutes[currentRoute]
+            const userRole = req.auth?.user?.role as UserRole
+
+            const hasAccess = requiredRoles.some(role => hasRole(userRole, role))
+
+            if (!hasAccess) {
+                return Response.redirect(
+                    new URL('/access-denied', nextUrl),
+                )
+            }
+        }
     }
 })
 
