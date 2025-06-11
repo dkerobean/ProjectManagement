@@ -11,9 +11,13 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import SupabaseAuthService from '@/services/SupabaseAuthService'
+import SupabaseStorageService from '@/services/SupabaseStorageService'
+import Upload from '@/components/ui/Upload'
+import Card from '@/components/ui/Card'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import { getRoleDisplayName, type UserRole } from '@/utils/roleBasedAccess'
+import { HiOutlineCloudUpload, HiOutlineTrash } from 'react-icons/hi'
 import type { ZodType } from 'zod'
 import type { CommonProps } from '@/@types/common'
 
@@ -80,7 +84,7 @@ const validationSchema: ZodType<UserProfileFormSchema> = z.object({
         .string({ required_error: 'Email is required' })
         .email('Please enter a valid email address'),
     timezone: z.string({ required_error: 'Please select your timezone' }),
-    role: z.string().optional(),
+    role: z.enum(['viewer', 'member', 'project_manager', 'admin']).optional(),
     avatar_url: z.string().optional(),
     preferences: z.object({
         notifications: z.object({
@@ -98,7 +102,7 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
     const { data: session, update } = useSession()
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [userProfile, setUserProfile] = useState<any>(null)
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
     const {
         handleSubmit,
@@ -139,7 +143,6 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                             { placement: 'top-end' }
                         )
                     } else if (profile) {
-                        setUserProfile(profile)
                         reset({
                             name: profile.name || '',
                             email: profile.email || '',
@@ -168,13 +171,144 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
         loadUserProfile()
     }, [session, reset])
 
+    const handleAvatarUpload = async (files: File[]) => {
+        if (!session?.user?.id || files.length === 0) return
+
+        setIsUploadingAvatar(true)
+
+        try {
+            const file = files[0]
+            const { url, error } = await SupabaseStorageService.uploadAvatar(file, session.user.id)
+
+            if (error) {
+                toast.push(
+                    <Notification type="danger" title="Upload Failed">
+                        Failed to upload avatar. Please try again.
+                    </Notification>,
+                    { placement: 'top-end' }
+                )
+                return
+            }
+
+            if (url) {
+                // Update the form value
+                reset({
+                    ...watch(),
+                    avatar_url: url
+                })
+
+                // Also update the profile in database immediately
+                const { error: updateError } = await SupabaseAuthService.updateUserProfile(
+                    session.user.id,
+                    { avatar_url: url }
+                )
+
+                if (!updateError) {
+                    // Update session
+                    await update({
+                        ...session,
+                        user: {
+                            ...session.user,
+                            avatar_url: url,
+                            image: url // Also update NextAuth image field
+                        }
+                    })
+                }
+            }
+        } catch (error) {
+            console.error('Avatar upload error:', error)
+            toast.push(
+                <Notification type="danger" title="Upload Error">
+                    An unexpected error occurred during upload.
+                </Notification>,
+                { placement: 'top-end' }
+            )
+        } finally {
+            setIsUploadingAvatar(false)
+        }
+    }
+
+    const handleAvatarRemove = async () => {
+        if (!session?.user?.id) return
+
+        const currentAvatarUrl = watch('avatar_url')
+        if (!currentAvatarUrl) return
+
+        try {
+            // Remove from storage if it's a Supabase storage URL
+            if (currentAvatarUrl.includes('supabase')) {
+                await SupabaseStorageService.deleteAvatar(currentAvatarUrl)
+            }
+
+            // Update form
+            reset({
+                ...watch(),
+                avatar_url: ''
+            })
+
+            // Update database
+            const { error } = await SupabaseAuthService.updateUserProfile(
+                session.user.id,
+                { avatar_url: null }
+            )
+
+            if (!error) {
+                // Update session
+                await update({
+                    ...session,
+                    user: {
+                        ...session.user,
+                        avatar_url: null,
+                        image: null
+                    }
+                })
+
+                toast.push(
+                    <Notification type="success" title="Avatar Removed">
+                        Profile picture has been removed successfully.
+                    </Notification>,
+                    { placement: 'top-end' }
+                )
+            }
+        } catch (error) {
+            console.error('Avatar removal error:', error)
+            toast.push(
+                <Notification type="danger" title="Removal Error">
+                    Failed to remove avatar. Please try again.
+                </Notification>,
+                { placement: 'top-end' }
+            )
+        }
+    }
+
+    const beforeAvatarUpload = (files: FileList | null) => {
+        let valid: string | boolean = true
+
+        const allowedFileType = ['image/jpeg', 'image/png', 'image/webp']
+        const maxFileSize = 5 * 1024 * 1024 // 5MB
+
+        if (files) {
+            for (const file of files) {
+                if (!allowedFileType.includes(file.type)) {
+                    valid = 'Please upload a JPEG, PNG, or WebP image file!'
+                }
+
+                if (file.size >= maxFileSize) {
+                    valid = 'Image size must be less than 5MB!'
+                }
+            }
+        }
+
+        return valid
+    }
+
     const handleUpdateProfile = async (values: UserProfileFormSchema) => {
         if (!session?.user?.id) return
 
         setIsSubmitting(true)
 
         try {
-            const { data, error } = await SupabaseAuthService.updateUserProfile(
+            const { error } = await SupabaseAuthService.updateUserProfile(
                 session.user.id,
                 {
                     name: values.name,
@@ -186,9 +320,13 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
             )
 
             if (error) {
+                const errorMessage = error && typeof error === 'object' && 'message' in error 
+                    ? (error as { message: string }).message 
+                    : 'Failed to update profile'
+                
                 toast.push(
                     <Notification type="danger" title="Update Failed">
-                        {error.message}
+                        {errorMessage}
                     </Notification>,
                     { placement: 'top-end' }
                 )
@@ -249,123 +387,149 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
 
                 <Form onSubmit={handleSubmit(handleUpdateProfile)}>
                     {/* Avatar Section */}
-                    <div className="flex items-center mb-6">
-                        <Avatar
-                            size="lg"
-                            src={watchedAvatarUrl || session?.user?.image}
-                            alt={session?.user?.name || 'User Avatar'}
-                            className="mr-4"
-                        />
-                        <div>
-                            <h4 className="font-medium">Profile Picture</h4>
-                            <p className="text-sm text-gray-600">
-                                {session?.user?.role && getRoleDisplayName(session.user.role as UserRole)}
-                            </p>
+                    <Card className="mb-6">
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                            <div className="flex flex-col items-center">
+                                <Avatar
+                                    size={80}
+                                    src={watchedAvatarUrl || session?.user?.image || ''}
+                                    alt={session?.user?.name || 'User Avatar'}
+                                    className="border-4 border-white shadow-lg"
+                                />
+                                <div className="mt-4 flex gap-2">
+                                    <Upload
+                                        className="cursor-pointer"
+                                        showList={false}
+                                        uploadLimit={1}
+                                        accept="image/jpeg,image/png,image/webp"
+                                        beforeUpload={beforeAvatarUpload}
+                                        onChange={handleAvatarUpload}
+                                        disabled={isUploadingAvatar}
+                                    >
+                                        <Button
+                                            variant="solid"
+                                            size="sm"
+                                            icon={<HiOutlineCloudUpload />}
+                                            loading={isUploadingAvatar}
+                                            disabled={isUploadingAvatar}
+                                        >
+                                            {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                        </Button>
+                                    </Upload>
+                                    {watchedAvatarUrl && (
+                                        <Button
+                                            variant="plain"
+                                            size="sm"
+                                            icon={<HiOutlineTrash />}
+                                            onClick={handleAvatarRemove}
+                                            disabled={isUploadingAvatar}
+                                        >
+                                            Remove
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">Profile Picture</h4>
+                                <p className="text-gray-600 dark:text-gray-400 mb-2">
+                                    Upload a high-quality image for your profile. Supported formats: JPEG, PNG, WebP (max 5MB)
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-500">
+                                    Current role: {session?.user?.role && getRoleDisplayName(session.user.role as UserRole)}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    </Card>
 
-                    {/* Basic Information */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <FormItem
-                            label="Full Name"
-                            invalid={Boolean(errors.name)}
-                            errorMessage={errors.name?.message}
-                        >
-                            <Controller
-                                name="name"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        type="text"
-                                        placeholder="Enter your full name"
-                                        {...field}
-                                    />
-                                )}
-                            />
-                        </FormItem>
-
-                        <FormItem
-                            label="Email Address"
-                            invalid={Boolean(errors.email)}
-                            errorMessage={errors.email?.message}
-                        >
-                            <Controller
-                                name="email"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        type="email"
-                                        placeholder="Enter your email"
-                                        disabled
-                                        {...field}
-                                    />
-                                )}
-                            />
-                        </FormItem>
-
-                        <FormItem
-                            label="Timezone"
-                            invalid={Boolean(errors.timezone)}
-                            errorMessage={errors.timezone?.message}
-                        >
-                            <Controller
-                                name="timezone"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        placeholder="Select your timezone"
-                                        options={timezoneOptions}
-                                        {...field}
-                                    />
-                                )}
-                            />
-                        </FormItem>
-
-                        {showRoleSelection && allowRoleChange && (
+                    {/* Personal Information */}
+                    <Card className="mb-6">
+                        <h4 className="font-semibold text-lg mb-4">Personal Information</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormItem
-                                label="Role"
-                                invalid={Boolean(errors.role)}
-                                errorMessage={errors.role?.message}
+                                label="Full Name"
+                                invalid={Boolean(errors.name)}
+                                errorMessage={errors.name?.message}
                             >
                                 <Controller
-                                    name="role"
+                                    name="name"
                                     control={control}
                                     render={({ field }) => (
-                                        <Select
-                                            placeholder="Select role"
-                                            options={roleOptions}
+                                        <Input
+                                            type="text"
+                                            placeholder="Enter your full name"
                                             {...field}
                                         />
                                     )}
                                 />
                             </FormItem>
-                        )}
 
-                        <FormItem
-                            label="Avatar URL"
-                            invalid={Boolean(errors.avatar_url)}
-                            errorMessage={errors.avatar_url?.message}
-                        >
-                            <Controller
-                                name="avatar_url"
-                                control={control}
-                                render={({ field }) => (
-                                    <Input
-                                        type="url"
-                                        placeholder="Enter avatar URL"
-                                        {...field}
+                            <FormItem
+                                label="Email Address"
+                                invalid={Boolean(errors.email)}
+                                errorMessage={errors.email?.message}
+                            >
+                                <Controller
+                                    name="email"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Input
+                                            type="email"
+                                            placeholder="Enter your email"
+                                            disabled
+                                            {...field}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+
+                            <FormItem
+                                label="Timezone"
+                                invalid={Boolean(errors.timezone)}
+                                errorMessage={errors.timezone?.message}
+                            >
+                                <Controller
+                                    name="timezone"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Select
+                                            placeholder="Select your timezone"
+                                            options={timezoneOptions}
+                                            value={timezoneOptions.find(option => option.value === field.value)}
+                                            onChange={(option) => field.onChange(option?.value)}
+                                        />
+                                    )}
+                                />
+                            </FormItem>
+
+                            {showRoleSelection && allowRoleChange && (
+                                <FormItem
+                                    label="Role"
+                                    invalid={Boolean(errors.role)}
+                                    errorMessage={errors.role?.message}
+                                >
+                                    <Controller
+                                        name="role"
+                                        control={control}
+                                        render={({ field }) => (
+                                            <Select
+                                                placeholder="Select role"
+                                                options={roleOptions}
+                                                value={roleOptions.find(option => option.value === field.value)}
+                                                onChange={(option) => field.onChange(option?.value)}
+                                            />
+                                        )}
                                     />
-                                )}
-                            />
-                        </FormItem>
-                    </div>
+                                </FormItem>
+                            )}
+                        </div>
+                    </Card>
 
                     {/* Preferences */}
-                    <div className="border-t pt-6">
-                        <h4 className="font-medium mb-4">Preferences</h4>
-
+                    <Card className="mb-6">
+                        <h4 className="font-semibold text-lg mb-4">Preferences</h4>
+                        
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <FormItem label="Theme">
+                            <FormItem label="Theme Preference">
                                 <Controller
                                     name="preferences.theme"
                                     control={control}
@@ -373,7 +537,8 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                                         <Select
                                             placeholder="Select theme"
                                             options={themeOptions}
-                                            {...field}
+                                            value={themeOptions.find(option => option.value === field.value)}
+                                            onChange={(option) => field.onChange(option?.value)}
                                         />
                                     )}
                                 />
@@ -387,7 +552,8 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                                         <Select
                                             placeholder="Select language"
                                             options={languageOptions}
-                                            {...field}
+                                            value={languageOptions.find(option => option.value === field.value)}
+                                            onChange={(option) => field.onChange(option?.value)}
                                         />
                                     )}
                                 />
@@ -395,57 +561,72 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                         </div>
 
                         {/* Notification Preferences */}
-                        <div className="mb-6">
-                            <h5 className="font-medium mb-3">Notification Preferences</h5>
-                            <div className="space-y-3">
+                        <div>
+                            <h5 className="font-medium text-md mb-4">Notification Settings</h5>
+                            <div className="space-y-4">
                                 <Controller
                                     name="preferences.notifications.email"
                                     control={control}
                                     render={({ field: { value, onChange } }) => (
-                                        <label className="flex items-center">
+                                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <div>
+                                                <label className="font-medium text-sm">Email Notifications</label>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                    Receive email updates for important events
+                                                </p>
+                                            </div>
                                             <input
                                                 type="checkbox"
                                                 checked={value}
                                                 onChange={onChange}
-                                                className="mr-3"
+                                                className="form-checkbox h-5 w-5 text-blue-600"
                                             />
-                                            <span>Email notifications</span>
-                                        </label>
+                                        </div>
                                     )}
                                 />
                                 <Controller
                                     name="preferences.notifications.push"
                                     control={control}
                                     render={({ field: { value, onChange } }) => (
-                                        <label className="flex items-center">
+                                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <div>
+                                                <label className="font-medium text-sm">Push Notifications</label>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                    Get real-time browser notifications
+                                                </p>
+                                            </div>
                                             <input
                                                 type="checkbox"
                                                 checked={value}
                                                 onChange={onChange}
-                                                className="mr-3"
+                                                className="form-checkbox h-5 w-5 text-blue-600"
                                             />
-                                            <span>Push notifications</span>
-                                        </label>
+                                        </div>
                                     )}
                                 />
                                 <Controller
                                     name="preferences.notifications.desktop"
                                     control={control}
                                     render={({ field: { value, onChange } }) => (
-                                        <label className="flex items-center">
+                                        <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                            <div>
+                                                <label className="font-medium text-sm">Desktop Notifications</label>
+                                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                                    Show system notifications on your desktop
+                                                </p>
+                                            </div>
                                             <input
                                                 type="checkbox"
                                                 checked={value}
                                                 onChange={onChange}
-                                                className="mr-3"
+                                                className="form-checkbox h-5 w-5 text-blue-600"
                                             />
-                                            <span>Desktop notifications</span>
-                                        </label>
+                                        </div>
                                     )}
                                 />
                             </div>
                         </div>
-                    </div>
+                    </Card>
 
                     {/* Submit Button */}
                     <div className="flex justify-end">
