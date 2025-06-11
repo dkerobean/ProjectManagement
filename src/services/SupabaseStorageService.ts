@@ -41,48 +41,62 @@ class SupabaseStorageService {
      */
     async uploadAvatar(file: File, userId: string): Promise<UploadResult> {
         try {
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+            if (!allowedTypes.includes(file.type)) {
+                return { 
+                    url: null, 
+                    error: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.' 
+                }
+            }
+
+            // Validate file size (5MB max)
+            const maxSize = 5 * 1024 * 1024
+            if (file.size > maxSize) {
+                return { 
+                    url: null, 
+                    error: 'File size too large. Maximum size is 5MB.' 
+                }
+            }
+
             // Create a unique filename
             const fileExt = file.name.split('.').pop() || 'jpg'
             const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`
 
-            // Check if avatars bucket exists, create if not
-            const { data: buckets } = await this.supabase.storage.listBuckets()
-            const avatarBucket = buckets?.find((bucket: { name: string }) => bucket.name === 'avatars')
-            
-            if (!avatarBucket) {
-                const { error: bucketError } = await this.supabase.storage.createBucket('avatars', {
-                    public: true,
-                    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-                    fileSizeLimit: 5 * 1024 * 1024 // 5MB limit
-                })
-                
-                if (bucketError) {
-                    console.error('Error creating avatars bucket:', bucketError)
-                }
-            }
+            console.log('🔄 Uploading avatar:', { fileName, fileSize: file.size, fileType: file.type })
 
-            // Upload the file
-            const { error } = await this.supabase.storage
+            // Upload the file to the avatars bucket
+            const { error: uploadError } = await this.supabase.storage
                 .from('avatars')
                 .upload(fileName, file, {
                     cacheControl: '3600',
-                    upsert: false
+                    upsert: true // Allow overwrite
                 })
 
-            if (error) {
-                console.error('Upload error:', error)
-                return { url: null, error }
+            if (uploadError) {
+                console.error('❌ Avatar upload error:', uploadError)
+                return { 
+                    url: null, 
+                    error: `Upload failed: ${uploadError.message}` 
+                }
             }
+
+            console.log('✅ Avatar uploaded successfully:', fileName)
 
             // Get the public URL
             const { data: { publicUrl } } = this.supabase.storage
                 .from('avatars')
                 .getPublicUrl(fileName)
 
+            console.log('🔗 Avatar public URL:', publicUrl)
+
             return { url: publicUrl, error: null }
         } catch (error) {
-            console.error('Avatar upload error:', error)
-            return { url: null, error }
+            console.error('💥 Avatar upload error:', error)
+            return { 
+                url: null, 
+                error: error instanceof Error ? error.message : 'Unknown upload error' 
+            }
         }
     }
 
@@ -129,41 +143,49 @@ class SupabaseStorageService {
      */
     async uploadProfileFile(file: File, userId: string, folder: string = 'general'): Promise<FileUploadResult> {
         try {
-            const fileExt = file.name.split('.').pop() || 'txt'
-            const fileName = `${userId}/${folder}/${file.name.replace(/\s+/g, '_')}_${Date.now()}.${fileExt}`
-
-            // Check if profile-files bucket exists, create if not
-            const { data: buckets } = await this.supabase.storage.listBuckets()
-            const profileBucket = buckets?.find((bucket: { name: string }) => bucket.name === 'profile-files')
-            
-            if (!profileBucket) {
-                const { error: bucketError } = await this.supabase.storage.createBucket('profile-files', {
-                    public: false, // Private bucket for profile files
-                    fileSizeLimit: 10 * 1024 * 1024 // 10MB limit
-                })
-                
-                if (bucketError) {
-                    console.error('Error creating profile-files bucket:', bucketError)
+            // Validate file size (10MB max)
+            const maxSize = 10 * 1024 * 1024
+            if (file.size > maxSize) {
+                return { 
+                    url: null, 
+                    path: null,
+                    error: 'File size too large. Maximum size is 10MB.' 
                 }
             }
 
-            const { error } = await this.supabase.storage
+            const fileExt = file.name.split('.').pop() || 'txt'
+            const fileName = `${userId}/${folder}/${file.name.replace(/\s+/g, '_')}_${Date.now()}.${fileExt}`
+
+            console.log('🔄 Uploading profile file:', { fileName, fileSize: file.size, folder })
+
+            // Upload to the profile-files bucket (private)
+            const { error: uploadError } = await this.supabase.storage
                 .from('profile-files')
                 .upload(fileName, file, {
                     cacheControl: '3600',
-                    upsert: false
+                    upsert: true
                 })
 
-            if (error) {
-                console.error('Upload error:', error)
-                return { url: null, path: null, error }
+            if (uploadError) {
+                console.error('❌ Profile file upload error:', uploadError)
+                return { 
+                    url: null, 
+                    path: null, 
+                    error: `Upload failed: ${uploadError.message}` 
+                }
             }
+
+            console.log('✅ Profile file uploaded successfully:', fileName)
 
             // For private files, return the path instead of public URL
             return { url: null, path: fileName, error: null }
         } catch (error) {
-            console.error('File upload error:', error)
-            return { url: null, path: null, error }
+            console.error('💥 Profile file upload error:', error)
+            return { 
+                url: null, 
+                path: null, 
+                error: error instanceof Error ? error.message : 'Unknown upload error' 
+            }
         }
     }
 

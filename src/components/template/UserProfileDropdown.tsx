@@ -20,6 +20,14 @@ type DropdownList = {
     icon: JSX.Element
 }
 
+// Extended user type to include avatar_url
+interface ExtendedUser {
+    name?: string | null
+    email?: string | null
+    image?: string | null
+    avatar_url?: string | null
+}
+
 const dropdownItemList: DropdownList[] = [
     {
         label: 'Profile',
@@ -46,8 +54,8 @@ const _UserDropdown = () => {
     }
 
     const avatarProps = {
-        ...(session?.user?.image
-            ? { src: session?.user?.image }
+        ...((session?.user as ExtendedUser)?.avatar_url || (session?.user as ExtendedUser)?.image
+            ? { src: (session?.user as ExtendedUser)?.avatar_url || (session?.user as ExtendedUser)?.image || '' }
             : { icon: <PiUserDuotone /> }),
     }
 
@@ -65,12 +73,11 @@ const _UserDropdown = () => {
             <Dropdown.Item variant="header">
                 <div className="py-2 px-3 flex items-center gap-3">
                     <Avatar {...avatarProps} />
-                    <div>
-                        <div className="font-bold text-gray-900 dark:text-gray-100">
-                            {session?.user?.name || 'Anonymous'}
+                    <div>                        <div className="font-bold text-gray-900 dark:text-gray-100">
+                            {(session?.user as ExtendedUser)?.name || 'Anonymous'}
                         </div>
                         <div className="text-xs">
-                            {session?.user?.email || 'No email available'}
+                            {(session?.user as ExtendedUser)?.email || 'No email available'}
                         </div>
                     </div>
                 </div>

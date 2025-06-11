@@ -204,15 +204,25 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                 )
 
                 if (!updateError) {
-                    // Update session
+                    // Force a complete session refresh by triggering the JWT callback
+                    // This ensures both the token and session get updated with the new avatar_url
                     await update({
-                        ...session,
-                        user: {
-                            ...session.user,
-                            avatar_url: url,
-                            image: url // Also update NextAuth image field
-                        }
+                        avatar_url: url,
+                        image: url,
+                        triggerUpdate: true // Force JWT callback to run
                     })
+
+                    // Additional session refresh to ensure changes are propagated
+                    setTimeout(async () => {
+                        await update()
+                    }, 100)
+
+                    toast.push(
+                        <Notification type="success" title="Avatar Uploaded">
+                            Profile picture has been updated successfully.
+                        </Notification>,
+                        { placement: 'top-end' }
+                    )
                 }
             }
         } catch (error) {

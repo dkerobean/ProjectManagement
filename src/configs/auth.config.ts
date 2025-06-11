@@ -39,7 +39,21 @@ export default {
                 }
             },
         }),
-    ],    callbacks: {        async jwt({ token, user, account }) {
+    ],    callbacks: {        async jwt({ token, user, account, trigger, session }) {
+            // Handle session updates (like avatar upload)
+            if (trigger === "update" && session) {
+                console.log('🔄 JWT callback - updating token from session:', session)
+                // Update token with session data
+                if (session.avatar_url) {
+                    token.avatar_url = session.avatar_url
+                }
+                if (session.image) {
+                    token.image = session.image
+                }
+                console.log('✅ JWT callback - updated token avatar_url:', token.avatar_url)
+                return token
+            }
+
             // Handle initial sign in
             if (account && user) {
                 console.log('🔧 JWT callback - processing user:', user.email, 'with role:', user.role)
@@ -77,10 +91,11 @@ export default {
                             throw new Error('No profile found')
                         }                    } catch (error) {
                         console.error('⚠️ Database lookup failed, using hardcoded admin fallback:', (error as Error).message)
+                        console.log('🔍 Checking user email for admin fallback:', user.email)
                         
                         // Final fallback - assign admin role for admin email
                         if (user.email === 'admin@projectmgt.com') {
-                            console.log('🔑 Assigning admin role for admin email')
+                            console.log('🔑 Assigning admin role for admin email:', user.email)
                             token.role = 'admin'
                             token.timezone = 'UTC'
                             token.preferences = undefined
@@ -88,7 +103,7 @@ export default {
                             token.name = user.name || 'Admin'
                             token.authority = ['admin']
                         } else {
-                            console.log('👤 Assigning member role for regular user')
+                            console.log('👤 Assigning member role for regular user:', user.email)
                             token.role = 'member'
                             token.timezone = 'UTC'
                             token.preferences = undefined
@@ -105,6 +120,8 @@ export default {
         },        async session({ session, token }) {
             /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */
             console.log('🎭 Session callback - token role:', token.role, 'for user:', token.email || session.user.email)
+            console.log('🎭 Session callback - token avatar_url:', token.avatar_url)
+            console.log('🎭 Session callback - session.user.image:', session.user.image)
             
             const finalSession = {
                 ...session,
@@ -120,6 +137,7 @@ export default {
             }
             
             console.log('🎯 Final session role:', finalSession.user.role, 'authority:', finalSession.user.authority)
+            console.log('🎯 Final session avatar_url:', finalSession.user.avatar_url)
             return finalSession
         },
         async signIn({ user, account }) {

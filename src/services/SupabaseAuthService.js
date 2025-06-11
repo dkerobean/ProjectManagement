@@ -268,22 +268,11 @@ class SupabaseAuthService {
         .single()
 
       if (error) {
-        toast.push(
-          <Notification type="danger" title="Profile Update Failed">
-            {error.message}
-          </Notification>,
-          { placement: 'top-end' }
-        )
+        console.error('Profile update error:', error)
         return { data: null, error }
       }
 
-      toast.push(
-        <Notification type="success" title="Profile Updated">
-          Your profile has been successfully updated.
-        </Notification>,
-        { placement: 'top-end' }
-      )
-
+      console.log('Profile updated successfully for user:', userId)
       return { data, error: null }
     } catch (error) {
       console.error('Update user profile error:', error)

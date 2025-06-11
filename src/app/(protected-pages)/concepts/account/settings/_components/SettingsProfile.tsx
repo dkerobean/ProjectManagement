@@ -20,6 +20,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { HiOutlineUser, HiOutlineCloudUpload, HiOutlineTrash } from 'react-icons/hi'
 import { getRoleDisplayName, type UserRole } from '@/utils/roleBasedAccess'
+import supabaseStorageService from '@/services/SupabaseStorageService'
 import type { ZodType } from 'zod'
 
 type ProfileSchema = {
@@ -34,6 +35,9 @@ type ProfileSchema = {
     city?: string
     timezone: string
     role?: UserRole
+    // Additional fields to match database schema
+    dial_code?: string
+    phone_number?: string
 }
 
 type CountryOption = {
@@ -173,44 +177,103 @@ const SettingsProfile = () => {
     const watchedAvatarUrl = watch('avatar_url')
 
     useEffect(() => {
-        if (session?.user) {
-            reset({
-                name: session.user.name || '',
-                email: session.user.email || '',
-                avatar_url: session.user.image || '',
-                timezone: 'UTC', // Default timezone
-                role: session.user.role as UserRole,
-                // Initialize other fields as empty
-                dialCode: '',
-                phoneNumber: '',
-                country: '',
-                address: '',
-                postcode: '',
-                city: '',
-            })
+        const loadUserProfile = async () => {
+            if (session?.user?.id) {
+                try {
+                    // Get full user profile from API route
+                    const response = await fetch('/api/user/profile')
+                    
+                    if (response.ok) {
+                        const profile = await response.json()
+                        
+                        // Use database profile data to populate form
+                        reset({
+                            name: profile.name || '',
+                            email: profile.email || '',
+                            avatar_url: profile.avatar_url || '',
+                            timezone: profile.timezone || 'UTC',
+                            role: profile.role as UserRole,
+                            dialCode: profile.dial_code || '',
+                            phoneNumber: profile.phone_number || '',
+                            country: profile.country || '',
+                            address: profile.address || '',
+                            postcode: profile.postcode || '',
+                            city: profile.city || '',
+                        })
+                    } else {
+                        // Fallback to session data if API call fails
+                        console.warn('Failed to load profile from API, using session data')
+                        reset({
+                            name: session.user.name || '',
+                            email: session.user.email || '',
+                            avatar_url: session.user.image || '',
+                            timezone: 'UTC',
+                            role: session.user.role as UserRole,
+                            dialCode: '',
+                            phoneNumber: '',
+                            country: '',
+                            address: '',
+                            postcode: '',
+                            city: '',
+                        })
+                    }
+                } catch (error) {
+                    console.error('Error loading user profile:', error)
+                    // Fallback to session data
+                    reset({
+                        name: session.user.name || '',
+                        email: session.user.email || '',
+                        avatar_url: session.user.image || '',
+                        timezone: 'UTC',
+                        role: session.user.role as UserRole,
+                        dialCode: '',
+                        phoneNumber: '',
+                        country: '',
+                        address: '',
+                        postcode: '',
+                        city: '',
+                    })
+                }
+            }
         }
+
+        loadUserProfile()
     }, [session, reset])
 
     const handleAvatarUpload = async (files: File[]) => {
-        if (!files.length || !session?.user?.email) return
+        if (!files.length || !session?.user?.id) return
         
         try {
             setIsUploadingAvatar(true)
             const file = files[0]
             
-            // Upload to Supabase Storage - simplified for now
-            const formData = new FormData()
-            formData.append('file', file)
+            // Upload to Supabase Storage
+            const uploadResult = await supabaseStorageService.uploadAvatar(file, session.user.id)
             
-            // For now, create a local object URL until we fix the storage service
-            const localUrl = URL.createObjectURL(file)
-            setValue('avatar_url', localUrl)
+            if (uploadResult.error) {
+                const errorMessage = typeof uploadResult.error === 'string' 
+                    ? uploadResult.error 
+                    : uploadResult.error instanceof Error 
+                        ? uploadResult.error.message 
+                        : 'Unknown error occurred'
+                
+                toast.push(
+                    <Notification title="Error" type="danger">
+                        Failed to upload avatar: {errorMessage}
+                    </Notification>
+                )
+                return
+            }
             
-            toast.push(
-                <Notification title="Success" type="success">
-                    Avatar uploaded successfully! (Note: This is a preview - real upload needs proper Supabase setup)
-                </Notification>
-            )
+            if (uploadResult.url) {
+                setValue('avatar_url', uploadResult.url)
+                
+                toast.push(
+                    <Notification title="Success" type="success">
+                        Avatar uploaded successfully!
+                    </Notification>
+                )
+            }
         } catch (error) {
             console.error('Avatar upload error:', error)
             toast.push(
@@ -226,6 +289,16 @@ const SettingsProfile = () => {
     const handleAvatarRemove = async () => {
         try {
             setIsUploadingAvatar(true)
+            const currentAvatarUrl = watch('avatar_url')
+            
+            // Delete from Supabase Storage if it's a Supabase URL
+            if (currentAvatarUrl && currentAvatarUrl.includes('supabase')) {
+                const deleteResult = await supabaseStorageService.deleteAvatar(currentAvatarUrl)
+                if (deleteResult.error) {
+                    console.warn('Failed to delete avatar from storage:', deleteResult.error)
+                }
+            }
+            
             setValue('avatar_url', '')
             
             toast.push(
@@ -257,7 +330,38 @@ const SettingsProfile = () => {
         
         try {
             setIsLoading(true)
-            // For now, just update the session locally
+            
+            // Prepare the update data for the API
+            const updateData = {
+                name: values.name,
+                email: values.email,
+                avatar_url: values.avatar_url,
+                timezone: values.timezone,
+                // Include additional profile fields if they have values
+                ...(values.dialCode && { dial_code: values.dialCode }),
+                ...(values.phoneNumber && { phone_number: values.phoneNumber }),
+                ...(values.country && { country: values.country }),
+                ...(values.address && { address: values.address }),
+                ...(values.postcode && { postcode: values.postcode }),
+                ...(values.city && { city: values.city }),
+            }
+            
+            // Update profile via API route
+            const response = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData),
+            })
+            
+            const result = await response.json()
+            
+            if (!response.ok) {
+                throw new Error(result.error || 'Failed to update profile')
+            }
+            
+            // Update the NextAuth session with the new data
             await updateSession({
                 ...session,
                 user: {
@@ -275,11 +379,13 @@ const SettingsProfile = () => {
             )
         } catch (error) {
             console.error('Profile update error:', error)
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update profile. Please try again.'
             toast.push(
                 <Notification title="Error" type="danger">
-                    Failed to update profile. Please try again.
+                    {errorMessage}
                 </Notification>
-            )        } finally {
+            )
+        } finally {
             setIsLoading(false)
         }
     }

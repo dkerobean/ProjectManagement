@@ -63,9 +63,11 @@ const validateCredential = async (values: SignInCredential) => {
 
         // Fallback: Create user data from auth information
         console.log('📝 Using fallback user data from Supabase auth')
+        console.log('🔍 Email for role assignment:', email)
         const fallbackRole = email === 'admin@projectmgt.com' ? 'admin' : 'member'
+        console.log('🎯 Assigned fallback role:', fallbackRole)
         
-        return {
+        const fallbackUser = {
             id: authData.user.id,
             userName: authData.user.user_metadata?.name || 
                      authData.user.user_metadata?.full_name || 
@@ -76,6 +78,9 @@ const validateCredential = async (values: SignInCredential) => {
             timezone: 'UTC',
             preferences: null,
         }
+        
+        console.log('✅ Returning fallback user data:', fallbackUser)
+        return fallbackUser
     } catch (error) {
         console.error('💥 Error validating credentials:', error)
         return null
