@@ -21,8 +21,15 @@ const ProjectsHeader = () => {
         setSortBy,
         setSortOrder,
         toggleCreateModal,
-        resetFilters
+        resetFilters,
+        loadProjects,
+        loadUserPreferences
     } = useProjectsStore()
+
+    const handleRefresh = async () => {
+        await loadProjects()
+        await loadUserPreferences()
+    }
 
     const [showFilters, setShowFilters] = useState(false)
 
@@ -65,7 +72,7 @@ const ProjectsHeader = () => {
                             variant="solid"
                             icon={<TbRefresh />}
                             loading={isLoading}
-                            onClick={() => window.location.reload()}
+                            onClick={handleRefresh}
                         >
                             Refresh
                         </Button>

@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { useProjectsStore, type Project } from '../_store/projectsStore'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Avatar from '@/components/ui/Avatar'
 import Progress from '@/components/ui/Progress'
+import ProjectActionsDropdown from './ProjectActionsDropdown'
 import {
     TbStar,
     TbStarFilled,
@@ -21,8 +22,20 @@ const ProjectsContent = () => {
         priorityFilter,
         sortBy,
         sortOrder,
-        toggleProjectFavorite
+        toggleProjectFavorite,
+        loadProjects,
+        loadUserPreferences
     } = useProjectsStore()
+
+    // Load projects and preferences on component mount
+    useEffect(() => {
+        if (projects.length === 0) {
+            loadProjects()
+        } else {
+            // If projects are already loaded, just load preferences to set favorites
+            loadUserPreferences()
+        }
+    }, [loadProjects, loadUserPreferences, projects.length])
 
     // Filter and sort projects
     const filteredProjects = useMemo(() => {
@@ -67,19 +80,22 @@ const ProjectsContent = () => {
     const FavoriteProjectCard = ({ project }: { project: Project }) => (
         <Card key={project.id} bodyClass="p-6">
             <div className="flex flex-col h-full">
-                {/* Header with star */}
+                {/* Header with star and actions */}
                 <div className="flex justify-between items-start mb-4">
                     <Link href={`/concepts/projects/project-details/${project.id}`}>
                         <h4 className="font-bold hover:text-primary cursor-pointer text-gray-900">
                             {project.name}
                         </h4>
                     </Link>
-                    <button
-                        onClick={() => toggleProjectFavorite(project.id, false)}
-                        className="text-amber-400 hover:text-amber-500 text-xl"
-                    >
-                        <TbStarFilled />
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => toggleProjectFavorite(project.id, false)}
+                            className="text-amber-400 hover:text-amber-500 text-xl"
+                        >
+                            <TbStarFilled />
+                        </button>
+                        <ProjectActionsDropdown project={project} />
+                    </div>
                 </div>
 
                 {/* Description */}
@@ -213,13 +229,16 @@ const ProjectsContent = () => {
                     )}
                 </div>
 
-                {/* Star button */}
-                <button
-                    onClick={() => toggleProjectFavorite(project.id, true)}
-                    className="text-gray-400 hover:text-amber-400 text-lg"
-                >
-                    <TbStar />
-                </button>
+                {/* Star button and actions */}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => toggleProjectFavorite(project.id, true)}
+                        className="text-gray-400 hover:text-amber-400 text-lg"
+                    >
+                        <TbStar />
+                    </button>
+                    <ProjectActionsDropdown project={project} />
+                </div>
             </div>
         </Card>
     )

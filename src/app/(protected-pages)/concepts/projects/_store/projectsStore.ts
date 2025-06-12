@@ -1,5 +1,46 @@
 import { create } from 'zustand'
 
+// API Response type for projects
+interface ApiProject {
+    id: string
+    name: string
+    description: string | null
+    status: 'planning' | 'active' | 'on_hold' | 'completed' | 'archived'
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    owner_id: string
+    start_date: string | null
+    end_date: string | null
+    budget: number | null
+    metadata: Record<string, unknown> | null
+    created_at: string
+    updated_at: string
+    owner?: {
+        id: string
+        name: string
+        email: string
+        avatar_url: string | null
+    }
+    project_members?: Array<{
+        id: string
+        role: string
+        user: {
+            id: string
+            name: string
+            email: string
+            avatar_url: string | null
+        }
+    }>
+    tasks?: Array<{
+        id: string
+        status: string
+        priority: string
+    }>
+    taskCount?: number
+    completedTasks?: number
+    memberCount?: number
+    progress?: number
+}
+
 export interface Project {
     id: string
     name: string
@@ -10,7 +51,7 @@ export interface Project {
     start_date: string | null
     end_date: string | null
     budget: number | null
-    metadata: Record<string, any> | null
+    metadata: Record<string, unknown> | null
     created_at: string
     updated_at: string
     owner?: {
@@ -87,9 +128,14 @@ interface ProjectsActions {
     deleteProject: (projectId: string) => void
     toggleProjectFavorite: (projectId: string, favorite: boolean) => void
     resetFilters: () => void
+    loadProjects: () => Promise<void>
+    loadUserPreferences: () => Promise<void>
+    saveUserPreferences: (preferences: Record<string, unknown>) => Promise<void>
+    deleteProjectFromApi: (projectId: string) => Promise<void>
+    editProject: (projectId: string, projectData: Partial<Project>) => Promise<void>
 }
 
-export const useProjectsStore = create<ProjectsState & ProjectsActions>((set, get) => ({
+export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) => ({
     // State
     projects: [],
     selectedProject: null,
@@ -140,16 +186,212 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set, ge
         selectedProject: state.selectedProject?.id === projectId ? null : state.selectedProject
     })),
 
-    toggleProjectFavorite: (projectId, favorite) => set((state) => ({
-        projects: state.projects.map((project) =>
+    toggleProjectFavorite: (projectId, favorite) => set((state) => {
+        const updatedProjects = state.projects.map((project) =>
             project.id === projectId ? { ...project, favorite } : project
         )
-    })),
+        
+        // Save to server
+        const favoriteProjects = updatedProjects
+            .filter(p => p.favorite)
+            .map(p => p.id)
+        
+        useProjectsStore.getState().saveUserPreferences({ favoriteProjects })
+        
+        return { projects: updatedProjects }
+    }),
 
     resetFilters: () => set({
         searchQuery: '',
         statusFilter: '',
         priorityFilter: '',
         currentPage: 1
-    })
+    }),
+
+    loadProjects: async () => {
+        console.log('🔄 Loading projects from API...')
+        set({ isLoading: true, error: null })
+        
+        try {
+            const response = await fetch('/api/projects', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // Include cookies for authentication
+            })
+
+            console.log('📊 API Response status:', response.status)
+
+            if (!response.ok) {
+                const errorText = await response.text()
+                console.error('❌ API Error:', response.status, errorText)
+                throw new Error(`Failed to fetch projects: ${response.status}`)
+            }
+
+            const data = await response.json()
+            console.log('📦 API Response data:', { 
+                totalProjects: data.data?.length || 0,
+                hasData: !!data.data,
+                pagination: data.pagination 
+            })
+            
+            // Transform API response to match our Project interface
+            const transformedProjects: Project[] = data.data?.map((project: ApiProject) => ({
+                id: project.id,
+                name: project.name,
+                description: project.description,
+                status: project.status,
+                priority: project.priority,
+                owner_id: project.owner_id,
+                start_date: project.start_date,
+                end_date: project.end_date,
+                budget: project.budget,
+                metadata: project.metadata,
+                created_at: project.created_at,
+                updated_at: project.updated_at,
+                owner: project.owner,
+                project_members: project.project_members,
+                tasks: project.tasks,
+                taskCount: project.taskCount,
+                completedTasks: project.completedTasks,
+                memberCount: project.memberCount,
+                progress: project.progress,
+                favorite: false // Will be set from user preferences
+            })) || []
+
+            // Load user preferences to set favorites
+            await useProjectsStore.getState().loadUserPreferences()
+            
+            set({ 
+                projects: transformedProjects,
+                isLoading: false,
+                error: null
+            })
+            
+            console.log(`✅ Successfully loaded ${transformedProjects.length} projects`)
+        } catch (error) {
+            console.error('❌ Error loading projects:', error)
+            set({ 
+                isLoading: false, 
+                error: error instanceof Error ? error.message : 'Failed to load projects'
+            })
+        }
+    },
+
+    loadUserPreferences: async () => {
+        try {
+            const response = await fetch('/api/user/preferences', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            })
+
+            if (response.ok) {
+                const { data } = await response.json()
+                const favoriteProjects = data.favoriteProjects || []
+                
+                // Update projects with favorite status
+                set((state) => ({
+                    projects: state.projects.map((project) => ({
+                        ...project,
+                        favorite: favoriteProjects.includes(project.id)
+                    }))
+                }))
+            }
+        } catch (error) {
+            console.error('❌ Error loading user preferences:', error)
+        }
+    },
+
+    saveUserPreferences: async (preferences: Record<string, unknown>) => {
+        try {
+            const response = await fetch('/api/user/preferences', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(preferences),
+            })
+
+            if (!response.ok) {
+                throw new Error('Failed to save preferences')
+            }
+        } catch (error) {
+            console.error('❌ Error saving user preferences:', error)
+        }
+    },
+
+    deleteProjectFromApi: async (projectId: string) => {
+        try {
+            set({ isLoading: true, error: null })
+            
+            const response = await fetch(`/api/projects/${projectId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to delete project')
+            }
+
+            // Remove from local state
+            set((state) => ({
+                projects: state.projects.filter((project) => project.id !== projectId),
+                selectedProject: state.selectedProject?.id === projectId ? null : state.selectedProject,
+                isLoading: false
+            }))
+
+            console.log(`✅ Successfully deleted project: ${projectId}`)
+        } catch (error) {
+            console.error('❌ Error deleting project:', error)
+            set({ 
+                isLoading: false, 
+                error: error instanceof Error ? error.message : 'Failed to delete project'
+            })
+            throw error
+        }
+    },
+
+    editProject: async (projectId: string, projectData: Partial<Project>) => {
+        try {
+            set({ isLoading: true, error: null })
+            
+            const response = await fetch(`/api/projects/${projectId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(projectData),
+            })
+
+            if (!response.ok) {
+                const errorData = await response.json()
+                throw new Error(errorData.error || 'Failed to update project')
+            }
+
+            const { data: updatedProject } = await response.json()
+            
+            // Update local state
+            set((state) => ({
+                projects: state.projects.map((project) =>
+                    project.id === projectId ? { ...project, ...updatedProject } : project
+                ),
+                selectedProject: state.selectedProject?.id === projectId 
+                    ? { ...state.selectedProject, ...updatedProject } 
+                    : state.selectedProject,
+                isLoading: false
+            }))
+
+            console.log(`✅ Successfully updated project: ${projectId}`)
+            return updatedProject
+        } catch (error) {
+            console.error('❌ Error updating project:', error)
+            set({ 
+                isLoading: false, 
+                error: error instanceof Error ? error.message : 'Failed to update project'
+            })
+            throw error
+        }
+    }
 }))
