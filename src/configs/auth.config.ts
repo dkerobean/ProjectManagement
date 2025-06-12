@@ -57,7 +57,7 @@ export default {
             // Handle initial sign in
             if (account && user) {
                 console.log('🔧 JWT callback - processing user:', user.email, 'with role:', user.role)
-                
+
                 // First, try to use the user data from the authorize function
                 // This data already handled the RLS issue
                 if (user.role) {
@@ -92,7 +92,7 @@ export default {
                         }                    } catch (error) {
                         console.error('⚠️ Database lookup failed, using hardcoded admin fallback:', (error as Error).message)
                         console.log('🔍 Checking user email for admin fallback:', user.email)
-                        
+
                         // Final fallback - assign admin role for admin email
                         if (user.email === 'admin@projectmgt.com') {
                             console.log('🔑 Assigning admin role for admin email:', user.email)
@@ -113,7 +113,7 @@ export default {
                         }
                     }
                 }
-                
+
                 console.log('🎯 Final token role:', token.role, 'for user:', user.email)
             }
             return token
@@ -122,7 +122,7 @@ export default {
             console.log('🎭 Session callback - token role:', token.role, 'for user:', token.email || session.user.email)
             console.log('🎭 Session callback - token avatar_url:', token.avatar_url)
             console.log('🎭 Session callback - session.user.image:', session.user.image)
-            
+
             const finalSession = {
                 ...session,
                 user: {
@@ -135,7 +135,7 @@ export default {
                     authority: token.authority || [token.role || 'member'],
                 },
             }
-            
+
             console.log('🎯 Final session role:', finalSession.user.role, 'authority:', finalSession.user.authority)
             console.log('🎯 Final session avatar_url:', finalSession.user.avatar_url)
             return finalSession

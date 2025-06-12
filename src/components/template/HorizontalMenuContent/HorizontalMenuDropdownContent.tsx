@@ -78,11 +78,9 @@ const MenuItem = ({
 const MenuIcon = ({ icon }: { icon: string }) => {
     if (typeof icon !== 'string' && !icon) {
         return <></>
-    }
-
-    return (
+    }    return (
         <>
-            {navigationIcon[icon] && (
+            {icon && (
                 <span className={`text-xl`}>
                     {navigationIcon[icon] || <TbCircle />}
                 </span>

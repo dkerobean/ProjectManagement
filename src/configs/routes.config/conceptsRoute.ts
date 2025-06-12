@@ -18,6 +18,21 @@ const conceptsRoute: Routes = {
             pageBackgroundType: 'plain',
         },
     },
+    '/concepts/projects': {
+        key: 'concepts.projects.crud',
+        authority: [ADMIN, USER],
+        meta: {
+            pageContainerType: 'contained',
+            pageBackgroundType: 'plain',
+        },
+    },
+    '/concepts/projects/dashboard': {
+        key: 'concepts.projects.projectDashboard',
+        authority: [ADMIN, USER],
+        meta: {
+            pageContainerType: 'contained',
+        },
+    },
     '/concepts/projects/scrum-board': {
         key: 'concepts.projects.scrumBoard',
         authority: [ADMIN, USER],

@@ -330,10 +330,10 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
             )
 
             if (error) {
-                const errorMessage = error && typeof error === 'object' && 'message' in error 
-                    ? (error as { message: string }).message 
+                const errorMessage = error && typeof error === 'object' && 'message' in error
+                    ? (error as { message: string }).message
                     : 'Failed to update profile'
-                
+
                 toast.push(
                     <Notification type="danger" title="Update Failed">
                         {errorMessage}
@@ -537,7 +537,7 @@ const UserProfileManagement = (props: UserProfileManagementProps) => {
                     {/* Preferences */}
                     <Card className="mb-6">
                         <h4 className="font-semibold text-lg mb-4">Preferences</h4>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                             <FormItem label="Theme Preference">
                                 <Controller

@@ -44,18 +44,18 @@ class SupabaseStorageService {
             // Validate file type
             const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
             if (!allowedTypes.includes(file.type)) {
-                return { 
-                    url: null, 
-                    error: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.' 
+                return {
+                    url: null,
+                    error: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
                 }
             }
 
             // Validate file size (5MB max)
             const maxSize = 5 * 1024 * 1024
             if (file.size > maxSize) {
-                return { 
-                    url: null, 
-                    error: 'File size too large. Maximum size is 5MB.' 
+                return {
+                    url: null,
+                    error: 'File size too large. Maximum size is 5MB.'
                 }
             }
 
@@ -75,9 +75,9 @@ class SupabaseStorageService {
 
             if (uploadError) {
                 console.error('❌ Avatar upload error:', uploadError)
-                return { 
-                    url: null, 
-                    error: `Upload failed: ${uploadError.message}` 
+                return {
+                    url: null,
+                    error: `Upload failed: ${uploadError.message}`
                 }
             }
 
@@ -93,9 +93,9 @@ class SupabaseStorageService {
             return { url: publicUrl, error: null }
         } catch (error) {
             console.error('💥 Avatar upload error:', error)
-            return { 
-                url: null, 
-                error: error instanceof Error ? error.message : 'Unknown upload error' 
+            return {
+                url: null,
+                error: error instanceof Error ? error.message : 'Unknown upload error'
             }
         }
     }
@@ -111,7 +111,7 @@ class SupabaseStorageService {
             const url = new URL(avatarUrl)
             const pathParts = url.pathname.split('/')
             const bucketIndex = pathParts.findIndex(part => part === 'avatars')
-            
+
             if (bucketIndex === -1) {
                 throw new Error('Invalid avatar URL')
             }
@@ -146,10 +146,10 @@ class SupabaseStorageService {
             // Validate file size (10MB max)
             const maxSize = 10 * 1024 * 1024
             if (file.size > maxSize) {
-                return { 
-                    url: null, 
+                return {
+                    url: null,
                     path: null,
-                    error: 'File size too large. Maximum size is 10MB.' 
+                    error: 'File size too large. Maximum size is 10MB.'
                 }
             }
 
@@ -168,10 +168,10 @@ class SupabaseStorageService {
 
             if (uploadError) {
                 console.error('❌ Profile file upload error:', uploadError)
-                return { 
-                    url: null, 
-                    path: null, 
-                    error: `Upload failed: ${uploadError.message}` 
+                return {
+                    url: null,
+                    path: null,
+                    error: `Upload failed: ${uploadError.message}`
                 }
             }
 
@@ -181,10 +181,10 @@ class SupabaseStorageService {
             return { url: null, path: fileName, error: null }
         } catch (error) {
             console.error('💥 Profile file upload error:', error)
-            return { 
-                url: null, 
-                path: null, 
-                error: error instanceof Error ? error.message : 'Unknown upload error' 
+            return {
+                url: null,
+                path: null,
+                error: error instanceof Error ? error.message : 'Unknown upload error'
             }
         }
     }

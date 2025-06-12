@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Dialog from '@/components/ui/Dialog'
+import Link from 'next/link'
 import NewProjectForm from './NewProjectForm'
 
 const ProjectListHeader = () => {
@@ -11,10 +12,20 @@ const ProjectListHeader = () => {
     return (
         <>
             <div className="flex items-center justify-between gap-4">
-                <h3>Projects</h3>
                 <div>
+                    <h3>All Projects</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mt-1">
+                        Manage and organize all your projects
+                    </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Link href="/concepts/projects/dashboard">
+                        <Button variant="default" size="sm">
+                            Dashboard
+                        </Button>
+                    </Link>
                     <Button variant="solid" onClick={() => setDialogOpen(true)}>
-                        Create project
+                        Create Project
                     </Button>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import navigationIcon from '@/configs/navigation-icon.config'
+import { TbCircle } from 'react-icons/tb'
 import type { ElementType, ComponentPropsWithRef } from 'react'
 
 type VerticalMenuIconProps = {
@@ -23,8 +24,10 @@ const VerticalMenuIcon = ({ icon }: VerticalMenuIconProps) => {
 
     return (
         <>
-            {navigationIcon[icon] && (
-                <span className={`text-2xl`}>{navigationIcon[icon]}</span>
+            {icon && (
+                <span className={`text-2xl`}>
+                    {navigationIcon[icon] || <TbCircle />}
+                </span>
             )}
         </>
     )

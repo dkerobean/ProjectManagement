@@ -70,15 +70,15 @@ const conceptsNavigationConfig: NavigationTree[] = [
                         },
                         subMenu: [],
                     },
-                ],
-            },
+                ],            },
+            // Move Projects submenu items to top-level
             {
-                key: 'concepts.projects',
-                path: '',
+                key: 'concepts.projects.crud',
+                path: `${CONCEPTS_PREFIX_PATH}/projects`,
                 title: 'Projects',
                 translateKey: 'nav.conceptsProjects.projects',
                 icon: 'projects',
-                type: NAV_ITEM_TYPE_COLLAPSE,
+                type: NAV_ITEM_TYPE_ITEM,
                 authority: [ADMIN, USER],
                 meta: {
                     description: {
@@ -86,93 +86,58 @@ const conceptsNavigationConfig: NavigationTree[] = [
                         label: 'Manage and track projects',
                     },
                 },
-                subMenu: [
-                    {
-                        key: 'concepts.projects.scrumBoard',
-                        path: `${CONCEPTS_PREFIX_PATH}/projects/scrum-board`,
-                        title: 'Scrum Board',
-                        translateKey: 'nav.conceptsProjects.scrumBoard',
-                        icon: 'projectScrumBoard',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProjects.scrumBoardDesc',
-                                label: 'Manage your scrum workflow',
-                            },
-                        },
-                        subMenu: [],
+                subMenu: [],
+            },
+            {
+                key: 'concepts.projects.scrumBoard',
+                path: `${CONCEPTS_PREFIX_PATH}/projects/scrum-board`,
+                title: 'Scrum Board',
+                translateKey: 'nav.conceptsProjects.scrumBoard',
+                icon: 'projectScrumBoard',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [ADMIN, USER],
+                meta: {
+                    description: {
+                        translateKey:
+                            'nav.conceptsProjects.scrumBoardDesc',
+                        label: 'Manage your scrum workflow',
                     },
-                    {
-                        key: 'concepts.projects.projectList',
-                        path: `${CONCEPTS_PREFIX_PATH}/projects/project-list`,
-                        title: 'Project List',
-                        translateKey: 'nav.conceptsProjects.projectList',
-                        icon: 'projectList',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProjects.projectListDesc',
-                                label: 'Organize all projects',
-                            },
-                        },
-                        subMenu: [],
+                },
+                subMenu: [],
+            },
+            {
+                key: 'concepts.projects.projectDashboard',
+                path: `${CONCEPTS_PREFIX_PATH}/projects/dashboard`,
+                title: 'Project Dashboard',
+                translateKey: 'nav.conceptsProjects.projectDashboard',
+                icon: 'dashboardProject',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [ADMIN, USER],
+                meta: {
+                    description: {
+                        translateKey:
+                            'nav.conceptsProjects.projectDashboardDesc',
+                        label: 'Project overview and metrics',
                     },
-                    {
-                        key: 'concepts.projects.projectDetails',
-                        path: `${CONCEPTS_PREFIX_PATH}/projects/project-details/27`,
-                        title: 'Details',
-                        translateKey: 'nav.conceptsProjects.projectDetails',
-                        icon: 'projectDetails',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProjects.projectDetailsDesc',
-                                label: 'Project detailed information',
-                            },
-                        },
-                        subMenu: [],
+                },
+                subMenu: [],
+            },
+            {
+                key: 'concepts.projects.projectTasks',
+                path: `${CONCEPTS_PREFIX_PATH}/projects/tasks`,
+                title: 'Tasks',
+                translateKey: 'nav.conceptsProjects.projectTasks',
+                icon: 'projectTask',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: [ADMIN, USER],
+                meta: {
+                    description: {
+                        translateKey:
+                            'nav.conceptsProjects.projectTasksDesc',
+                        label: 'Manage project tasks',
                     },
-                    {
-                        key: 'concepts.projects.projectTasks',
-                        path: `${CONCEPTS_PREFIX_PATH}/projects/tasks`,
-                        title: 'Tasks',
-                        translateKey: 'nav.conceptsProjects.projectTasks',
-                        icon: 'projectTask',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProjects.projectTasksDesc',
-                                label: 'Manage project tasks',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.projects.projectIssue',
-                        path: `${CONCEPTS_PREFIX_PATH}/projects/tasks/1`,
-                        title: 'Issue',
-                        translateKey: 'nav.conceptsProjects.projectIssue',
-                        icon: 'projectIssue',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProjects.projectIssueDesc',
-                                label: 'Resolve project issues',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
+                },
+                subMenu: [],
             },
             {
                 key: 'concepts.customers',

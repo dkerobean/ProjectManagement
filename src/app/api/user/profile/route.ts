@@ -19,7 +19,7 @@ const updateProfileSchema = z.object({
 export async function GET() {
     try {
         console.log('🔍 GET /api/user/profile - Starting request')
-        
+
         // Get the current session
         const session = await auth()
         console.log('📱 Session data:', {
@@ -27,7 +27,7 @@ export async function GET() {
             userId: session?.user?.id,
             userEmail: session?.user?.email
         })
-        
+
         if (!session?.user?.id) {
             console.log('❌ No session or user ID found')
             return NextResponse.json(
@@ -39,7 +39,7 @@ export async function GET() {
         console.log('🔗 Creating Supabase client...')
         // Get user profile from Supabase
         const supabase = await createSupabaseServerClient()
-        
+
         console.log('📊 Querying user profile for ID:', session.user.id)
         const { data: profile, error } = await supabase
             .from('users')
@@ -51,7 +51,7 @@ export async function GET() {
             // If user doesn't exist, try to find by email first
             if (error.code === 'PGRST116') {
                 console.log('👤 User not found by ID, checking by email...')
-                
+
                 // Try to find user by email
                 const { data: existingUser, error: emailError } = await supabase
                     .from('users')
@@ -61,7 +61,7 @@ export async function GET() {
 
                 if (existingUser && !emailError) {
                     console.log('📧 Found existing user by email, updating ID mapping...')
-                    
+
                     // User exists with different ID, update the existing record with new auth ID
                     const { data: updatedUser, error: updateError } = await supabase
                         .from('users')
@@ -73,7 +73,7 @@ export async function GET() {
                     if (updateError) {
                         console.error('❌ Error updating user ID:', updateError)
                         return NextResponse.json(
-                            { error: 'Failed to sync user profile' }, 
+                            { error: 'Failed to sync user profile' },
                             { status: 500 }
                         )
                     }
@@ -99,7 +99,7 @@ export async function GET() {
                 if (createError) {
                     console.error('❌ Error creating user profile:', createError)
                     return NextResponse.json(
-                        { error: 'Failed to create user profile' }, 
+                        { error: 'Failed to create user profile' },
                         { status: 500 }
                     )
                 }
@@ -140,7 +140,7 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
     try {
         console.log('🔄 PUT /api/user/profile - Starting request')
-        
+
         // Get the current session
         const session = await auth()
         console.log('📱 Session data:', {
@@ -148,7 +148,7 @@ export async function PUT(request: NextRequest) {
             userId: session?.user?.id,
             userEmail: session?.user?.email
         })
-        
+
         if (!session?.user?.id) {
             console.log('❌ No session or user ID found')
             return NextResponse.json(
@@ -161,7 +161,7 @@ export async function PUT(request: NextRequest) {
         // Parse and validate the request body
         const body = await request.json()
         console.log('📄 Request body:', body)
-        
+
         console.log('✅ Validating data with schema...')
         const validatedData = updateProfileSchema.parse(body)
         console.log('✅ Data validated successfully:', validatedData)
@@ -169,13 +169,13 @@ export async function PUT(request: NextRequest) {
         console.log('🔗 Creating Supabase client...')
         // Update user profile in Supabase
         const supabase = await createSupabaseServerClient()
-        
+
         const updatePayload = {
             ...validatedData,
             updated_at: new Date().toISOString(),
         }
         console.log('📊 Updating profile with payload:', updatePayload)
-        
+
         const { data, error } = await supabase
             .from('users')
             .update(updatePayload)
@@ -187,7 +187,7 @@ export async function PUT(request: NextRequest) {
             // If user doesn't exist, try to find by email first (same logic as GET)
             if (error.code === 'PGRST116') {
                 console.log('👤 User not found during update, checking by session email...')
-                
+
                 // Try to find user by session email (not form email in case user is changing email)
                 const { data: existingUser, error: emailError } = await supabase
                     .from('users')
@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest) {
 
                 if (existingUser && !emailError) {
                     console.log('📧 Found existing user by session email during update, updating ID and profile...')
-                    
+
                     // User exists with different ID, update the existing record with new auth ID AND profile data
                     const { data: updatedUser, error: updateError } = await supabase
                         .from('users')
@@ -212,7 +212,7 @@ export async function PUT(request: NextRequest) {
                     if (updateError) {
                         console.error('❌ Error updating user ID and profile:', updateError)
                         return NextResponse.json(
-                            { error: 'Failed to sync and update user profile', details: updateError.message }, 
+                            { error: 'Failed to sync and update user profile', details: updateError.message },
                             { status: 500 }
                         )
                     }
@@ -250,7 +250,7 @@ export async function PUT(request: NextRequest) {
                 if (createError) {
                     console.error('❌ Error creating user profile during update:', createError)
                     return NextResponse.json(
-                        { error: 'Failed to create user profile', details: createError.message }, 
+                        { error: 'Failed to create user profile', details: createError.message },
                         { status: 500 }
                     )
                 }
@@ -290,7 +290,7 @@ export async function PUT(request: NextRequest) {
 
     } catch (error) {
         console.error('💥 Unexpected error in PUT /api/user/profile:', error)
-        
+
         if (error instanceof z.ZodError) {
             console.error('❌ Validation error:', error.errors)
             return NextResponse.json(

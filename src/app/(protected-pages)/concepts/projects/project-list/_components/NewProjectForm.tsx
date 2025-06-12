@@ -19,6 +19,7 @@ import { z } from 'zod'
 import { MemberListOption, Member, Project } from '../types'
 import type { ZodType } from 'zod'
 import type { MultiValueGenericProps, OptionProps } from 'react-select'
+import { apiCreateProject } from '@/services/ProjectService'
 
 type FormSchema = {
     title: string
@@ -117,31 +118,25 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
     const onSubmit = async (formValue: FormSchema) => {
         setSubmiting(true)
         const { title, content, assignees } = formValue
-
         const { totalTask, completedTask } = taskCount
 
-        const member: Member[] = cloneDeep(assignees).map((assignee) => {
-            return {
-                name: assignee.label,
-                img: assignee.img,
-            }
-        })
-
-        const values: Project = {
-            id: newId,
+        // Prepare the payload for Supabase
+        const payload = {
             name: title,
-            desc: content,
-            totalTask: totalTask as number,
-            completedTask: completedTask as number,
-            progression:
-                ((completedTask as number) / (totalTask as number)) * 100 || 0,
-            member,
+            description: content,
+            // You can add more fields as needed
         }
 
-        updateProjectList(values)
-        await sleep(500)
-        setSubmiting(false)
-        onClose()
+        try {
+            const response = await apiCreateProject(payload)
+            // Optionally update the local store with the response
+            // updateProjectList(response.data)
+            setSubmiting(false)
+            onClose()
+        } catch (err) {
+            // Handle error (show notification, etc.)
+            setSubmiting(false)
+        }
     }
 
     return (

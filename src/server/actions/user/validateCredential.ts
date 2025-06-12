@@ -8,7 +8,7 @@ const validateCredential = async (values: SignInCredential) => {
 
     try {
         console.log('🔐 Validating credentials for:', email)
-        
+
         // Create a Supabase client for authentication
         const supabaseAuth = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -66,11 +66,11 @@ const validateCredential = async (values: SignInCredential) => {
         console.log('🔍 Email for role assignment:', email)
         const fallbackRole = email === 'admin@projectmgt.com' ? 'admin' : 'member'
         console.log('🎯 Assigned fallback role:', fallbackRole)
-        
+
         const fallbackUser = {
             id: authData.user.id,
-            userName: authData.user.user_metadata?.name || 
-                     authData.user.user_metadata?.full_name || 
+            userName: authData.user.user_metadata?.name ||
+                     authData.user.user_metadata?.full_name ||
                      email.split('@')[0],
             email: authData.user.email!,
             avatar: authData.user.user_metadata?.avatar_url || null,
@@ -78,7 +78,7 @@ const validateCredential = async (values: SignInCredential) => {
             timezone: 'UTC',
             preferences: null,
         }
-        
+
         console.log('✅ Returning fallback user data:', fallbackUser)
         return fallbackUser
     } catch (error) {

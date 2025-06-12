@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import classNames from '../utils/classNames'
 import { CheckboxGroupContextProvider } from './context'

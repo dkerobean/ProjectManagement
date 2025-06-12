@@ -55,7 +55,7 @@ export default auth((req) => {
     if (isSignedIn && nextUrl.pathname !== '/access-denied') {
         const userRole = req.auth?.user?.role as UserRole
         const userAuthority = req.auth?.user?.authority || []
-        
+
         // Debug logging
         console.log('🔍 Middleware check for:', nextUrl.pathname)
         console.log('👤 User role:', userRole)
