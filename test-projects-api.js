@@ -1,7 +1,7 @@
 // Test script to verify projects API is working
 const testProjectsAPI = async () => {
     console.log('🔍 Testing Projects API...')
-    
+
     try {
         // Test the API endpoint
         const response = await fetch('http://localhost:3001/api/projects', {
@@ -12,7 +12,7 @@ const testProjectsAPI = async () => {
         })
 
         console.log('📊 Response status:', response.status)
-        
+
         if (response.ok) {
             const data = await response.json()
             console.log('✅ API Response:', {

@@ -453,7 +453,10 @@ const ProjectDashboardContent = () => {
                             status={project.derivedStatus}
                             progress={project.progression}
                             dueDate={project.dayleft?.toString()}
-                            teamMembers={project.member || []}
+                            teamMembers={project.project_members?.map(member => ({
+                                img: member.user?.avatar_url || '/img/avatars/thumb-1.jpg',
+                                name: member.user?.name || 'Unknown User'
+                            })) || []}
                             priority={project.derivedPriority}
                             category={project.category}
                             totalTask={project.totalTask}

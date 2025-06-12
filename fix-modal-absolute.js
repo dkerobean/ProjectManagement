@@ -1,4 +1,7 @@
-'use client'
+// This script fixes the corrupted ProjectDeleteModal.tsx file
+const fs = require('fs');
+
+const fixedContent = `'use client'
 
 import { useState } from 'react'
 import { useProjectsStore } from '../_store/projectsStore'
@@ -24,7 +27,7 @@ const ProjectDeleteModal = () => {
         setIsLoading(true)
 
         try {
-            const response = await fetch(`/api/projects/${selectedProject.id}`, {
+            const response = await fetch(\`/api/projects/\${selectedProject.id}\`, {
                 method: 'DELETE',
             })
 
@@ -86,9 +89,7 @@ const ProjectDeleteModal = () => {
                         icon={<TbTrash />}
                         onClick={handleDelete}
                         loading={isLoading}
-                        customColorClass={() =>
-                            'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-error hover:bg-error text-white'
-                        }
+                        customColorClass={(state) => 'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-error hover:bg-error text-white'}
                     >
                         Delete Project
                     </Button>
@@ -98,4 +99,13 @@ const ProjectDeleteModal = () => {
     )
 }
 
-export default ProjectDeleteModal
+export default ProjectDeleteModal`;
+
+const targetPath = '/Users/dicksonkerobean/Dev/ProjectMgt/src/app/(protected-pages)/concepts/projects/_components/ProjectDeleteModal.tsx';
+
+try {
+  fs.writeFileSync(targetPath, fixedContent);
+  console.log('✅ Successfully fixed ProjectDeleteModal.tsx');
+} catch (error) {
+  console.error('❌ Error fixing file:', error);
+}

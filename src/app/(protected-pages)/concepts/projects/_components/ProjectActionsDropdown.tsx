@@ -12,10 +12,10 @@ import { useProjectsStore, type Project } from '../_store/projectsStore'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { 
-    TbDotsVertical, 
-    TbEdit, 
-    TbTrash, 
+import {
+    TbDotsVertical,
+    TbEdit,
+    TbTrash,
     TbEye,
     TbX
 } from 'react-icons/tb'
@@ -93,13 +93,13 @@ const ProjectActionsDropdown = ({ project }: ProjectActionsDropdownProps) => {
         try {
             setIsLoading(true)
             await editProject(project.id, data)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Project updated successfully!
                 </Notification>
             )
-            
+
             setIsEditDialogOpen(false)
         } catch (error) {
             toast.push(
@@ -116,13 +116,13 @@ const ProjectActionsDropdown = ({ project }: ProjectActionsDropdownProps) => {
         try {
             setIsLoading(true)
             await deleteProjectFromApi(project.id)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Project deleted successfully!
                 </Notification>
             )
-            
+
             setIsDeleteDialogOpen(false)
         } catch (error) {
             toast.push(
@@ -162,9 +162,9 @@ const ProjectActionsDropdown = ({ project }: ProjectActionsDropdownProps) => {
             <Dropdown
                 placement="bottom-end"
                 renderTitle={
-                    <Button 
-                        variant="plain" 
-                        size="sm" 
+                    <Button
+                        variant="plain"
+                        size="sm"
                         icon={<TbDotsVertical />}
                         className="hover:bg-gray-100 dark:hover:bg-gray-700"
                     />
@@ -331,7 +331,9 @@ const ProjectActionsDropdown = ({ project }: ProjectActionsDropdownProps) => {
                         variant="solid"
                         onClick={onDeleteConfirm}
                         loading={isLoading}
-                        className="bg-red-600 hover:bg-red-700 text-white"
+                        customColorClass={() =>
+                            'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error bg-error hover:bg-error text-white'
+                        }
                     >
                         Delete Project
                     </Button>

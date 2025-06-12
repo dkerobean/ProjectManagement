@@ -190,14 +190,14 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
         const updatedProjects = state.projects.map((project) =>
             project.id === projectId ? { ...project, favorite } : project
         )
-        
+
         // Save to server
         const favoriteProjects = updatedProjects
             .filter(p => p.favorite)
             .map(p => p.id)
-        
+
         useProjectsStore.getState().saveUserPreferences({ favoriteProjects })
-        
+
         return { projects: updatedProjects }
     }),
 
@@ -211,7 +211,7 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     loadProjects: async () => {
         console.log('🔄 Loading projects from API...')
         set({ isLoading: true, error: null })
-        
+
         try {
             const response = await fetch('/api/projects', {
                 method: 'GET',
@@ -230,12 +230,12 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             }
 
             const data = await response.json()
-            console.log('📦 API Response data:', { 
+            console.log('📦 API Response data:', {
                 totalProjects: data.data?.length || 0,
                 hasData: !!data.data,
-                pagination: data.pagination 
+                pagination: data.pagination
             })
-            
+
             // Transform API response to match our Project interface
             const transformedProjects: Project[] = data.data?.map((project: ApiProject) => ({
                 id: project.id,
@@ -262,18 +262,18 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
 
             // Load user preferences to set favorites
             await useProjectsStore.getState().loadUserPreferences()
-            
-            set({ 
+
+            set({
                 projects: transformedProjects,
                 isLoading: false,
                 error: null
             })
-            
+
             console.log(`✅ Successfully loaded ${transformedProjects.length} projects`)
         } catch (error) {
             console.error('❌ Error loading projects:', error)
-            set({ 
-                isLoading: false, 
+            set({
+                isLoading: false,
                 error: error instanceof Error ? error.message : 'Failed to load projects'
             })
         }
@@ -290,7 +290,7 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             if (response.ok) {
                 const { data } = await response.json()
                 const favoriteProjects = data.favoriteProjects || []
-                
+
                 // Update projects with favorite status
                 set((state) => ({
                     projects: state.projects.map((project) => ({
@@ -324,7 +324,7 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     deleteProjectFromApi: async (projectId: string) => {
         try {
             set({ isLoading: true, error: null })
-            
+
             const response = await fetch(`/api/projects/${projectId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
@@ -346,8 +346,8 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             console.log(`✅ Successfully deleted project: ${projectId}`)
         } catch (error) {
             console.error('❌ Error deleting project:', error)
-            set({ 
-                isLoading: false, 
+            set({
+                isLoading: false,
                 error: error instanceof Error ? error.message : 'Failed to delete project'
             })
             throw error
@@ -357,7 +357,7 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     editProject: async (projectId: string, projectData: Partial<Project>) => {
         try {
             set({ isLoading: true, error: null })
-            
+
             const response = await fetch(`/api/projects/${projectId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -371,14 +371,14 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             }
 
             const { data: updatedProject } = await response.json()
-            
+
             // Update local state
             set((state) => ({
                 projects: state.projects.map((project) =>
                     project.id === projectId ? { ...project, ...updatedProject } : project
                 ),
-                selectedProject: state.selectedProject?.id === projectId 
-                    ? { ...state.selectedProject, ...updatedProject } 
+                selectedProject: state.selectedProject?.id === projectId
+                    ? { ...state.selectedProject, ...updatedProject }
                     : state.selectedProject,
                 isLoading: false
             }))
@@ -387,8 +387,8 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             return updatedProject
         } catch (error) {
             console.error('❌ Error updating project:', error)
-            set({ 
-                isLoading: false, 
+            set({
+                isLoading: false,
                 error: error instanceof Error ? error.message : 'Failed to update project'
             })
             throw error

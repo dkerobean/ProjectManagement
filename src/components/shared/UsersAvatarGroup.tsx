@@ -58,16 +58,15 @@ const UsersAvatarGroup = (props: UsersAvatarGroupProps) => {
                     key={elm[nameKey] + index}
                     wrapperClass="flex"
                     title={elm[nameKey]}
-                >
-                    <Avatar
+                >                    <Avatar
                         {...defaultAvatarProps}
                         className={`${
                             elm[imgKey] ? '' : bgColor(elm[nameKey])
                         } ${defaultAvatarProps.className}`}
-                        src={elm[imgKey]}
+                        src={elm[imgKey] || '/img/avatars/thumb-1.jpg'}
                         onClick={() => handleAvatarClick(elm)}
                     >
-                        {acronym(elm.name)}
+                        {elm[nameKey] ? acronym(elm[nameKey]) : 'U'}
                     </Avatar>
                 </Tooltip>
             ))}

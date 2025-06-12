@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useProjectsStore } from '../_store/projectsStore'
+import { useProjectListStore } from '../project-list/_store/projectListStore'
 import Dialog from '@/components/ui/Dialog'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -11,6 +12,99 @@ import FormItem from '@/components/ui/Form/FormItem'
 import FormContainer from '@/components/ui/Form/FormContainer'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
+import Avatar from '@/components/ui/Avatar'
+import { components } from 'react-select'
+import type { OptionProps, MultiValueGenericProps } from 'react-select'
+
+const { MultiValueLabel } = components
+
+// Custom option component for team member selection
+const CustomTeamMemberOption = ({ innerProps, label, data, isSelected }: OptionProps<TeamMemberOption>) => {
+    return (
+        <div
+            className={`flex items-center justify-between p-2 cursor-pointer ${
+                isSelected
+                    ? 'bg-gray-100 dark:bg-gray-500'
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-600'
+            }`}
+            {...innerProps}
+        >
+            <div className="flex items-center gap-2">
+                <Avatar shape="circle" size={20} src={data.img} />
+                <span className="font-semibold heading-text">{label}</span>
+            </div>
+        </div>
+    )
+}
+
+// Custom multi-value label component for selected team members
+const CustomMultiValueLabel = ({ children, ...props }: MultiValueGenericProps<TeamMemberOption, true>) => {
+    const { img } = props.data
+    return (
+        <MultiValueLabel {...props}>
+            <div className="inline-flex items-center">
+                <Avatar
+                    className="mr-1 rtl:ml-1"
+                    shape="circle"
+                    size={15}
+                    src={img}
+                />
+                {children}
+            </div>
+        </MultiValueLabel>
+    )
+}
+
+interface TeamMemberOption {
+    value: string
+    label: string
+    img: string
+}
+
+interface ApiMember {
+    id: string
+    name: string
+    img: string
+}
+
+interface MembersApiResponse {
+    allMembers?: ApiMember[]
+}
+
+interface ApiProjectMember {
+    id: string
+    role: string
+    user: {
+        id: string
+        name: string
+        email: string
+        avatar_url: string | null
+    }
+}
+
+interface ApiTask {
+    id: string
+    status: string
+    priority: string
+}
+
+interface ApiProject {
+    id: string
+    name: string
+    description: string | null
+    status: string
+    priority: string
+    start_date: string | null
+    end_date: string | null
+    created_at: string
+    updated_at: string
+    metadata?: {
+        color?: string
+        template?: string
+    }
+    project_members?: ApiProjectMember[]
+    tasks?: ApiTask[]
+}
 
 interface ProjectFormData {
     name: string
@@ -19,8 +113,8 @@ interface ProjectFormData {
     priority: string
     start_date: Date | null
     end_date: Date | null
-    budget: string
     color: string
+    team_members: TeamMemberOption[]
 }
 
 const ProjectFormModal = () => {
@@ -34,6 +128,8 @@ const ProjectFormModal = () => {
         updateProject
     } = useProjectsStore()
 
+    const { updateProjectList } = useProjectListStore()
+
     const isOpen = isCreateModalOpen || isEditModalOpen
     const isEdit = isEditModalOpen && selectedProject
 
@@ -44,12 +140,84 @@ const ProjectFormModal = () => {
         priority: 'medium',
         start_date: null,
         end_date: null,
-        budget: '',
-        color: '#3B82F6'
+        color: '#3B82F6',
+        team_members: []
     })
 
     const [isLoading, setIsLoading] = useState(false)
     const [errors, setErrors] = useState<Record<string, string>>({})
+    const [availableMembers, setAvailableMembers] = useState<TeamMemberOption[]>([])
+
+    // Transform API project data to project list format
+    const updateProjectListStore = (apiProject: ApiProject) => {
+        try {
+            const tasks = apiProject.tasks || []
+            const completedTasks = tasks.filter((task: ApiTask) => task.status === 'done')
+            const progression = tasks.length > 0
+                ? Math.round((completedTasks.length / tasks.length) * 100)
+                : 0
+
+            const transformedProject = {
+                id: apiProject.id,
+                name: apiProject.name,
+                category: apiProject.metadata?.template || 'other',
+                desc: apiProject.description || '',
+                attachmentCount: 0,
+                totalTask: tasks.length,
+                completedTask: completedTasks.length,
+                progression,
+                dayleft: apiProject.end_date ?
+                    Math.max(0, Math.ceil((new Date(apiProject.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : undefined,
+                status: apiProject.status,
+                member: apiProject.project_members?.map((member: ApiProjectMember) => {
+                    // Ensure we have a valid avatar URL or fallback
+                    const avatarUrl = member.user.avatar_url && member.user.avatar_url.trim()
+                        ? member.user.avatar_url
+                        : '/img/avatars/thumb-1.jpg';
+
+                    return {
+                        id: member.user.id,
+                        name: member.user.name || 'Team Member',
+                        email: member.user.email || '',
+                        img: avatarUrl
+                    };
+                }) || [],
+                cover: apiProject.metadata?.color || '#3B82F6',
+                priority: apiProject.priority || 'medium',
+                createdAt: apiProject.created_at,
+                updatedAt: apiProject.updated_at,
+                favourite: false
+            }
+
+            updateProjectList(transformedProject)
+        } catch (error) {
+            console.error('Error updating project list store:', error)
+        }
+    }
+
+    // Fetch available team members
+    useEffect(() => {
+        const fetchMembers = async () => {
+            try {
+                const response = await fetch('/api/projects/scrum-board/members')
+                if (response.ok) {
+                    const data: MembersApiResponse = await response.json()
+                    const memberOptions: TeamMemberOption[] = data.allMembers?.map((member: ApiMember) => ({
+                        value: member.id,
+                        label: member.name,
+                        img: member.img
+                    })) || []
+                    setAvailableMembers(memberOptions)
+                }
+            } catch (error) {
+                console.error('Error fetching team members:', error)
+            }
+        }
+
+        if (isOpen) {
+            fetchMembers()
+        }
+    }, [isOpen])
 
     useEffect(() => {
         if (isEdit && selectedProject) {
@@ -60,8 +228,8 @@ const ProjectFormModal = () => {
                 priority: selectedProject.priority,
                 start_date: selectedProject.start_date ? new Date(selectedProject.start_date) : null,
                 end_date: selectedProject.end_date ? new Date(selectedProject.end_date) : null,
-                budget: selectedProject.budget ? selectedProject.budget.toString() : '',
-                color: selectedProject.metadata?.color || '#3B82F6'
+                color: (selectedProject.metadata as { color?: string })?.color || '#3B82F6',
+                team_members: [] // TODO: Load existing team members if available
             })
         } else {
             setFormData({
@@ -71,8 +239,8 @@ const ProjectFormModal = () => {
                 priority: 'medium',
                 start_date: null,
                 end_date: null,
-                budget: '',
-                color: '#3B82F6'
+                color: '#3B82F6',
+                team_members: []
             })
         }
         setErrors({})
@@ -116,10 +284,6 @@ const ProjectFormModal = () => {
             newErrors.description = 'Description must be less than 1000 characters'
         }
 
-        if (formData.budget && isNaN(parseFloat(formData.budget))) {
-            newErrors.budget = 'Budget must be a valid number'
-        }
-
         if (formData.start_date && formData.end_date && formData.start_date > formData.end_date) {
             newErrors.end_date = 'End date must be after start date'
         }
@@ -141,10 +305,10 @@ const ProjectFormModal = () => {
                 priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
                 start_date: formData.start_date ? formData.start_date.toISOString().split('T')[0] : null,
                 end_date: formData.end_date ? formData.end_date.toISOString().split('T')[0] : null,
-                budget: formData.budget ? parseFloat(formData.budget) : null,
                 metadata: {
                     color: formData.color
-                }
+                },
+                team_members: formData.team_members.map(member => member.value)
             }
 
             if (isEdit && selectedProject) {
@@ -190,6 +354,12 @@ const ProjectFormModal = () => {
                 const { data: newProject } = await response.json()
                 addProject(newProject)
 
+                // Also update the project list store with transformed data
+                // Wait for the next tick to ensure UI updates correctly
+                setTimeout(() => {
+                    updateProjectListStore(newProject)
+                }, 0)
+
                 toast.push(
                     <Notification type="success" title="Success">
                         Project created successfully
@@ -230,8 +400,8 @@ const ProjectFormModal = () => {
                     priority: 'medium',
                     start_date: null,
                     end_date: null,
-                    budget: '',
-                    color: '#3B82F6'
+                    color: '#3B82F6',
+                    team_members: []
                 })
                 setErrors({})
             }}
@@ -309,29 +479,33 @@ const ProjectFormModal = () => {
                         </FormItem>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormItem
-                            label="Budget"
-                            invalid={!!errors.budget}
-                            errorMessage={errors.budget}
-                        >
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                value={formData.budget}
-                                onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                prefix="$"
-                            />
-                        </FormItem>
+                    <FormItem label="Team Members">
+                        <Select
+                            isMulti
+                            placeholder="Select team members"
+                            value={formData.team_members}
+                            onChange={(selectedOptions) => {
+                                setFormData({
+                                    ...formData,
+                                    team_members: selectedOptions ? [...selectedOptions] : []
+                                })
+                            }}
+                            options={availableMembers}
+                            components={{
+                                Option: CustomTeamMemberOption,
+                                MultiValueLabel: CustomMultiValueLabel,
+                            }}
+                            className="mb-4"
+                        />
+                    </FormItem>
 
-                        <FormItem label="Color">
-                            <Select
-                                value={colorOptions.find(option => option.value === formData.color)}
-                                onChange={(option) => setFormData({ ...formData, color: option?.value || '#3B82F6' })}
-                                options={colorOptions}
-                            />
-                        </FormItem>
-                    </div>
+                    <FormItem label="Color">
+                        <Select
+                            value={colorOptions.find(option => option.value === formData.color)}
+                            onChange={(option) => setFormData({ ...formData, color: option?.value || '#3B82F6' })}
+                            options={colorOptions}
+                        />
+                    </FormItem>
                 </FormContainer>
 
                 <div className="text-right mt-6">

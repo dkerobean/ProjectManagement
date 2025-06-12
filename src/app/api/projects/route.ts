@@ -144,10 +144,12 @@ export async function POST(request: NextRequest) {
         console.log('📝 Request body:', body)
 
         // Remove budget field if present (it doesn't exist in our database)
-        const { budget, ...bodyWithoutBudget } = body
+        const { budget, team_members, ...bodyWithoutBudget } = body
         if (budget !== undefined) {
             console.log('⚠️  Budget field detected and removed:', budget)
         }
+
+        console.log('👥 Team members from request:', team_members)
 
         // Validate the request body
         const validationResult = createProjectSchema.safeParse(bodyWithoutBudget)
@@ -224,10 +226,72 @@ export async function POST(request: NextRequest) {
             // This is not critical, we can continue
         }
 
-        console.log('✅ Successfully created project:', project.id)
+        // Add team members if provided
+        if (team_members && Array.isArray(team_members) && team_members.length > 0) {
+            console.log('👥 Adding team members:', team_members)
+
+            const memberInserts = team_members
+                .filter(memberId => memberId !== session.user.id) // Don't add owner twice
+                .map(memberId => ({
+                    project_id: project.id,
+                    user_id: memberId,
+                    role: 'member'
+                }))
+
+            if (memberInserts.length > 0) {
+                const { error: teamMemberError } = await supabase
+                    .from('project_members')
+                    .insert(memberInserts)
+
+                if (teamMemberError) {
+                    console.error('❌ Failed to add team members:', teamMemberError)
+                    // This is not critical, continue with project creation
+                } else {
+                    console.log('✅ Team members added successfully')
+                }
+            }
+        }
+
+        // Fetch the complete project data with all relationships
+        const { data: completeProject, error: fetchError } = await supabase
+            .from('projects')
+            .select(`
+                *,
+                owner:users!projects_owner_id_fkey(id, name, email, avatar_url),
+                project_members(
+                    id,
+                    role,
+                    user:users(id, name, email, avatar_url)
+                ),
+                tasks(id, status, priority)
+            `)
+            .eq('id', project.id)
+            .single()
+
+        if (fetchError) {
+            console.error('❌ Failed to fetch complete project data:', fetchError)
+            // Return basic project data if fetch fails
+            return NextResponse.json({
+                data: project,
+                message: 'Project created successfully'
+            }, { status: 201 })
+        }
+
+        // Calculate project metrics
+        const tasks = completeProject.tasks || []
+        const completedTasksCount = tasks.filter((task: { status: string }) => task.status === 'done').length
+        const projectWithMetrics = {
+            ...completeProject,
+            taskCount: tasks.length,
+            completedTasks: completedTasksCount,
+            memberCount: completeProject.project_members?.length || 0,
+            progress: tasks.length > 0 ? Math.round((completedTasksCount / tasks.length) * 100) : 0
+        }
+
+        console.log('✅ Successfully created project with complete data:', project.id)
 
         return NextResponse.json({
-            data: project,
+            data: projectWithMetrics,
             message: 'Project created successfully'
         }, { status: 201 })
 

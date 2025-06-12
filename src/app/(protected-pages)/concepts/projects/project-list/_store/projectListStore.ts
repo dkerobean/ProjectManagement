@@ -23,11 +23,21 @@ const initialState: ProjectListState = {
 export const useProjectListStore = create<ProjectListState & ProjectListAction>(
     (set) => ({
         ...initialState,
-        setProjectList: (payload) => set(() => ({ projectList: payload })),
-        updateProjectList: (payload) =>
-            set((state) => ({
-                projectList: [...state.projectList, ...[payload]],
-            })),
+        setProjectList: (payload) => set(() => ({ projectList: payload })),        updateProjectList: (payload) =>
+            set((state) => {
+                // Check if project already exists in the list
+                const existingProjectIndex = state.projectList.findIndex(project => project.id === payload.id);
+
+                if (existingProjectIndex >= 0) {
+                    // Update the existing project
+                    const updatedList = [...state.projectList];
+                    updatedList[existingProjectIndex] = payload;
+                    return { projectList: updatedList };
+                } else {
+                    // Add the new project to the list
+                    return { projectList: [...state.projectList, payload] };
+                }
+            }),
         updateProjectFavorite: (payload) =>
             set((state) => {
                 const { id, value } = payload
