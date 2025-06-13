@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useProjectsStore, type Project } from '../_store/projectsStore'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
@@ -15,6 +15,8 @@ import {
 import Link from 'next/link'
 
 const ProjectsContent = () => {
+    const loadedRef = useRef(false)
+    
     const {
         projects,
         searchQuery,
@@ -23,25 +25,27 @@ const ProjectsContent = () => {
         sortBy,
         sortOrder,
         toggleProjectFavorite,
-        loadProjects,
-        loadUserPreferences
+        loadProjects
     } = useProjectsStore()
 
     // Load projects and preferences on component mount
     useEffect(() => {
-        if (projects.length === 0) {
-            loadProjects()
-        } else {
-            // If projects are already loaded, just load preferences to set favorites
-            loadUserPreferences()
+        if (!loadedRef.current && (!projects || projects.length === 0)) {
+            console.log('🚀 ProjectsContent: Initializing projects load...')
+            loadedRef.current = true
+            loadProjects() // This already calls loadUserPreferences internally
         }
-    }, [loadProjects, loadUserPreferences, projects.length])
+    }, [loadProjects, projects])
 
     // Filter and sort projects
     const filteredProjects = useMemo(() => {
+        if (!Array.isArray(projects)) {
+            return []
+        }
+        
         const filtered = projects.filter((project) => {
             const matchesSearch = !searchQuery ||
-                project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                project.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 project.description?.toLowerCase().includes(searchQuery.toLowerCase())
 
             const matchesStatus = !statusFilter || project.status === statusFilter
@@ -74,8 +78,8 @@ const ProjectsContent = () => {
     }, [projects, searchQuery, statusFilter, priorityFilter, sortBy, sortOrder])
 
     // Separate favorite and regular projects
-    const favoriteProjects = filteredProjects.filter(project => project.favorite)
-    const regularProjects = filteredProjects.filter(project => !project.favorite)
+    const favoriteProjects = filteredProjects.filter(project => project?.favorite) || []
+    const regularProjects = filteredProjects.filter(project => !project?.favorite) || []
 
     const FavoriteProjectCard = ({ project }: { project: Project }) => (
         <Card key={project.id} bodyClass="p-6">
@@ -131,14 +135,14 @@ const ProjectsContent = () => {
 
                 {/* Team Avatars */}
                 <div className="flex -space-x-2 mt-4">
-                    {project.project_members && project.project_members.length > 0 ? (
+                    {project.project_members && Array.isArray(project.project_members) && project.project_members.length > 0 ? (
                         <>
                             {project.project_members.slice(0, 3).map((member) => (
                                 <Avatar
                                     key={member.id}
                                     size={32}
-                                    src={member.user.avatar_url || undefined}
-                                    alt={member.user.name}
+                                    src={member.user?.avatar_url || undefined}
+                                    alt={member.user?.name || 'Team member'}
                                     className="border-2 border-white"
                                 />
                             ))}
@@ -203,14 +207,14 @@ const ProjectsContent = () => {
 
                 {/* Team Avatars */}
                 <div className="flex -space-x-2 mr-4">
-                    {project.project_members && project.project_members.length > 0 ? (
+                    {project.project_members && Array.isArray(project.project_members) && project.project_members.length > 0 ? (
                         <>
                             {project.project_members.slice(0, 2).map((member) => (
                                 <Avatar
                                     key={member.id}
                                     size={28}
-                                    src={member.user.avatar_url || undefined}
-                                    alt={member.user.name}
+                                    src={member.user?.avatar_url || undefined}
+                                    alt={member.user?.name || 'Team member'}
                                     className="border-2 border-white"
                                 />
                             ))}

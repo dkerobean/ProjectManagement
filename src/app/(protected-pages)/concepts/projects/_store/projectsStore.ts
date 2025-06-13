@@ -103,6 +103,7 @@ interface ProjectsState {
     currentPage: number
     totalPages: number
     isLoading: boolean
+    isLoadingPreferences: boolean
     error: string | null
     projectMembers: ProjectMember[]
 }
@@ -135,7 +136,7 @@ interface ProjectsActions {
     editProject: (projectId: string, projectData: Partial<Project>) => Promise<void>
 }
 
-export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) => ({
+export const useProjectsStore = create<ProjectsState & ProjectsActions>((set, get) => ({
     // State
     projects: [],
     selectedProject: null,
@@ -150,6 +151,7 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     currentPage: 1,
     totalPages: 1,
     isLoading: false,
+    isLoadingPreferences: false,
     error: null,
     projectMembers: [],
 
@@ -186,20 +188,25 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
         selectedProject: state.selectedProject?.id === projectId ? null : state.selectedProject
     })),
 
-    toggleProjectFavorite: (projectId, favorite) => set((state) => {
-        const updatedProjects = state.projects.map((project) =>
-            project.id === projectId ? { ...project, favorite } : project
-        )
+    toggleProjectFavorite: (projectId, favorite) => {
+        console.log('🔄 toggleProjectFavorite called:', { projectId, favorite })
+        
+        set((state) => {
+            const updatedProjects = state.projects.map((project) =>
+                project.id === projectId ? { ...project, favorite } : project
+            )
 
-        // Save to server
-        const favoriteProjects = updatedProjects
-            .filter(p => p.favorite)
-            .map(p => p.id)
+            // Save to server
+            const favoriteProjects = updatedProjects
+                .filter(p => p.favorite)
+                .map(p => p.id)
 
-        useProjectsStore.getState().saveUserPreferences({ favoriteProjects })
+            console.log('💾 Saving favorite projects to server:', favoriteProjects)
+            useProjectsStore.getState().saveUserPreferences({ favoriteProjects })
 
-        return { projects: updatedProjects }
-    }),
+            return { projects: updatedProjects }
+        })
+    },
 
     resetFilters: () => set({
         searchQuery: '',
@@ -209,6 +216,14 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     }),
 
     loadProjects: async () => {
+        const state = get()
+        
+        // Prevent concurrent requests
+        if (state.isLoading) {
+            console.log('🔄 Already loading projects, skipping...')
+            return
+        }
+
         console.log('🔄 Loading projects from API...')
         set({ isLoading: true, error: null })
 
@@ -260,14 +275,17 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
                 favorite: false // Will be set from user preferences
             })) || []
 
-            // Load user preferences to set favorites
-            await useProjectsStore.getState().loadUserPreferences()
-
+            // First set the projects in the store
             set({
                 projects: transformedProjects,
                 isLoading: false,
                 error: null
             })
+
+            // Then load user preferences to set favorites (with a small delay to ensure state is updated)
+            setTimeout(async () => {
+                await useProjectsStore.getState().loadUserPreferences()
+            }, 0)
 
             console.log(`✅ Successfully loaded ${transformedProjects.length} projects`)
         } catch (error) {
@@ -280,7 +298,21 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
     },
 
     loadUserPreferences: async () => {
+        const state = get()
+        
+        // Prevent concurrent requests
+        if (state.isLoadingPreferences) {
+            console.log('🔄 Already loading user preferences, skipping...')
+            return
+        }
+
         try {
+            set({ isLoadingPreferences: true })
+            console.log('🔍 Loading user preferences from API...')
+            
+            const currentState = get()
+            console.log('🔍 Current projects count before loading preferences:', currentState.projects.length)
+            
             const response = await fetch('/api/user/preferences', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
@@ -290,22 +322,40 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             if (response.ok) {
                 const { data } = await response.json()
                 const favoriteProjects = data.favoriteProjects || []
+                
+                console.log('🔍 Debug - favoriteProjects from API:', favoriteProjects)
 
                 // Update projects with favorite status
-                set((state) => ({
-                    projects: state.projects.map((project) => ({
+                set((state) => {
+                    const updatedProjects = state.projects.map((project) => ({
                         ...project,
                         favorite: favoriteProjects.includes(project.id)
                     }))
-                }))
+                    
+                    console.log('🔍 Debug - projects before update:', state.projects.map(p => ({ id: p.id, name: p.name, favorite: p.favorite })))
+                    console.log('🔍 Debug - projects after update:', updatedProjects.map(p => ({ id: p.id, name: p.name, favorite: p.favorite })))
+                    
+                    return {
+                        projects: updatedProjects,
+                        isLoadingPreferences: false
+                    }
+                })
+                
+                console.log('✅ Successfully loaded user preferences')
+            } else {
+                console.log('❌ Failed to load user preferences - response not ok:', response.status)
+                set({ isLoadingPreferences: false })
             }
         } catch (error) {
             console.error('❌ Error loading user preferences:', error)
+            set({ isLoadingPreferences: false })
         }
     },
 
     saveUserPreferences: async (preferences: Record<string, unknown>) => {
         try {
+            console.log('💾 Saving user preferences:', preferences)
+            
             const response = await fetch('/api/user/preferences', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -314,8 +364,11 @@ export const useProjectsStore = create<ProjectsState & ProjectsActions>((set) =>
             })
 
             if (!response.ok) {
+                console.error('❌ Failed to save preferences - response not ok:', response.status)
                 throw new Error('Failed to save preferences')
             }
+            
+            console.log('✅ Successfully saved user preferences')
         } catch (error) {
             console.error('❌ Error saving user preferences:', error)
         }

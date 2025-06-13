@@ -113,8 +113,16 @@ interface ProjectFormData {
     priority: string
     start_date: Date | null
     end_date: Date | null
-    color: string
     team_members: TeamMemberOption[]
+    tasks: TaskData[]
+}
+
+interface TaskData {
+    id?: string
+    title: string
+    description?: string
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
 }
 
 const ProjectFormModal = () => {
@@ -140,8 +148,8 @@ const ProjectFormModal = () => {
         priority: 'medium',
         start_date: null,
         end_date: null,
-        color: '#3B82F6',
-        team_members: []
+        team_members: [],
+        tasks: []
     })
 
     const [isLoading, setIsLoading] = useState(false)
@@ -228,8 +236,8 @@ const ProjectFormModal = () => {
                 priority: selectedProject.priority,
                 start_date: selectedProject.start_date ? new Date(selectedProject.start_date) : null,
                 end_date: selectedProject.end_date ? new Date(selectedProject.end_date) : null,
-                color: (selectedProject.metadata as { color?: string })?.color || '#3B82F6',
-                team_members: [] // TODO: Load existing team members if available
+                team_members: [], // TODO: Load existing team members if available
+                tasks: []
             })
         } else {
             setFormData({
@@ -239,8 +247,8 @@ const ProjectFormModal = () => {
                 priority: 'medium',
                 start_date: null,
                 end_date: null,
-                color: '#3B82F6',
-                team_members: []
+                team_members: [],
+                tasks: []
             })
         }
         setErrors({})
@@ -261,14 +269,19 @@ const ProjectFormModal = () => {
         { value: 'critical', label: 'Critical' }
     ]
 
-    const colorOptions = [
-        { value: '#3B82F6', label: 'Blue' },
-        { value: '#EF4444', label: 'Red' },
-        { value: '#10B981', label: 'Green' },
-        { value: '#F59E0B', label: 'Yellow' },
-        { value: '#8B5CF6', label: 'Purple' },
-        { value: '#EC4899', label: 'Pink' },
-        { value: '#6B7280', label: 'Gray' }
+    const taskStatusOptions = [
+        { value: 'todo', label: 'To Do' },
+        { value: 'in_progress', label: 'In Progress' },
+        { value: 'review', label: 'Review' },
+        { value: 'done', label: 'Done' },
+        { value: 'blocked', label: 'Blocked' }
+    ]
+
+    const taskPriorityOptions = [
+        { value: 'low', label: 'Low' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'high', label: 'High' },
+        { value: 'critical', label: 'Critical' }
     ]
 
     const validateForm = () => {
@@ -305,10 +318,9 @@ const ProjectFormModal = () => {
                 priority: formData.priority as 'low' | 'medium' | 'high' | 'critical',
                 start_date: formData.start_date ? formData.start_date.toISOString().split('T')[0] : null,
                 end_date: formData.end_date ? formData.end_date.toISOString().split('T')[0] : null,
-                metadata: {
-                    color: formData.color
-                },
-                team_members: formData.team_members.map(member => member.value)
+                metadata: {},
+                team_members: formData.team_members.map(member => member.value),
+                tasks: formData.tasks
             }
 
             if (isEdit && selectedProject) {
@@ -400,8 +412,8 @@ const ProjectFormModal = () => {
                     priority: 'medium',
                     start_date: null,
                     end_date: null,
-                    color: '#3B82F6',
-                    team_members: []
+                    team_members: [],
+                    tasks: []
                 })
                 setErrors({})
             }}
@@ -499,13 +511,82 @@ const ProjectFormModal = () => {
                         />
                     </FormItem>
 
-                    <FormItem label="Color">
-                        <Select
-                            value={colorOptions.find(option => option.value === formData.color)}
-                            onChange={(option) => setFormData({ ...formData, color: option?.value || '#3B82F6' })}
-                            options={colorOptions}
-                        />
-                    </FormItem>
+                    {/* Tasks Section */}
+                    <div className="mb-4">
+                        <h6 className="text-sm font-medium text-gray-700 mb-2">Tasks</h6>
+                        {formData.tasks.map((task, index) => (
+                            <div key={index} className="mb-3 p-3 border border-gray-200 rounded-lg">
+                                <div className="flex justify-between items-start mb-2">
+                                    <Input
+                                        placeholder="Task title"
+                                        value={task.title}
+                                        onChange={(e) => {
+                                            const updatedTasks = [...formData.tasks]
+                                            updatedTasks[index].title = e.target.value
+                                            setFormData({ ...formData, tasks: updatedTasks })
+                                        }}
+                                        className="mr-2"
+                                    />
+                                    <Button
+                                        size="sm"
+                                        variant="plain"
+                                        onClick={() => {
+                                            const updatedTasks = formData.tasks.filter((_, i) => i !== index)
+                                            setFormData({ ...formData, tasks: updatedTasks })
+                                        }}
+                                    >
+                                        Remove
+                                    </Button>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Select
+                                        placeholder="Priority"
+                                        value={taskPriorityOptions.find(opt => opt.value === task.priority)}
+                                        onChange={(option) => {
+                                            const updatedTasks = [...formData.tasks]
+                                            updatedTasks[index].priority = (option?.value as 'low' | 'medium' | 'high' | 'critical') || 'medium'
+                                            setFormData({ ...formData, tasks: updatedTasks })
+                                        }}
+                                        options={taskPriorityOptions}
+                                    />
+                                    <Select
+                                        placeholder="Status"
+                                        value={taskStatusOptions.find(opt => opt.value === task.status)}
+                                        onChange={(option) => {
+                                            const updatedTasks = [...formData.tasks]
+                                            updatedTasks[index].status = (option?.value as 'todo' | 'in_progress' | 'review' | 'done' | 'blocked') || 'todo'
+                                            setFormData({ ...formData, tasks: updatedTasks })
+                                        }}
+                                        options={taskStatusOptions}
+                                    />
+                                </div>
+                                <Input
+                                    placeholder="Task description (optional)"
+                                    value={task.description || ''}
+                                    onChange={(e) => {
+                                        const updatedTasks = [...formData.tasks]
+                                        updatedTasks[index].description = e.target.value
+                                        setFormData({ ...formData, tasks: updatedTasks })
+                                    }}
+                                    className="mt-2"
+                                />
+                            </div>
+                        ))}
+                        <Button
+                            size="sm"
+                            variant="solid"
+                            onClick={() => {
+                                const newTask: TaskData = {
+                                    title: '',
+                                    priority: 'medium',
+                                    status: 'todo'
+                                }
+                                setFormData({ ...formData, tasks: [...formData.tasks, newTask] })
+                            }}
+                        >
+                            Add Task
+                        </Button>
+                    </div>
                 </FormContainer>
 
                 <div className="text-right mt-6">

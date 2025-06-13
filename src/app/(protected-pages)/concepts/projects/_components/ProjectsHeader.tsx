@@ -22,13 +22,11 @@ const ProjectsHeader = () => {
         setSortOrder,
         toggleCreateModal,
         resetFilters,
-        loadProjects,
-        loadUserPreferences
+        loadProjects
     } = useProjectsStore()
 
     const handleRefresh = async () => {
-        await loadProjects()
-        await loadUserPreferences()
+        await loadProjects() // This already calls loadUserPreferences internally
     }
 
     const [showFilters, setShowFilters] = useState(false)

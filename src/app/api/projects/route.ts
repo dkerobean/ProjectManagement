@@ -261,7 +261,7 @@ export async function POST(request: NextRequest) {
                 project_members(
                     id,
                     role,
-                    user:users(id, name, email, avatar_url)
+                    user:users!project_members_user_id_fkey(id, name, email, avatar_url)
                 ),
                 tasks(id, status, priority)
             `)
