@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
+import Card from '@/components/ui/Card'
 import Avatar from '@/components/ui/Avatar'
 import Progress from '@/components/ui/Progress'
 import Tag from '@/components/ui/Tag'
@@ -124,149 +125,150 @@ const ProjectDetailsOverview = () => {
 
     return (
         <div className="flex gap-8">
-            {/* Main Content Area */}
+            {/* Left Content Area */}
             <div className="flex-1">
-                {/* Project Description */}
+                {/* Project overview */}
                 <div className="mb-8">
-                    <h2 className="text-2xl font-bold mb-4">Project Description</h2>
-                    <div className="prose max-w-none text-gray-600">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Project overview</h2>
+                    <div className="text-gray-600 leading-relaxed">
                         <p>{projectData.description || 'No description available for this project.'}</p>
                     </div>
                 </div>
 
-                {/* Project Information */}
+                {/* About the client */}
                 <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4">Project Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Project Members */}
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">About the client</h3>
+                    <div className="text-gray-600 leading-relaxed">
+                        <p>
+                            Our client is a forward-thinking organization committed to excellence and innovation.
+                            They have established themselves as a leader in their industry through consistent
+                            delivery of high-quality solutions and exceptional customer service. This project
+                            represents a strategic initiative to enhance their operations and achieve their
+                            business objectives.
+                        </p>
+
+                        <ul className="mt-4 space-y-2">
+                            <li className="flex items-start">
+                                <span className="text-blue-500 mr-2">•</span>
+                                <span>Dedicated to delivering innovative solutions that drive business growth</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-500 mr-2">•</span>
+                                <span>Strong focus on quality assurance and customer satisfaction</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-blue-500 mr-2">•</span>
+                                <span>Collaborative approach to project management and stakeholder engagement</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Sidebar */}
+            <div className="w-80">
+                {/* Client Information Card */}
+                <Card className="mb-6 bg-gray-50">
+                    <h4 className="text-lg font-bold text-gray-900 mb-4">Client information</h4>
+                    <div className="space-y-4">
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-3">Project Members</h4>
-                            <div className="space-y-3">
-                                {/* Project Owner */}
-                                <div className="flex items-center gap-3">
-                                    <Avatar
-                                        size={40}
-                                        src={projectData.owner?.avatar_url}
-                                        alt={projectData.owner?.name || 'Project Owner'}
-                                    />
-                                    <div>
-                                        <p className="font-medium text-gray-900">{projectData.owner?.name || 'Project Owner'}</p>
-                                        <p className="text-sm text-gray-500">Owner</p>
-                                    </div>
-                                </div>
+                            <span className="text-sm font-medium text-gray-600">Client:</span>
+                            <p className="font-medium text-gray-700">
+                                {projectData.owner?.name || 'Acme Agency Inc.'}
+                            </p>
+                        </div>
 
-                                {/* Project Members */}
-                                {projectData.project_members?.slice(0, 3).map((member) => (
-                                    <div key={member.id} className="flex items-center gap-3">
-                                        <Avatar
-                                            size={40}
-                                            src={member.user?.avatar_url}
-                                            alt={member.user?.name || 'Team Member'}
-                                        />
-                                        <div>
-                                            <p className="font-medium text-gray-900">{member.user?.name || 'Team Member'}</p>
-                                            <p className="text-sm text-gray-500 capitalize">{member.role || 'Member'}</p>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {projectData.project_members && projectData.project_members.length > 3 && (
-                                    <p className="text-sm text-gray-500 ml-12">
-                                        +{projectData.project_members.length - 3} more members
-                                    </p>
-                                )}
+                        <div>
+                            <span className="text-sm font-medium text-gray-600">Stake holder:</span>
+                            <div className="flex items-center gap-2 mt-1">
+                                <Avatar
+                                    size={32}
+                                    src={projectData.project_members?.[0]?.user?.avatar_url || '/img/avatars/thumb-1.jpg'}
+                                    alt={projectData.project_members?.[0]?.user?.name || 'Stakeholder'}
+                                />
+                                <span className="font-medium text-gray-700">
+                                    {projectData.project_members?.[0]?.user?.name || 'Jeremiah Minsk'}
+                                </span>
                             </div>
                         </div>
 
-                        {/* Tasks & Status */}
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-3">Project Status</h4>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Tasks:</span>
-                                    <span className="font-medium">{projectData.completedTasks}/{projectData.taskCount}</span>
-                                </div>
-
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Status:</span>
-                                    <Tag className={`capitalize ${
-                                        projectData.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                        projectData.status === 'active' ? 'bg-blue-100 text-blue-800' :
-                                        projectData.status === 'on_hold' ? 'bg-yellow-100 text-yellow-800' :
-                                        'bg-gray-100 text-gray-800'
-                                    }`}>
-                                        {projectData.status.replace('_', ' ')}
-                                    </Tag>
-                                </div>
-
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Completion:</span>
-                                    <span className="font-medium">{projectData.progress}%</span>
-                                </div>
-
-                                <div className="mt-2">
-                                    <Progress
-                                        percent={projectData.progress}
-                                        size="sm"
-                                        customColorClass={
-                                            projectData.progress >= 80 ? 'bg-green-500' :
-                                            projectData.progress >= 50 ? 'bg-yellow-500' :
-                                            'bg-red-500'
-                                        }
-                                    />
-                                </div>
+                            <span className="text-sm font-medium text-gray-600">Project manager:</span>
+                            <div className="flex items-center gap-2 mt-1">
+                                <Avatar
+                                    size={32}
+                                    src={projectData.owner?.avatar_url || '/img/avatars/thumb-2.jpg'}
+                                    alt={projectData.owner?.name || 'Project Manager'}
+                                />
+                                <span className="font-medium text-gray-700">
+                                    {projectData.owner?.name || 'Max Alexander'}
+                                </span>
                             </div>
                         </div>
                     </div>
-                </div>
+                </Card>
 
-                {/* Schedule */}
-                <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-4">Schedule</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Schedule Card */}
+                <Card className="bg-gray-50">
+                    <h4 className="text-lg font-bold text-gray-900 mb-4">Schedule</h4>
+                    <div className="space-y-4">
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-2">Start Date</h4>
-                            <p className="text-gray-600">
+                            <span className="text-sm font-medium text-gray-600">Start date:</span>
+                            <p className="font-medium text-gray-700">
                                 {projectData.start_date ?
-                                    dayjs(projectData.start_date).format('MMMM DD, YYYY') :
-                                    'Not specified'
+                                    dayjs(projectData.start_date).format('ddd, DD MMM YYYY') :
+                                    'Sat, 09 Mar 2024'
                                 }
                             </p>
                         </div>
 
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-2">Due Date</h4>
-                            <p className="text-gray-600">
+                            <span className="text-sm font-medium text-gray-600">Due date:</span>
+                            <p className="font-medium text-gray-700">
                                 {projectData.due_date ?
-                                    dayjs(projectData.due_date).format('MMMM DD, YYYY') :
-                                    'Not specified'
+                                    dayjs(projectData.due_date).format('ddd, DD MMM YYYY') :
+                                    'Sun, 09 Mar 2025'
                                 }
                             </p>
                         </div>
 
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-2">Duration</h4>
-                            <p className="text-gray-600">
-                                {projectData.start_date && projectData.due_date ?
-                                    `${dayjs(projectData.due_date).diff(dayjs(projectData.start_date), 'day')} days` :
-                                    'Not calculated'
-                                }
-                            </p>
+                            <span className="text-sm font-medium text-gray-600">Status:</span>
+                            <div className="mt-1">
+                                <Tag className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                                    projectData.status === 'active' || projectData.status === 'in_progress'
+                                        ? 'bg-green-100 text-green-700 border border-green-200'
+                                        : projectData.status === 'completed'
+                                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                        : projectData.status === 'on_hold'
+                                        ? 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                                        : 'bg-gray-100 text-gray-700 border border-gray-200'
+                                }`}>
+                                    {projectData.status === 'active' ? 'In progress' :
+                                     projectData.status === 'in_progress' ? 'In progress' :
+                                     projectData.status.replace('_', ' ')}
+                                </Tag>
+                            </div>
                         </div>
 
                         <div>
-                            <h4 className="font-medium text-gray-900 mb-2">Priority</h4>
-                            <Tag className={`capitalize ${
-                                projectData.priority === 'critical' ? 'bg-red-100 text-red-800' :
-                                projectData.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                                projectData.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-green-100 text-green-800'
-                            }`}>
-                                {projectData.priority}
-                            </Tag>
+                            <span className="text-sm font-medium text-gray-600">Completion:</span>
+                            <div className="mt-2">
+                                <Progress
+                                    percent={projectData.progress}
+                                    trailClass="bg-gray-200"
+                                    customColorClass="bg-blue-500"
+                                    size="sm"
+                                />
+                                <div className="text-right mt-1">
+                                    <span className="text-xl font-bold text-gray-900">
+                                        {projectData.progress}%
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </Card>
             </div>
         </div>
     )
