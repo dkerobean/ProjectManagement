@@ -5,9 +5,24 @@ import Spinner from '@/components/ui/Spinner'
 import ProjectDetailsHeader from './ProjectDetailsHeader'
 import ProjectDetailsNavigation from './ProjectDetailsNavigation'
 import useResponsive from '@/utils/hooks/useResponsive'
-import { apiGetProject } from '@/services/ProjectService'
 import useSWR from 'swr'
 import type { GetProjectDetailsResponse } from '../types'
+
+// Real API function for project details
+const apiGetProject = async ({ id }: { id: string }) => {
+    const response = await fetch(`/api/projects/${id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+    })
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch project: ${response.statusText}`)
+    }
+
+    const result = await response.json()
+    return result.data
+}
 
 const defaultNavValue = 'overview'
 const settingsNavValue = 'settings'
@@ -20,8 +35,7 @@ const ProjectDetailsAttachments = lazy(
 const ProjectDetailsActivity = lazy(() => import('./ProjectDetailsActivity'))
 const ProjectDetailsSetting = lazy(() => import('./ProjectDetailsSetting'))
 
-const ProjectDetails = ({ id }: { id: string }) => {
-    const { data, mutate } = useSWR<GetProjectDetailsResponse, { id: string }>(
+const ProjectDetails = ({ id }: { id: string }) => {    const { data, mutate } = useSWR<GetProjectDetailsResponse, { id: string }>(
         [`/api/projects/${id}`],
         () => apiGetProject({ id }),
         {

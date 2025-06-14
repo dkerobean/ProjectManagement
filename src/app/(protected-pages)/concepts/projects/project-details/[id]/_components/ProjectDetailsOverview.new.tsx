@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import { useParams } from 'next/navigation'
 import Card from '@/components/ui/Card'
 import Avatar from '@/components/ui/Avatar'
 import Progress from '@/components/ui/Progress'
@@ -28,36 +30,93 @@ type ProjectDetailsOverviewProps = {
     }>
 }
 
-const ProjectDetailsOverview = ({ content, client, schedule }: ProjectDetailsOverviewProps) => {
-    // Use the data passed from parent component instead of fetching independently
-    const projectData = {
-        name: client?.clientName || 'Project Name',
-        description: content || '',
-        status: schedule?.status || 'active',
-        priority: 'medium', // Default since not available in current props
-        start_date: schedule?.startDate ? new Date(schedule.startDate * 1000).toISOString() : '',
-        due_date: schedule?.dueDate ? new Date(schedule.dueDate * 1000).toISOString() : '',
-        created_at: new Date().toISOString(), // Default since not available
-        progress: schedule?.completion || 0,
-        completedTasks: 0, // Will be calculated from actual data when available
-        taskCount: 0, // Will be calculated from actual data when available
-        memberCount: 1, // Default
+type ProjectData = {
+    id: string
+    name: string
+    description: string
+    status: string
+    priority: string
+    start_date: string
+    end_date: string
+    due_date: string
+    created_at: string
+    owner: {
+        name: string
+        email: string
+        avatar_url: string
+    }
+    project_members: Array<{
+        user: {
+            name: string
+            email: string
+            avatar_url: string
+        }
+        role: string
+    }>
+    taskCount: number
+    completedTasks: number
+    progress: number
+}
+
+const ProjectDetailsOverview = (props: ProjectDetailsOverviewProps) => {
+    const params = useParams()
+    const projectId = params?.id as string
+    const [projectData, setProjectData] = useState<ProjectData | null>(null)
+    const [isLoading, setIsLoading] = useState(true)
+
+    // Fetch real project data from the database
+    useEffect(() => {
+        const fetchProjectData = async () => {
+            if (!projectId) return
+
+            try {
+                setIsLoading(true)
+
+                const response = await fetch(`/api/projects/${projectId}`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                })
+
+                if (response.ok) {
+                    const result = await response.json()
+                    setProjectData(result.data)
+                } else {
+                    console.error('Failed to fetch project data:', response.statusText)
+                }
+            } catch (error) {
+                console.error('Error fetching project data:', error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        fetchProjectData()
+    }, [projectId])
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+        )
     }
 
-    // Mock manager and stakeholder data until real data is available
-    const projectManager = {
-        id: '1',
-        name: client?.projectManager?.name || 'Project Manager',
-        email: 'manager@example.com',
-        avatar_url: client?.projectManager?.img || '/img/avatars/thumb-2.jpg'
+    if (!projectData) {
+        return (
+            <div className="flex justify-center items-center py-12">
+                <p className="text-gray-500">Failed to load project data</p>
+            </div>
+        )
     }
 
-    const stakeHolder = {
-        id: '2',
-        name: client?.skateHolder?.name || 'Stake Holder',
-        email: 'stakeholder@example.com',
-        avatar_url: client?.skateHolder?.img || '/img/avatars/thumb-1.jpg'
-    }
+    // Get project manager (owner or first admin member)
+    const projectManager = projectData.owner || projectData.project_members?.find(m => m.role === 'admin')?.user
+
+    // Get stake holder (first member if different from manager)
+    const stakeHolder = projectData.project_members?.find(m =>
+        m.user.email !== projectManager?.email
+    )?.user || projectManager
 
     return (
         <div className="flex gap-8">
@@ -101,7 +160,7 @@ const ProjectDetailsOverview = ({ content, client, schedule }: ProjectDetailsOve
                         <div>
                             <h4 className="font-medium text-gray-900 mb-2">Team & Progress</h4>
                             <p>
-                                The project team consists of {projectData.memberCount + 1} members
+                                The project team consists of {projectData.project_members?.length || 1} members
                                 working collaboratively to achieve the project goals. Currently,
                                 <strong> {projectData.completedTasks} out of {projectData.taskCount} tasks</strong>
                                 have been completed, representing {projectData.progress}% progress.

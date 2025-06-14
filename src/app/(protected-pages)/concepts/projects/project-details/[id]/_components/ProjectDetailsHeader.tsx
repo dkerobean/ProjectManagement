@@ -10,12 +10,21 @@ import { Form, FormItem } from '@/components/ui/Form'
 import ToggleDrawer from '@/components/shared/ToggleDrawer'
 import ProjectDetailsNavigation from './ProjectDetailsNavigation'
 import useResponsive from '@/utils/hooks/useResponsive'
-import { apiGetProjectMembers } from '@/services/ProjectService'
 import { components } from 'react-select'
 import { TbChecks } from 'react-icons/tb'
 import useSWRMutation from 'swr/mutation'
 import type { MultiValueGenericProps, OptionProps } from 'react-select'
 import type { ToggleDrawerRef } from '@/components/shared/ToggleDrawer'
+
+// Mock API function for project members
+const mockApiGetProjectMembers = async () => {
+    await new Promise(resolve => setTimeout(resolve, 300))
+    return [
+        { id: '1', name: 'John Doe', email: 'john@example.com', img: '/img/avatars/thumb-1.jpg' },
+        { id: '2', name: 'Jane Smith', email: 'jane@example.com', img: '/img/avatars/thumb-2.jpg' },
+        { id: '3', name: 'Mike Johnson', email: 'mike@example.com', img: '/img/avatars/thumb-3.jpg' }
+    ]
+}
 
 type ProjectDetailsHeaderProps = {
     title: string
@@ -103,10 +112,10 @@ const ProjectDetailsHeader = (props: ProjectDetailsHeaderProps) => {
 
     const { trigger } = useSWRMutation(
         ['/api/projects/members'],
-        () => apiGetProjectMembers<GetProjectMembersResponse>(),
+        () => mockApiGetProjectMembers(),
         {
-            onSuccess: (data) => {
-                const members = data?.allMembers.map((item) => ({
+            onSuccess: (data: any) => {
+                const members = data?.map((item: any) => ({
                     value: item.id,
                     label: item.name,
                     img: item.img,

@@ -6,15 +6,14 @@ import Dialog from '@/components/ui/Dialog'
 import Input from '@/components/ui/Input'
 import Select, { Option as DefaultOption } from '@/components/ui/Select'
 import { Form, FormItem } from '@/components/ui/Form'
-import {
-    TbVideo,
+import {    TbVideo,
     TbCheckbox,
     TbCoffee,
     TbCalendarStar,
     TbPresentation,
     TbBell,
+    TbTree,
 } from 'react-icons/tb'
-import { LuPalmtree } from 'react-icons/lu'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -51,7 +50,7 @@ export const eventTypes: Record<
     },
     holiday: {
         label: 'Enjoy your holiday',
-        icon: <LuPalmtree />,
+        icon: <TbTree />,
         color: 'bg-amber-200 dark:bg-amber-200',
     },
     breaks: {
