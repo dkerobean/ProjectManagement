@@ -20,7 +20,7 @@ console.log('📋 Expected fields:', expectedFields)
 console.log('📋 Actual fields:', actualFields)
 
 // Check if all expected fields are present
-const hasAllFields = expectedFields.every(field => 
+const hasAllFields = expectedFields.every(field =>
     actualFields.includes(field) || field === 'id' // id is optional
 )
 

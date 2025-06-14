@@ -16,61 +16,68 @@ const ProjectListContent = () => {
 
     return (
         <div>
-            <div className="mt-8">
-                {projectList?.filter((project) => project.favourite).length >
-                    0 && <h5 className="mb-3">Favorite</h5>}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {projectList
-                        ?.filter((project) => project.favourite)
-                        .map((project) => (
-                            <Card key={project.id} bodyClass="h-full">
-                                <div className="flex flex-col justify-between h-full">
-                                    <div className="flex justify-between items-center">
-                                        <Link
-                                            href={`/concepts/projects/project-details/${project.id}`}
-                                        >
-                                            <h6 className="font-bold hover:text-primary">
-                                                {project.name}
-                                            </h6>
-                                        </Link>
-                                        <div
-                                            className="text-amber-400 cursor-pointer text-lg"
-                                            role="button"
-                                            onClick={() =>
-                                                handleToggleFavorite(
-                                                    project.id,
-                                                    false,
-                                                )
-                                            }
-                                        >
-                                            <TbStarFilled />
+            {/* Favorite Section - Card Layout */}
+            {projectList?.filter((project) => project.favourite).length > 0 && (
+                <>
+                    <h5 className="mb-3">Favorite</h5>
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {projectList
+                            ?.filter((project) => project.favourite)
+                            .map((project) => (
+                                <Card key={project.id} bodyClass="h-full">
+                                    <div className="flex flex-col h-full justify-between">
+                                        <div className="flex items-start justify-between">
+                                            <div>
+                                                <h6 className="font-bold text-lg mb-1 hover:text-primary">
+                                                    {project.name}
+                                                </h6>
+                                                <p className="text-gray-600 mb-2 text-base">
+                                                    {project.desc}
+                                                </p>
+                                            </div>
+                                            <div
+                                                className="text-amber-400 cursor-pointer text-xl ml-2 mt-1 hover:text-amber-500 transition-colors"
+                                                role="button"
+                                                onClick={() =>
+                                                    handleToggleFavorite(
+                                                        project.id,
+                                                        false,
+                                                    )
+                                                }
+                                            >
+                                                <TbStarFilled />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <p className="mt-4">{project.desc}</p>
-                                    <div className="mt-3">
-                                        <ProgressionBar
-                                            progression={project.progression}
-                                        />
-                                        <div className="flex items-center justify-between mt-2">
-                                            <UsersAvatarGroup
-                                                users={project.member}
-                                            />
-                                            <div className="flex items-center rounded-full font-semibold text-xs">
-                                                <div className="flex items-center px-2 py-1 border border-gray-300 rounded-full">
-                                                    <TbClipboardCheck className="text-base" />
-                                                    <span className="ml-1 rtl:mr-1 whitespace-nowrap">
-                                                        {project.completedTask}{' '}
-                                                        / {project.totalTask}
+                                        <div className="flex flex-col gap-2 mt-2">
+                                            <div className="flex items-center w-full">
+                                                <div className="flex-1">
+                                                    <ProgressionBar
+                                                        progression={project.progression}
+                                                    />
+                                                </div>
+                                                <span className="ml-2 font-bold text-lg text-gray-900">
+                                                    {project.progression}%
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between mt-2">
+                                                <UsersAvatarGroup
+                                                    users={project.member}
+                                                />
+                                                <div className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-full text-base ml-2">
+                                                    <TbClipboardCheck className="text-lg mr-1" />
+                                                    <span className="whitespace-nowrap font-medium">
+                                                        {project.completedTask} /{' '}
+                                                        {project.totalTask}
                                                     </span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </Card>
-                        ))}
-                </div>
-            </div>
+                                </Card>
+                            ))}
+                    </div>
+                </>
+            )}
             <div className="mt-8">
                 {projectList?.filter((project) => !project.favourite).length >
                     0 && <h5 className="mb-3">Other projects</h5>}
@@ -93,11 +100,10 @@ const ProjectListContent = () => {
                                         </div>
                                     </div>
                                     <div className="my-1 sm:my-0 col-span-12 sm:col-span-2 md:col-span-2 lg:col-span-2 md:flex md:items-center md:justify-end">
-                                        <div className="inline-flex items-center px-2 py-1 border border-gray-300 rounded-full">
-                                            <TbClipboardCheck className="text-base" />
-                                            <span className="ml-1 rtl:mr-1 whitespace-nowrap">
-                                                {project.completedTask} /{' '}
-                                                {project.totalTask}
+                                        <div className="inline-flex items-center px-2 py-1 border border-gray-300 rounded-full text-xs">
+                                            <TbClipboardCheck className="text-base mr-1" />
+                                            <span className="whitespace-nowrap">
+                                                {project.completedTask} / {project.totalTask}
                                             </span>
                                         </div>
                                     </div>
@@ -113,7 +119,7 @@ const ProjectListContent = () => {
                                     </div>
                                     <div className="my-1 sm:my-0 col-span-12 sm:col-span-1 flex md:items-center justify-end">
                                         <div
-                                            className="cursor-pointer text-lg"
+                                            className="cursor-pointer text-lg text-gray-400 hover:text-amber-400 transition-colors"
                                             role="button"
                                             onClick={() =>
                                                 handleToggleFavorite(

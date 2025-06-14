@@ -66,7 +66,7 @@ const NewTaskField = ({ projectId, onAddNewTask }: NewTaskFieldProps) => {
     const onNewTaskAdd = async () => {
         const title = newTaskTitle.trim() || inputRef?.current?.value?.trim()
         const due_date = newTaskDueDate || dueDateRef?.current?.value
-        
+
         if (!title) return
 
         const newTask: Task = {
@@ -154,15 +154,15 @@ const NewTaskField = ({ projectId, onAddNewTask }: NewTaskFieldProps) => {
             {newTaskEdit ? (
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
-                        <Input 
-                            ref={inputRef} 
-                            placeholder="Add new task" 
+                        <Input
+                            ref={inputRef}
+                            placeholder="Add new task"
                             value={newTaskTitle}
                             onChange={(e) => setNewTaskTitle(e.target.value)}
                         />
-                        <Input 
+                        <Input
                             ref={dueDateRef}
-                            type="date" 
+                            type="date"
                             placeholder="Due date"
                             value={newTaskDueDate}
                             onChange={(e) => setNewTaskDueDate(e.target.value)}
@@ -171,9 +171,9 @@ const NewTaskField = ({ projectId, onAddNewTask }: NewTaskFieldProps) => {
                         <Button type="button" onClick={onNewTaskAdd}>
                             Add
                         </Button>
-                        <Button 
-                            type="button" 
-                            variant="plain" 
+                        <Button
+                            type="button"
+                            variant="plain"
                             onClick={() => {
                                 setNewTaskEdit(false)
                                 setNewTaskTitle('')

@@ -402,7 +402,7 @@ const ProjectFormModal = () => {
     const saveTasks = async (projectId: string, tasks: TaskData[]) => {
         try {
             console.log('Saving tasks to database for project:', projectId, tasks)
-            
+
             const taskPromises = tasks.map(async (task) => {
                 const taskData = {
                     title: task.title,
@@ -430,7 +430,7 @@ const ProjectFormModal = () => {
 
             const savedTasks = await Promise.all(taskPromises)
             console.log('Successfully saved tasks:', savedTasks)
-            
+
             toast.push(
                 <Notification type="success" title="Tasks Saved">
                     {savedTasks.length} task(s) saved to database

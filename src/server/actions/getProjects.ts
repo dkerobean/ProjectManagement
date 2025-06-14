@@ -69,7 +69,7 @@ const getProjects = async () => {
                 img: string
                 role: string
             }> = []
-            
+
             // Add owner (handle both single object and array cases)
             const owner = Array.isArray(project.owner) ? project.owner[0] : project.owner
             if (owner) {
@@ -81,7 +81,7 @@ const getProjects = async () => {
                     role: 'owner'
                 })
             }
-            
+
             // Add project members
             if (project.project_members && Array.isArray(project.project_members)) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any

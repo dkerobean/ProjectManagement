@@ -3,7 +3,7 @@ const BASE_URL = 'http://localhost:3002'
 
 async function testTaskCreationWithProject() {
     console.log('🧪 Testing task creation when creating a project...')
-    
+
     try {
         // Test data for project with tasks
         const projectData = {
@@ -24,7 +24,7 @@ async function testTaskCreationWithProject() {
                 },
                 {
                     title: 'Create database schema',
-                    status: 'todo', 
+                    status: 'todo',
                     priority: 'medium',
                     due_date: '2025-06-25'
                 },
@@ -63,7 +63,7 @@ async function testTaskCreationWithProject() {
 
         // Now check if tasks were created in the database
         console.log('\n🔍 Checking if tasks were saved to database...')
-        
+
         const tasksResponse = await fetch(`${BASE_URL}/api/tasks?project_id=${createdProject.id}`, {
             method: 'GET',
             headers: {
