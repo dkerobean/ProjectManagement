@@ -16,7 +16,7 @@ import Link from 'next/link'
 
 const ProjectsContent = () => {
     const loadedRef = useRef(false)
-    
+
     const {
         projects,
         searchQuery,
@@ -42,7 +42,7 @@ const ProjectsContent = () => {
         if (!Array.isArray(projects)) {
             return []
         }
-        
+
         const filtered = projects.filter((project) => {
             const matchesSearch = !searchQuery ||
                 project.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -80,7 +80,7 @@ const ProjectsContent = () => {
     // Helper function to get progress color based on percentage
     const getProgressColor = (percentage: number) => {
         if (percentage >= 70) return 'bg-green-500'
-        if (percentage >= 40) return 'bg-amber-500' 
+        if (percentage >= 40) return 'bg-amber-500'
         return 'bg-red-500'
     }
 
@@ -89,7 +89,7 @@ const ProjectsContent = () => {
         const totalTasks = project.taskCount || 0
         const completedTasks = project.completedTasks || 0
         const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-        
+
         return {
             totalTasks,
             completedTasks,
@@ -105,7 +105,7 @@ const ProjectsContent = () => {
 
     const FavoriteProjectCard = ({ project }: { project: Project }) => {
         const taskStats = getTaskStats(project)
-        
+
         return (
             <Card key={project.id} bodyClass="p-6">
                 <div className="flex flex-col h-full">
@@ -192,7 +192,7 @@ const ProjectsContent = () => {
 
     const RegularProjectCard = ({ project }: { project: Project }) => {
         const taskStats = getTaskStats(project)
-        
+
         return (
             <Card key={project.id} bodyClass="p-4">
                 <div className="flex items-center justify-between">

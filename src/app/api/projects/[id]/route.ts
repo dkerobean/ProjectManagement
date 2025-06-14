@@ -48,15 +48,12 @@ export async function GET(
                     role,
                     permissions,
                     joined_at,
-                    user:users!project_members_user_id_fkey(id, name, email, avatar_url)
-                ),
+                    user:users!project_members_user_id_fkey(id, name, email, avatar_url)                ),
                 tasks(
                     id,
                     title,
-                    description,
                     status,
                     priority,
-                    assignee:users!tasks_assignee_id_fkey(id, name, email, avatar_url),
                     created_by:users!tasks_created_by_fkey(id, name, email, avatar_url),
                     start_date,
                     due_date,

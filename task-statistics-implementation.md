@@ -13,7 +13,7 @@ I have successfully implemented the task statistics feature for project cards wi
 
 2. **✅ Color-Coded Progress Bars**:
    - **Red**: < 40% completion
-   - **Amber/Orange**: 40% - 69% completion  
+   - **Amber/Orange**: 40% - 69% completion
    - **Green**: ≥ 70% completion
 
 3. **✅ Performance Optimized**:
@@ -37,7 +37,7 @@ I have successfully implemented the task statistics feature for project cards wi
 ```typescript
 const getProgressColor = (percentage: number) => {
     if (percentage >= 70) return 'bg-green-500'
-    if (percentage >= 40) return 'bg-amber-500' 
+    if (percentage >= 40) return 'bg-amber-500'
     return 'bg-red-500'
 }
 
@@ -45,7 +45,7 @@ const getTaskStats = (project: Project) => {
     const totalTasks = project.taskCount || 0
     const completedTasks = project.completedTasks || 0
     const percentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
-    
+
     return {
         totalTasks,
         completedTasks,
