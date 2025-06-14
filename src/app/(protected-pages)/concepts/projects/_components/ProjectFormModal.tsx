@@ -86,6 +86,7 @@ interface ApiTask {
     id: string
     status: string
     priority: string
+    due_date?: string
 }
 
 interface ApiProject {
@@ -120,7 +121,7 @@ interface ProjectFormData {
 interface TaskData {
     id?: string
     title: string
-    description?: string
+    due_date?: string
     priority: 'low' | 'medium' | 'high' | 'critical'
     status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
 }
@@ -366,6 +367,11 @@ const ProjectFormModal = () => {
                 const { data: newProject } = await response.json()
                 addProject(newProject)
 
+                // Save tasks to database if any exist
+                if (formData.tasks.length > 0) {
+                    await saveTasks(newProject.id, formData.tasks)
+                }
+
                 // Also update the project list store with transformed data
                 // Wait for the next tick to ensure UI updates correctly
                 setTimeout(() => {
@@ -389,6 +395,54 @@ const ProjectFormModal = () => {
             )
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    // Function to save tasks to database
+    const saveTasks = async (projectId: string, tasks: TaskData[]) => {
+        try {
+            console.log('Saving tasks to database for project:', projectId, tasks)
+            
+            const taskPromises = tasks.map(async (task) => {
+                const taskData = {
+                    title: task.title,
+                    project_id: projectId,
+                    status: task.status || 'todo',
+                    priority: task.priority || 'medium',
+                    due_date: task.due_date || null,
+                }
+
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(taskData),
+                })
+
+                if (!response.ok) {
+                    const error = await response.json()
+                    throw new Error(`Failed to create task "${task.title}": ${error.error}`)
+                }
+
+                return response.json()
+            })
+
+            const savedTasks = await Promise.all(taskPromises)
+            console.log('Successfully saved tasks:', savedTasks)
+            
+            toast.push(
+                <Notification type="success" title="Tasks Saved">
+                    {savedTasks.length} task(s) saved to database
+                </Notification>
+            )
+        } catch (error) {
+            console.error('Error saving tasks:', error)
+            toast.push(
+                <Notification type="warning" title="Tasks Warning">
+                    {error instanceof Error ? error.message : 'Some tasks may not have been saved'}
+                </Notification>
+            )
         }
     }
 
@@ -561,11 +615,12 @@ const ProjectFormModal = () => {
                                     />
                                 </div>
                                 <Input
-                                    placeholder="Task description (optional)"
-                                    value={task.description || ''}
+                                    type="date"
+                                    placeholder="Due date"
+                                    value={task.due_date || ''}
                                     onChange={(e) => {
                                         const updatedTasks = [...formData.tasks]
-                                        updatedTasks[index].description = e.target.value
+                                        updatedTasks[index].due_date = e.target.value
                                         setFormData({ ...formData, tasks: updatedTasks })
                                     }}
                                     className="mt-2"

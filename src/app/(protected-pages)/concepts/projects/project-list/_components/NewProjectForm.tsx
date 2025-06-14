@@ -6,17 +6,14 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import Select from '@/components/ui/Select'
 import Avatar from '@/components/ui/Avatar'
-import hooks from '@/components/ui/hooks'
 import NewTaskField from './NewTaskField'
 import { useProjectListStore } from '../_store/projectListStore'
 import { useForm, Controller } from 'react-hook-form'
-import sleep from '@/utils/sleep'
 import { TbChecks } from 'react-icons/tb'
 import { components } from 'react-select'
-import cloneDeep from 'lodash/cloneDeep'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { MemberListOption, Member, Project } from '../types'
+import { MemberListOption } from '../types'
 import type { ZodType } from 'zod'
 import type { MultiValueGenericProps, OptionProps } from 'react-select'
 import { apiCreateProject } from '@/services/ProjectService'
@@ -31,14 +28,7 @@ type FormSchema = {
     }[]
 }
 
-type TaskCount = {
-    completedTask?: number
-    totalTask?: number
-}
-
 const { MultiValueLabel } = components
-
-const { useUniqueId } = hooks
 
 const CustomSelectOption = ({
     innerProps,
@@ -91,11 +81,8 @@ const validationSchema: ZodType<FormSchema> = z.object({
 })
 
 const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
-    const { memberList, updateProjectList } = useProjectListStore()
+    const { memberList } = useProjectListStore()
 
-    const newId = useUniqueId()
-
-    const [taskCount, setTaskCount] = useState<TaskCount>({})
     const [isSubmiting, setSubmiting] = useState(false)
 
     const {
@@ -111,14 +98,24 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
         resolver: zodResolver(validationSchema),
     })
 
-    const handleAddNewTask = (count: TaskCount) => {
-        setTaskCount(count)
+    const handleAddNewTask = (count: {
+        completedTask: number
+        totalTask: number
+        tasks: Array<{
+            id?: string
+            title: string
+            due_date?: string
+            status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
+            checked: boolean
+        }>
+    }) => {
+        // Task count handled locally in NewTaskField component
+        console.log('Task count updated:', count)
     }
 
     const onSubmit = async (formValue: FormSchema) => {
         setSubmiting(true)
-        const { title, content, assignees } = formValue
-        const { totalTask, completedTask } = taskCount
+        const { title, content } = formValue
 
         // Prepare the payload for Supabase
         const payload = {
@@ -128,12 +125,12 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
         }
 
         try {
-            const response = await apiCreateProject(payload)
+            await apiCreateProject(payload)
             // Optionally update the local store with the response
             // updateProjectList(response.data)
             setSubmiting(false)
             onClose()
-        } catch (err) {
+        } catch {
             // Handle error (show notification, etc.)
             setSubmiting(false)
         }
