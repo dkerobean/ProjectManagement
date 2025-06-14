@@ -1,6 +1,19 @@
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { auth } from '@/auth'
 
+type ProjectUser = {
+    id: string
+    name: string
+    email: string
+    avatar_url: string
+}
+
+type ProjectMember = {
+    id: string
+    role: string
+    user: ProjectUser
+}
+
 const getProjects = async () => {
     try {
         // Get the current session
@@ -10,9 +23,7 @@ const getProjects = async () => {
             return []
         }
 
-        const supabase = await createSupabaseServerClient()
-
-        // Fetch projects with minimal related data to avoid complex joins
+        const supabase = await createSupabaseServerClient()        // Fetch projects with related member data
         const { data: projects, error } = await supabase
             .from('projects')
             .select(`
@@ -28,7 +39,13 @@ const getProjects = async () => {
                 metadata,
                 created_at,
                 updated_at,
-                owner_id
+                owner_id,
+                owner:users!projects_owner_id_fkey(id, name, email, avatar_url),
+                project_members(
+                    id,
+                    role,
+                    user:users!project_members_user_id_fkey(id, name, email, avatar_url)
+                )
             `)
             .order('created_at', { ascending: false })
 
@@ -40,25 +57,81 @@ const getProjects = async () => {
         if (!projects || projects.length === 0) {
             console.log('No projects found, returning empty array')
             return []
-        }
+        }        // Transform the data to match the expected format with real member data and task counts
+        // Using 'any' temporarily for complex Supabase return types
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const transformedProjects = await Promise.all(projects.map(async (project: any) => {
+            // Combine owner and members into a single array
+            const allMembers: Array<{
+                id: string
+                name: string
+                email: string
+                img: string
+                role: string
+            }> = []
+            
+            // Add owner (handle both single object and array cases)
+            const owner = Array.isArray(project.owner) ? project.owner[0] : project.owner
+            if (owner) {
+                allMembers.push({
+                    id: owner.id,
+                    name: owner.name || 'Unknown User',
+                    email: owner.email || '',
+                    img: owner.avatar_url || '/img/avatars/thumb-1.jpg',
+                    role: 'owner'
+                })
+            }
+            
+            // Add project members
+            if (project.project_members && Array.isArray(project.project_members)) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                project.project_members.forEach((member: any) => {
+                    if (member.user) {
+                        allMembers.push({
+                            id: member.user.id,
+                            name: member.user.name || 'Unknown User',
+                            email: member.user.email || '',
+                            img: member.user.avatar_url || '/img/avatars/thumb-1.jpg',
+                            role: member.role || 'member'
+                        })
+                    }
+                })
+            }
 
-        // Transform the data to match the expected format with basic data only
-        const transformedProjects = projects.map(project => ({
-            id: project.id,
-            name: project.name,
-            category: project.metadata?.template || 'other',
-            desc: project.description || '',
-            attachmentCount: 0,
-            totalTask: 0, // Will be updated when we fetch tasks
-            completedTask: 0,
-            progression: 0,            dayleft: project.due_date ?
-                Math.max(0, Math.ceil((new Date(project.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : undefined,
-            status: project.status,
-            member: [], // Will be populated separately if needed
-            cover: project.color || '#3B82F6',
-            priority: project.priority || 'medium',
-            createdAt: project.created_at,
-            updatedAt: project.updated_at
+            // Fetch task counts for this project
+            const { data: taskCounts } = await supabase
+                .from('tasks')
+                .select('status')
+                .eq('project_id', project.id)
+
+            let totalTask = 0
+            let completedTask = 0
+
+            if (taskCounts) {
+                totalTask = taskCounts.length
+                completedTask = taskCounts.filter(task => task.status === 'done').length
+            }            // Calculate progression percentage
+            const progression = totalTask > 0 ? Math.round((completedTask / totalTask) * 100) : 0
+
+            return {
+                id: project.id,
+                name: project.name,
+                category: project.metadata?.template || 'other',
+                desc: project.description || '',
+                attachmentCount: 0,
+                totalTask: totalTask,
+                completedTask: completedTask,
+                progression: progression,
+                dayleft: project.due_date ?
+                    Math.max(0, Math.ceil((new Date(project.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : undefined,
+                status: project.status,
+                member: allMembers, // Now populated with real members
+                cover: project.color || '#3B82F6',
+                priority: project.priority || 'medium',
+                createdAt: project.created_at,
+                updatedAt: project.updated_at,
+                favourite: project.metadata?.favourite === true || project.metadata?.favourite === 'true' // Read from metadata
+            }
         }))
 
         console.log(`Successfully fetched ${transformedProjects.length} projects`)

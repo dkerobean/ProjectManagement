@@ -305,26 +305,55 @@ export async function DELETE(
                 { error: 'Access denied - only project owner can delete' },
                 { status: 403 }
             )
+        }        // Hard delete the project and all related data
+        // Note: Supabase should handle cascading deletes via foreign key constraints
+        // But we'll be explicit about the order to ensure data integrity
+
+        console.log('🗑️ Starting hard delete process for project:', id)
+
+        // First, delete all tasks associated with this project
+        const { error: tasksDeleteError } = await supabase
+            .from('tasks')
+            .delete()
+            .eq('project_id', id)
+
+        if (tasksDeleteError) {
+            console.error('❌ Error deleting tasks:', tasksDeleteError)
+            return NextResponse.json(
+                { error: 'Failed to delete project tasks' },
+                { status: 500 }
+            )
         }
 
-        // Soft delete by setting status to archived
-        const { error: deleteError } = await supabase
+        // Delete all project members
+        const { error: membersDeleteError } = await supabase
+            .from('project_members')
+            .delete()
+            .eq('project_id', id)
+
+        if (membersDeleteError) {
+            console.error('❌ Error deleting project members:', membersDeleteError)
+            return NextResponse.json(
+                { error: 'Failed to delete project members' },
+                { status: 500 }
+            )
+        }
+
+        // Finally, delete the project itself
+        const { error: projectDeleteError } = await supabase
             .from('projects')
-            .update({
-                status: 'archived',
-                updated_at: new Date().toISOString()
-            })
+            .delete()
             .eq('id', id)
 
-        if (deleteError) {
-            console.error('❌ Database error:', deleteError)
+        if (projectDeleteError) {
+            console.error('❌ Error deleting project:', projectDeleteError)
             return NextResponse.json(
                 { error: 'Failed to delete project' },
                 { status: 500 }
             )
         }
 
-        console.log('✅ Successfully deleted (archived) project:', id)
+        console.log('✅ Successfully deleted project and all related data:', id)
 
         return NextResponse.json({
             message: 'Project deleted successfully'
