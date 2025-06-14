@@ -107,58 +107,58 @@ const ProjectsContent = () => {
                     {project.description || 'Most of you are familiar with the virtues of a programmer'}
                 </p>
 
-                {/* Progress */}
-                <div className="mb-4">
-                    <Progress
-                        percent={project.progress || 0}
-                        size="sm"
-                        showInfo={false}
-                        className="mb-2"
-                        customColorClass={project.progress && project.progress > 80 ? 'bg-green-500' : project.progress && project.progress > 50 ? 'bg-yellow-500' : 'bg-red-500'}
-                    />
+                {/* Line 1: Progress bar + Percentage */}
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="flex-1">
+                        <Progress
+                            percent={project.progress || 0}
+                            size="sm"
+                            showInfo={false}
+                            customColorClass={project.progress && project.progress > 80 ? 'bg-green-500' : project.progress && project.progress > 50 ? 'bg-yellow-500' : 'bg-red-500'}
+                        />
+                    </div>
+                    <span className="font-bold text-lg text-gray-900">
+                        {project.progress || 80}%
+                    </span>
                 </div>
 
-                {/* Bottom row with task count and avatars */}
-                <div className="flex items-center justify-between mt-auto">
+                {/* Line 2: Member avatars + Clipboard icon */}
+                <div className="flex items-center justify-between">
+                    {/* Team Avatars */}
+                    <div className="flex -space-x-2">
+                        {project.project_members && Array.isArray(project.project_members) && project.project_members.length > 0 ? (
+                            <>
+                                {project.project_members.slice(0, 3).map((member) => (
+                                    <Avatar
+                                        key={member.id}
+                                        size={32}
+                                        src={member.user?.avatar_url || undefined}
+                                        alt={member.user?.name || 'Team member'}
+                                        className="border-2 border-white"
+                                    />
+                                ))}
+                                {project.project_members.length > 3 && (
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 border-2 border-white text-xs font-medium text-gray-600">
+                                        +{project.project_members.length - 3}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            // Default avatars for demo
+                            <>
+                                <Avatar size={32} className="border-2 border-white bg-blue-500 text-white" alt="User 1">U1</Avatar>
+                                <Avatar size={32} className="border-2 border-white bg-green-500 text-white" alt="User 2">U2</Avatar>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Clipboard icon and task count */}
                     <div className="flex items-center gap-1 text-gray-600">
                         <TbClipboardCheck className="text-lg" />
                         <span className="font-medium text-sm">
                             {project.completedTasks || 27} / {project.taskCount || 32}
                         </span>
                     </div>
-
-                    {/* Progress percentage */}
-                    <span className="font-bold text-lg text-gray-900">
-                        {project.progress || 80}%
-                    </span>
-                </div>
-
-                {/* Team Avatars */}
-                <div className="flex -space-x-2 mt-4">
-                    {project.project_members && Array.isArray(project.project_members) && project.project_members.length > 0 ? (
-                        <>
-                            {project.project_members.slice(0, 3).map((member) => (
-                                <Avatar
-                                    key={member.id}
-                                    size={32}
-                                    src={member.user?.avatar_url || undefined}
-                                    alt={member.user?.name || 'Team member'}
-                                    className="border-2 border-white"
-                                />
-                            ))}
-                            {project.project_members.length > 3 && (
-                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 border-2 border-white text-xs font-medium text-gray-600">
-                                    +{project.project_members.length - 3}
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        // Default avatars for demo
-                        <>
-                            <Avatar size={32} className="border-2 border-white bg-blue-500 text-white" alt="User 1">U1</Avatar>
-                            <Avatar size={32} className="border-2 border-white bg-green-500 text-white" alt="User 2">U2</Avatar>
-                        </>
-                    )}
                 </div>
             </div>
         </Card>

@@ -48,24 +48,24 @@ const ProjectListContent = () => {
                                                 <TbStarFilled />
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-2 mt-2">
-                                            <div className="flex items-center w-full">
-                                                <div className="flex-1">
+                                        <div className="flex flex-col gap-4 mt-4">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex-grow">
                                                     <ProgressionBar
                                                         progression={project.progression}
                                                     />
                                                 </div>
-                                                <span className="ml-2 font-bold text-lg text-gray-900">
+                                                <span className="font-bold">
                                                     {project.progression}%
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between mt-2">
+                                            <div className="flex items-center justify-between">
                                                 <UsersAvatarGroup
                                                     users={project.member}
                                                 />
-                                                <div className="inline-flex items-center px-3 py-1 border border-gray-300 rounded-full text-base ml-2">
-                                                    <TbClipboardCheck className="text-lg mr-1" />
-                                                    <span className="whitespace-nowrap font-medium">
+                                                <div className="inline-flex items-center gap-1">
+                                                    <TbClipboardCheck className="text-xl" />
+                                                    <span>
                                                         {project.completedTask} /{' '}
                                                         {project.totalTask}
                                                     </span>
