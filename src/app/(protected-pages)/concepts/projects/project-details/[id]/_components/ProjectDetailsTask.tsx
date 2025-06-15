@@ -2,7 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { 
+    DndContext, 
+    DragEndEvent, 
+    DragOverlay, 
+    DragStartEvent, 
+    PointerSensor, 
+    useSensor, 
+    useSensors,
+    useDroppable
+} from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -138,8 +147,8 @@ function SortableTaskItem({ task, onStatusChange }: SortableTaskItemProps) {
                     {task.assignees && task.assignees.length > 0 && (
                         <UsersAvatarGroup 
                             users={task.assignees}
-                            size={24}
-                            maxDisplay={3}
+                            avatarProps={{ size: 24 }}
+                            maxCount={3}
                         />
                     )}
                 </div>
@@ -155,8 +164,17 @@ interface DroppableColumnProps {
 }
 
 function DroppableColumn({ status, tasks, onStatusChange }: DroppableColumnProps) {
+    const { setNodeRef, isOver } = useDroppable({
+        id: status,
+    })
+
     return (
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div 
+            ref={setNodeRef}
+            className={`bg-gray-50 rounded-lg p-4 min-h-[200px] transition-colors ${
+                isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+            }`}
+        >
             <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 text-lg">
                     {statusLabels[status]}
