@@ -134,35 +134,6 @@ const ProjectDetailsOverview = () => {
                         <p>{projectData.description || 'No description available for this project.'}</p>
                     </div>
                 </div>
-
-                {/* About the client */}
-                <div className="mb-8">
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">About the client</h3>
-                    <div className="text-gray-600 leading-relaxed">
-                        <p>
-                            Our client is a forward-thinking organization committed to excellence and innovation.
-                            They have established themselves as a leader in their industry through consistent
-                            delivery of high-quality solutions and exceptional customer service. This project
-                            represents a strategic initiative to enhance their operations and achieve their
-                            business objectives.
-                        </p>
-
-                        <ul className="mt-4 space-y-2">
-                            <li className="flex items-start">
-                                <span className="text-blue-500 mr-2">•</span>
-                                <span>Dedicated to delivering innovative solutions that drive business growth</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-500 mr-2">•</span>
-                                <span>Strong focus on quality assurance and customer satisfaction</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-blue-500 mr-2">•</span>
-                                <span>Collaborative approach to project management and stakeholder engagement</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
 
             {/* Right Sidebar */}
@@ -172,19 +143,21 @@ const ProjectDetailsOverview = () => {
                     <h4 className="text-lg font-bold text-gray-900 mb-4">Project members</h4>
                     <div className="space-y-3">
                         {/* Project Owner */}
-                        <div className="flex items-center gap-3">
-                            <Avatar
-                                size={32}
-                                src={projectData.owner?.avatar_url || '/img/avatars/thumb-2.jpg'}
-                                alt={projectData.owner?.name || 'Project Owner'}
-                            />
-                            <span className="font-medium text-gray-700">
-                                {projectData.owner?.name || 'Admin User'}
-                            </span>
-                        </div>
+                        {projectData.owner && (
+                            <div className="flex items-center gap-3">
+                                <Avatar
+                                    size={32}
+                                    src={projectData.owner.avatar_url || '/img/avatars/thumb-2.jpg'}
+                                    alt={projectData.owner.name || 'Project Owner'}
+                                />
+                                <span className="font-medium text-gray-700">
+                                    {projectData.owner.name}
+                                </span>
+                            </div>
+                        )}
 
-                        {/* Project Members */}
-                        {projectData.project_members?.slice(0, 3).map((member) => (
+                        {/* Project Members (excluding owner) */}
+                        {projectData.project_members?.filter(member => member.user?.id !== projectData.owner?.id).slice(0, 3).map((member) => (
                             <div key={member.id} className="flex items-center gap-3">
                                 <Avatar
                                     size={32}
@@ -192,7 +165,7 @@ const ProjectDetailsOverview = () => {
                                     alt={member.user?.name || 'Team Member'}
                                 />
                                 <span className="font-medium text-gray-700">
-                                    {member.user?.name || 'Admin User'}
+                                    {member.user?.name}
                                 </span>
                             </div>
                         ))}
@@ -244,18 +217,17 @@ const ProjectDetailsOverview = () => {
 
                         <div>
                             <span className="text-sm font-medium text-gray-600">Completion:</span>
-                            <div className="mt-2">
+                            <div className="mt-2 flex items-center justify-between">
                                 <Progress
                                     percent={projectData.progress}
                                     trailClass="bg-gray-200"
                                     customColorClass="bg-blue-500"
                                     size="sm"
+                                    className="flex-1 mr-3"
                                 />
-                                <div className="text-right mt-1">
-                                    <span className="text-xl font-bold text-gray-900">
-                                        {projectData.progress}%
-                                    </span>
-                                </div>
+                                <span className="text-xl font-bold text-gray-900">
+                                    {projectData.progress}%
+                                </span>
                             </div>
                         </div>
                     </div>
