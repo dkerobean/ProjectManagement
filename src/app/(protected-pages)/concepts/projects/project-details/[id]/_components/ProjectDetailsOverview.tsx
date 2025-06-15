@@ -127,9 +127,9 @@ const ProjectDetailsOverview = () => {
         <div className="flex gap-8">
             {/* Left Content Area */}
             <div className="flex-1">
-                {/* Project overview */}
+                {/* Project description */}
                 <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Project overview</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Project description</h2>
                     <div className="text-gray-600 leading-relaxed">
                         <p>{projectData.description || 'No description available for this project.'}</p>
                     </div>
@@ -167,44 +167,35 @@ const ProjectDetailsOverview = () => {
 
             {/* Right Sidebar */}
             <div className="w-80">
-                {/* Client Information Card */}
+                {/* Project Members Card */}
                 <Card className="mb-6 bg-gray-50">
-                    <h4 className="text-lg font-bold text-gray-900 mb-4">Client information</h4>
-                    <div className="space-y-4">
-                        <div>
-                            <span className="text-sm font-medium text-gray-600">Client:</span>
-                            <p className="font-medium text-gray-700">
-                                {projectData.owner?.name || 'Acme Agency Inc.'}
-                            </p>
+                    <h4 className="text-lg font-bold text-gray-900 mb-4">Project members</h4>
+                    <div className="space-y-3">
+                        {/* Project Owner */}
+                        <div className="flex items-center gap-3">
+                            <Avatar
+                                size={32}
+                                src={projectData.owner?.avatar_url || '/img/avatars/thumb-2.jpg'}
+                                alt={projectData.owner?.name || 'Project Owner'}
+                            />
+                            <span className="font-medium text-gray-700">
+                                {projectData.owner?.name || 'Admin User'}
+                            </span>
                         </div>
 
-                        <div>
-                            <span className="text-sm font-medium text-gray-600">Stake holder:</span>
-                            <div className="flex items-center gap-2 mt-1">
+                        {/* Project Members */}
+                        {projectData.project_members?.slice(0, 3).map((member) => (
+                            <div key={member.id} className="flex items-center gap-3">
                                 <Avatar
                                     size={32}
-                                    src={projectData.project_members?.[0]?.user?.avatar_url || '/img/avatars/thumb-1.jpg'}
-                                    alt={projectData.project_members?.[0]?.user?.name || 'Stakeholder'}
+                                    src={member.user?.avatar_url || '/img/avatars/thumb-1.jpg'}
+                                    alt={member.user?.name || 'Team Member'}
                                 />
                                 <span className="font-medium text-gray-700">
-                                    {projectData.project_members?.[0]?.user?.name || 'Jeremiah Minsk'}
+                                    {member.user?.name || 'Admin User'}
                                 </span>
                             </div>
-                        </div>
-
-                        <div>
-                            <span className="text-sm font-medium text-gray-600">Project manager:</span>
-                            <div className="flex items-center gap-2 mt-1">
-                                <Avatar
-                                    size={32}
-                                    src={projectData.owner?.avatar_url || '/img/avatars/thumb-2.jpg'}
-                                    alt={projectData.owner?.name || 'Project Manager'}
-                                />
-                                <span className="font-medium text-gray-700">
-                                    {projectData.owner?.name || 'Max Alexander'}
-                                </span>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </Card>
 
