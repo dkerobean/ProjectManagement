@@ -7,7 +7,8 @@
             "project": "Project",
             "marketing": "Marketing"
         },
-        "concepts": "Concepts",
+        "concepts": "Project Management",
+        "projectManagement": "Project Management",
         "conceptsAi": {
             "ai": "AI",
             "chat": "Chat",
@@ -49,9 +50,18 @@
             "scrumBoardDesc": "Manage your scrum workflow",
             "projectDashboardDesc": "Project overview and metrics",
             "projectListDesc": "Organize all projects",
-            "projectDetailsDesc": "Project detailed information",
-            "projectTasksDesc": "Manage project tasks",
+            "projectDetailsDesc": "Project detailed information",            "projectTasksDesc": "Manage project tasks",
             "projectIssueDesc": "Resolve project issues"
+        },
+        "conceptsInvoicing": {
+            "invoicing": "Invoicing",
+            "createInvoice": "Create Invoice",
+            "viewInvoices": "View Invoices",
+            "paymentDetails": "Payment Details",
+            "invoicingDesc": "Invoice and billing management",
+            "createInvoiceDesc": "Create new invoices",
+            "viewInvoicesDesc": "Manage and view all invoices",
+            "paymentDetailsDesc": "Manage payment information"
         },
         "conceptsOrders": {
             "orders": "Orders",

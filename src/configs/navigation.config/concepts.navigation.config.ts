@@ -11,8 +11,8 @@ const conceptsNavigationConfig: NavigationTree[] = [
     {
         key: 'concepts',
         path: '',
-        title: 'Concepts',
-        translateKey: 'nav.concepts',
+        title: 'Project Management',
+        translateKey: 'nav.projectManagement',
         icon: 'concepts',
         type: NAV_ITEM_TYPE_TITLE,
         authority: [ADMIN, USER],
@@ -329,6 +329,71 @@ const conceptsNavigationConfig: NavigationTree[] = [
             //         },
             //     ],
             // },
+            {
+                key: 'concepts.invoicing',
+                path: '',
+                title: 'Invoicing',
+                translateKey: 'nav.conceptsInvoicing.invoicing',
+                icon: 'invoice',
+                type: NAV_ITEM_TYPE_COLLAPSE,
+                authority: [ADMIN, USER],
+                meta: {
+                    description: {
+                        translateKey: 'nav.conceptsInvoicing.invoicingDesc',
+                        label: 'Invoice and billing management',
+                    },
+                },
+                subMenu: [
+                    {
+                        key: 'concepts.invoicing.createInvoice',
+                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/create-invoice`,
+                        title: 'Create Invoice',
+                        translateKey: 'nav.conceptsInvoicing.createInvoice',
+                        icon: 'invoiceCreate',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [ADMIN, USER],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.conceptsInvoicing.createInvoiceDesc',
+                                label: 'Create new invoices',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                    {
+                        key: 'concepts.invoicing.viewInvoices',
+                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/view-invoices`,
+                        title: 'View Invoices',
+                        translateKey: 'nav.conceptsInvoicing.viewInvoices',
+                        icon: 'invoiceList',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [ADMIN, USER],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.conceptsInvoicing.viewInvoicesDesc',
+                                label: 'Manage and view all invoices',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                    {
+                        key: 'concepts.invoicing.paymentDetails',
+                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/payment-details`,
+                        title: 'Payment Details',
+                        translateKey: 'nav.conceptsInvoicing.paymentDetails',
+                        icon: 'payment',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [ADMIN, USER],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.conceptsInvoicing.paymentDetailsDesc',
+                                label: 'Manage payment information',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                ],
+            },
             {
                 key: 'concepts.account',
                 path: '',

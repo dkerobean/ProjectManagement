@@ -7,7 +7,8 @@
             "project": "Proyecto",
             "marketing": "Marketing"
         },
-        "concepts": "Conceptos",
+        "concepts": "Gestión de Proyectos",
+        "projectManagement": "Gestión de Proyectos",
         "conceptsAi": {
             "ai": "IA",
             "chat": "Chat",
@@ -48,9 +49,18 @@
             "projectsDesc": "Gestionar y rastrear proyectos",
             "scrumBoardDesc": "Gestiona tu flujo de trabajo Scrum",
             "projectListDesc": "Organiza todos los proyectos",
-            "projectDetailsDesc": "Información detallada del proyecto",
-            "projectTasksDesc": "Gestionar las tareas del proyecto",
+            "projectDetailsDesc": "Información detallada del proyecto",            "projectTasksDesc": "Gestionar las tareas del proyecto",
             "projectIssueDesc": "Resolver problemas del proyecto"
+        },
+        "conceptsInvoicing": {
+            "invoicing": "Facturación",
+            "createInvoice": "Crear Factura",
+            "viewInvoices": "Ver Facturas",
+            "paymentDetails": "Detalles de Pago",
+            "invoicingDesc": "Gestión de facturación y cobros",
+            "createInvoiceDesc": "Crear nuevas facturas",
+            "viewInvoicesDesc": "Gestionar y ver todas las facturas",
+            "paymentDetailsDesc": "Gestionar información de pagos"
         },
         "conceptsOrders": {
             "orders": "Órdenes",
