@@ -25,7 +25,7 @@ interface InvoiceData {
     date: string
     dueDate: string
     status: 'draft' | 'sent' | 'paid' | 'overdue'
-    
+
     // Company Info
     companyName: string
     companyAddress: string
@@ -33,23 +33,23 @@ interface InvoiceData {
     companyZip: string
     companyPhone: string
     companyEmail: string
-    
+
     // Client Info
     clientName: string
     clientAddress: string
     clientCity: string
     clientZip: string
     clientEmail: string
-    
+
     // Invoice Items
     items: InvoiceItem[]
-    
+
     // Totals
     subtotal: number
     taxRate: number
     taxAmount: number
     total: number
-    
+
     // Payment Info
     paymentTerms: string
     notes: string
@@ -58,14 +58,14 @@ interface InvoiceData {
 const CreateInvoice = () => {
     const printRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(false)
-    
+
     const [invoice, setInvoice] = useState<InvoiceData>({
         id: '',
         invoiceNumber: `INV-${Date.now()}`,
         date: format(new Date(), 'yyyy-MM-dd'),
         dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'), // 30 days from now
         status: 'draft',
-        
+
         // Company Info (Generic defaults)
         companyName: 'Your Company Name',
         companyAddress: '123 Business Street',
@@ -73,14 +73,14 @@ const CreateInvoice = () => {
         companyZip: '',
         companyPhone: '+1 (555) 123-4567',
         companyEmail: 'contact@yourcompany.com',
-        
+
         // Client Info
         clientName: '',
         clientAddress: '',
         clientCity: '',
         clientZip: '',
         clientEmail: '',
-        
+
         // Invoice Items
         items: [
             {
@@ -91,13 +91,13 @@ const CreateInvoice = () => {
                 amount: 0
             }
         ],
-        
+
         // Totals
         subtotal: 0,
         taxRate: 10, // 10% default
         taxAmount: 0,
         total: 0,
-        
+
         // Payment Info
         paymentTerms: 'Net 30',
         notes: 'Thank you for your business!'
@@ -108,7 +108,7 @@ const CreateInvoice = () => {
         const subtotal = items.reduce((sum, item) => sum + item.amount, 0)
         const taxAmount = (subtotal * taxRate) / 100
         const total = subtotal + taxAmount
-        
+
         return { subtotal, taxAmount, total }
     }
 
@@ -116,7 +116,7 @@ const CreateInvoice = () => {
     const updateInvoiceField = (field: keyof InvoiceData, value: string | number | InvoiceItem[]) => {
         setInvoice(prev => {
             const updated = { ...prev, [field]: value }
-            
+
             // Recalculate totals if items or taxRate changed
             if (field === 'items' || field === 'taxRate') {
                 const totals = calculateTotals(
@@ -125,7 +125,7 @@ const CreateInvoice = () => {
                 )
                 return { ...updated, ...totals }
             }
-            
+
             return updated
         })
     }
@@ -135,17 +135,17 @@ const CreateInvoice = () => {
         const updatedItems = invoice.items.map(item => {
             if (item.id === itemId) {
                 const updatedItem = { ...item, [field]: value }
-                
+
                 // Recalculate amount if quantity or rate changed
                 if (field === 'quantity' || field === 'rate') {
                     updatedItem.amount = updatedItem.quantity * updatedItem.rate
                 }
-                
+
                 return updatedItem
             }
             return item
         })
-        
+
         updateInvoiceField('items', updatedItems)
     }
 
@@ -173,10 +173,10 @@ const CreateInvoice = () => {
     const saveInvoice = async () => {
         try {
             setIsLoading(true)
-            
+
             // TODO: Implement Supabase save
             console.log('Saving invoice:', invoice)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Invoice saved successfully!
@@ -203,10 +203,10 @@ const CreateInvoice = () => {
     const generatePDF = async () => {
         try {
             setIsLoading(true)
-            
+
             // TODO: Implement PDF generation
             console.log('Generating PDF for:', invoice)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     PDF generated successfully!
@@ -304,7 +304,7 @@ const CreateInvoice = () => {
                             />
                         </div>
                     </div>
-                    
+
                     <div className="text-right">
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
                             INVOICE
@@ -444,7 +444,7 @@ const CreateInvoice = () => {
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <Button
                         variant="plain"
                         size="sm"
@@ -509,7 +509,7 @@ const CreateInvoice = () => {
                             {invoice.paymentTerms}
                         </div>
                     </div>
-                    
+
                     <div>
                         <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
                             Notes:

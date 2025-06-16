@@ -81,18 +81,18 @@ const PaymentDetails = () => {
     const onSubmit = async (data: PaymentMethodForm) => {
         try {
             setIsLoading(true)
-            
+
             const newPaymentMethod: PaymentMethod = {
                 id: Date.now().toString(),
                 ...data,
                 isDefault: paymentMethods.length === 0,
                 createdAt: new Date().toISOString()
             }
-            
+
             setPaymentMethods([...paymentMethods, newPaymentMethod])
             reset()
             setShowAddForm(false)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Payment method added successfully!
@@ -114,7 +114,7 @@ const PaymentDetails = () => {
         if (paymentMethods.length > 1) {
             const updatedMethods = paymentMethods.filter(method => method.id !== id)
             setPaymentMethods(updatedMethods)
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Payment method removed successfully!
@@ -129,7 +129,7 @@ const PaymentDetails = () => {
             isDefault: method.id === id
         }))
         setPaymentMethods(updatedMethods)
-        
+
         toast.push(
             <Notification title="Success" type="success">
                 Default payment method updated!
@@ -191,7 +191,7 @@ const PaymentDetails = () => {
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
                         Add New Payment Method
                     </h4>
-                    
+
                     <Form onSubmit={handleSubmit(onSubmit)}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <FormItem
@@ -373,7 +373,7 @@ const PaymentDetails = () => {
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                     Saved Payment Methods
                 </h4>
-                
+
                 {paymentMethods.length === 0 ? (
                     <Card className="p-8 text-center">
                         <HiOutlineCreditCard className="mx-auto text-4xl text-gray-400 mb-4" />
@@ -394,7 +394,7 @@ const PaymentDetails = () => {
                                     <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
                                         {getPaymentIcon(method.type)}
                                     </div>
-                                    
+
                                     <div>
                                         <div className="flex items-center gap-2">
                                             <h5 className="font-semibold text-gray-900 dark:text-gray-100">
@@ -416,7 +416,7 @@ const PaymentDetails = () => {
                                         )}
                                     </div>
                                 </div>
-                                
+
                                 <div className="flex items-center gap-2">
                                     {!method.isDefault && (
                                         <Button

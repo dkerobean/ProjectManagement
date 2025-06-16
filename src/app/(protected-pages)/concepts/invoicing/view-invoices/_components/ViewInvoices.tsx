@@ -70,7 +70,7 @@ const ViewInvoices = () => {
                 status: 'draft'
             }
         ]
-        
+
         setTimeout(() => {
             setInvoices(mockInvoices)
             setLoading(false)
@@ -142,7 +142,7 @@ const ViewInvoices = () => {
                         </div>
                     </div>
                 </Card>
-                
+
                 <Card className="p-4">
                     <div className="flex items-center justify-between">
                         <div>
@@ -156,7 +156,7 @@ const ViewInvoices = () => {
                         </div>
                     </div>
                 </Card>
-                
+
                 <Card className="p-4">
                     <div className="flex items-center justify-between">
                         <div>
