@@ -37,16 +37,17 @@
             "productListDesc": "All products listed",
             "productEditDesc": "Edit product details",
             "productCreateDesc": "Add new product"
-        },
-        "conceptsProjects": {
+        },        "conceptsProjects": {
             "projects": "Projects",
             "projectList": "List",
             "projectDetails": "Details",
             "projectTasks": "Tasks",
             "projectIssue": "Issue",
             "scrumBoard": "Scrum Board",
+            "projectDashboard": "Project Dashboard",
             "projectsDesc": "Manage and track projects",
             "scrumBoardDesc": "Manage your scrum workflow",
+            "projectDashboardDesc": "Project overview and metrics",
             "projectListDesc": "Organize all projects",
             "projectDetailsDesc": "Project detailed information",
             "projectTasksDesc": "Manage project tasks",
