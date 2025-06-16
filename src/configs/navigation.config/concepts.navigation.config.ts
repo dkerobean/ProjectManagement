@@ -23,54 +23,6 @@ const conceptsNavigationConfig: NavigationTree[] = [
             },
         },
         subMenu: [
-            {
-                key: 'concepts.ai',
-                path: '',
-                title: 'AI',
-                translateKey: 'nav.conceptsAi.ai',
-                icon: 'ai',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.conceptsAi.aiDesc',
-                        label: 'AI tools and resources',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'concepts.ai.chat',
-                        path: `${CONCEPTS_PREFIX_PATH}/ai/chat`,
-                        title: 'Chat',
-                        translateKey: 'nav.conceptsAi.chat',
-                        icon: 'aiChat',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.conceptsAi.chatDesc',
-                                label: 'AI-powered chat systems',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.ai.image',
-                        path: `${CONCEPTS_PREFIX_PATH}/ai/image`,
-                        title: 'Image',
-                        translateKey: 'nav.conceptsAi.image',
-                        icon: 'aiImage',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.conceptsAi.imageDesc',
-                                label: 'AI image processing',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],            },
             // Move Projects submenu items to top-level
             {
                 key: 'concepts.projects.crud',
@@ -224,159 +176,159 @@ const conceptsNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
-            {
-                key: 'concepts.products',
-                path: '',
-                title: 'Products',
-                translateKey: 'nav.conceptsProducts.products',
-                icon: 'products',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.conceptsProducts.productsDesc',
-                        label: 'Product inventory management',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'concepts.products.productList',
-                        path: `${CONCEPTS_PREFIX_PATH}/products/product-list`,
-                        title: 'Product List',
-                        translateKey: 'nav.conceptsProducts.productList',
-                        icon: 'productList',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProducts.productListDesc',
-                                label: 'All products listed',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.products.productEdit',
-                        path: `${CONCEPTS_PREFIX_PATH}/products/product-edit/12`,
-                        title: 'Product Edit',
-                        translateKey: 'nav.conceptsProducts.productEdit',
-                        icon: 'productEdit',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProducts.productEditDesc',
-                                label: 'Edit product details',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.products.productCreate',
-                        path: `${CONCEPTS_PREFIX_PATH}/products/product-create`,
-                        title: 'Product Create',
-                        translateKey: 'nav.conceptsProducts.productCreate',
-                        icon: 'productCreate',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsProducts.productCreateDesc',
-                                label: 'Add new product',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
-                key: 'concepts.orders',
-                path: '',
-                title: 'Orders',
-                translateKey: 'nav.conceptsOrders.orders',
-                icon: 'orders',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.conceptsOrders.ordersDesc',
-                        label: 'Customer orders management',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'concepts.orders.orderList',
-                        path: `${CONCEPTS_PREFIX_PATH}/orders/order-list`,
-                        title: 'Order List',
-                        translateKey: 'nav.conceptsOrders.orderList',
-                        icon: 'orderList',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsOrders.orderListDesc',
-                                label: 'View all customer orders',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.orders.orderEdit',
-                        path: `${CONCEPTS_PREFIX_PATH}/orders/order-edit/95954`,
-                        title: 'Order Edit',
-                        translateKey: 'nav.conceptsOrders.orderEdit',
-                        icon: 'orderEdit',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsOrders.orderEditDesc',
-                                label: 'Edit order details',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.orders.orderCreate',
-                        path: `${CONCEPTS_PREFIX_PATH}/orders/order-create`,
-                        title: 'Order Create',
-                        translateKey: 'nav.conceptsOrders.orderCreate',
-                        icon: 'orderCreate',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsOrders.orderCreateDesc',
-                                label: 'Create new order',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.orders.orderDetails',
-                        path: `${CONCEPTS_PREFIX_PATH}/orders/order-details/95954`,
-                        title: 'Order Details',
-                        translateKey: 'nav.conceptsOrders.orderDetails',
-                        icon: 'ordeDetails',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsOrders.orderDetailsDesc',
-                                label: 'Detailed order information',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
+            // {
+            //     key: 'concepts.products',
+            //     path: '',
+            //     title: 'Products',
+            //     translateKey: 'nav.conceptsProducts.products',
+            //     icon: 'products',
+            //     type: NAV_ITEM_TYPE_COLLAPSE,
+            //     authority: [ADMIN, USER],
+            //     meta: {
+            //         description: {
+            //             translateKey: 'nav.conceptsProducts.productsDesc',
+            //             label: 'Product inventory management',
+            //         },
+            //     },
+            //     subMenu: [
+            //         {
+            //             key: 'concepts.products.productList',
+            //             path: `${CONCEPTS_PREFIX_PATH}/products/product-list`,
+            //             title: 'Product List',
+            //             translateKey: 'nav.conceptsProducts.productList',
+            //             icon: 'productList',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsProducts.productListDesc',
+            //                     label: 'All products listed',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.products.productEdit',
+            //             path: `${CONCEPTS_PREFIX_PATH}/products/product-edit/12`,
+            //             title: 'Product Edit',
+            //             translateKey: 'nav.conceptsProducts.productEdit',
+            //             icon: 'productEdit',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsProducts.productEditDesc',
+            //                     label: 'Edit product details',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.products.productCreate',
+            //             path: `${CONCEPTS_PREFIX_PATH}/products/product-create`,
+            //             title: 'Product Create',
+            //             translateKey: 'nav.conceptsProducts.productCreate',
+            //             icon: 'productCreate',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsProducts.productCreateDesc',
+            //                     label: 'Add new product',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //     ],
+            // },
+            // {
+            //     key: 'concepts.orders',
+            //     path: '',
+            //     title: 'Orders',
+            //     translateKey: 'nav.conceptsOrders.orders',
+            //     icon: 'orders',
+            //     type: NAV_ITEM_TYPE_COLLAPSE,
+            //     authority: [ADMIN, USER],
+            //     meta: {
+            //         description: {
+            //             translateKey: 'nav.conceptsOrders.ordersDesc',
+            //             label: 'Customer orders management',
+            //         },
+            //     },
+            //     subMenu: [
+            //         {
+            //             key: 'concepts.orders.orderList',
+            //             path: `${CONCEPTS_PREFIX_PATH}/orders/order-list`,
+            //             title: 'Order List',
+            //             translateKey: 'nav.conceptsOrders.orderList',
+            //             icon: 'orderList',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsOrders.orderListDesc',
+            //                     label: 'View all customer orders',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.orders.orderEdit',
+            //             path: `${CONCEPTS_PREFIX_PATH}/orders/order-edit/95954`,
+            //             title: 'Order Edit',
+            //             translateKey: 'nav.conceptsOrders.orderEdit',
+            //             icon: 'orderEdit',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsOrders.orderEditDesc',
+            //                     label: 'Edit order details',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.orders.orderCreate',
+            //             path: `${CONCEPTS_PREFIX_PATH}/orders/order-create`,
+            //             title: 'Order Create',
+            //             translateKey: 'nav.conceptsOrders.orderCreate',
+            //             icon: 'orderCreate',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsOrders.orderCreateDesc',
+            //                     label: 'Create new order',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.orders.orderDetails',
+            //             path: `${CONCEPTS_PREFIX_PATH}/orders/order-details/95954`,
+            //             title: 'Order Details',
+            //             translateKey: 'nav.conceptsOrders.orderDetails',
+            //             icon: 'ordeDetails',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsOrders.orderDetailsDesc',
+            //                     label: 'Detailed order information',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //     ],
+            // },
             {
                 key: 'concepts.account',
                 path: '',
@@ -461,91 +413,91 @@ const conceptsNavigationConfig: NavigationTree[] = [
                     },
                 ],
             },
-            {
-                key: 'concepts.helpCenter',
-                path: '',
-                title: 'Help Center',
-                translateKey: 'nav.conceptsHelpCenter.helpCenter',
-                icon: 'helpCenter',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.conceptsHelpCenter.helpCenterDesc',
-                        label: 'Support and articles',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'concepts.helpCenter.supportHub',
-                        path: `${CONCEPTS_PREFIX_PATH}/help-center/support-hub`,
-                        title: 'Support Hub',
-                        translateKey: 'nav.conceptsHelpCenter.supportHub',
-                        icon: 'helpCeterSupportHub',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsHelpCenter.supportHubDesc',
-                                label: 'Central support hub',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.helpCenter.article',
-                        path: `${CONCEPTS_PREFIX_PATH}/help-center/article/pWBKE_0UiQ`,
-                        title: 'Article',
-                        translateKey: 'nav.conceptsHelpCenter.article',
-                        icon: 'helpCeterArticle',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsHelpCenter.articleDesc',
-                                label: 'Read support articles',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.helpCenter.editArticle',
-                        path: `${CONCEPTS_PREFIX_PATH}/help-center/edit-article/pWBKE_0UiQ`,
-                        title: 'Edit Article',
-                        translateKey: 'nav.conceptsHelpCenter.editArticle',
-                        icon: 'helpCeterEditArticle',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsHelpCenter.editArticleDesc',
-                                label: 'Modify article content',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.helpCenter.manageArticle',
-                        path: `${CONCEPTS_PREFIX_PATH}/help-center/manage-article`,
-                        title: 'Manage Article',
-                        translateKey: 'nav.conceptsHelpCenter.manageArticle',
-                        icon: 'helpCeterManageArticle',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsHelpCenter.manageArticleDesc',
-                                label: 'Article management',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
+            // {
+            //     key: 'concepts.helpCenter',
+            //     path: '',
+            //     title: 'Help Center',
+            //     translateKey: 'nav.conceptsHelpCenter.helpCenter',
+            //     icon: 'helpCenter',
+            //     type: NAV_ITEM_TYPE_COLLAPSE,
+            //     authority: [ADMIN, USER],
+            //     meta: {
+            //         description: {
+            //             translateKey: 'nav.conceptsHelpCenter.helpCenterDesc',
+            //             label: 'Support and articles',
+            //         },
+            //     },
+            //     subMenu: [
+            //         {
+            //             key: 'concepts.helpCenter.supportHub',
+            //             path: `${CONCEPTS_PREFIX_PATH}/help-center/support-hub`,
+            //             title: 'Support Hub',
+            //             translateKey: 'nav.conceptsHelpCenter.supportHub',
+            //             icon: 'helpCeterSupportHub',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsHelpCenter.supportHubDesc',
+            //                     label: 'Central support hub',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.helpCenter.article',
+            //             path: `${CONCEPTS_PREFIX_PATH}/help-center/article/pWBKE_0UiQ`,
+            //             title: 'Article',
+            //             translateKey: 'nav.conceptsHelpCenter.article',
+            //             icon: 'helpCeterArticle',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsHelpCenter.articleDesc',
+            //                     label: 'Read support articles',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.helpCenter.editArticle',
+            //             path: `${CONCEPTS_PREFIX_PATH}/help-center/edit-article/pWBKE_0UiQ`,
+            //             title: 'Edit Article',
+            //             translateKey: 'nav.conceptsHelpCenter.editArticle',
+            //             icon: 'helpCeterEditArticle',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsHelpCenter.editArticleDesc',
+            //                     label: 'Modify article content',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //         {
+            //             key: 'concepts.helpCenter.manageArticle',
+            //             path: `${CONCEPTS_PREFIX_PATH}/help-center/manage-article`,
+            //             title: 'Manage Article',
+            //             translateKey: 'nav.conceptsHelpCenter.manageArticle',
+            //             icon: 'helpCeterManageArticle',
+            //             type: NAV_ITEM_TYPE_ITEM,
+            //             authority: [ADMIN, USER],
+            //             meta: {
+            //                 description: {
+            //                     translateKey:
+            //                         'nav.conceptsHelpCenter.manageArticleDesc',
+            //                     label: 'Article management',
+            //                 },
+            //             },
+            //             subMenu: [],
+            //         },
+            //     ],
+            // },
             {
                 key: 'concepts.calendar',
                 path: `${CONCEPTS_PREFIX_PATH}/calendar`,
@@ -578,40 +530,49 @@ const conceptsNavigationConfig: NavigationTree[] = [
                 },
                 subMenu: [],
             },
-            {
-                key: 'concepts.mail',
-                path: `${CONCEPTS_PREFIX_PATH}/mail`,
-                title: 'Mail',
-                translateKey: 'nav.mail',
-                icon: 'mail',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.mailDesc',
-                        label: 'Manage your emails',
-                    },
-                },
-                subMenu: [],
-            },
-            {
-                key: 'concepts.chat',
-                path: `${CONCEPTS_PREFIX_PATH}/chat`,
-                title: 'Chat',
-                translateKey: 'nav.chat',
-                icon: 'chat',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.chatDesc',
-                        label: 'Chat with friends',
-                    },
-                },
-                subMenu: [],
-            },
+            // {
+            //     key: 'concepts.mail',
+            //     path: `${CONCEPTS_PREFIX_PATH}/mail`,
+            //     title: 'Mail',
+            //     translateKey: 'nav.mail',
+            //     icon: 'mail',
+            //     type: NAV_ITEM_TYPE_ITEM,
+            //     authority: [ADMIN, USER],
+            //     meta: {
+            //         description: {
+            //             translateKey: 'nav.mailDesc',
+            //             label: 'Manage your emails',
+            //         },
+            //     },
+            //     subMenu: [],
+            // },
+            // {
+            //     key: 'concepts.chat',
+            //     path: `${CONCEPTS_PREFIX_PATH}/chat`,
+            //     title: 'Chat',
+            //     translateKey: 'nav.chat',
+            //     icon: 'chat',
+            //     type: NAV_ITEM_TYPE_ITEM,
+            //     authority: [ADMIN, USER],
+            //     meta: {
+            //         description: {
+            //             translateKey: 'nav.chatDesc',
+            //             label: 'Chat with friends',
+            //         },
+            //     },
+            //     subMenu: [],
+            // },
         ],
     },
 ]
 
 export default conceptsNavigationConfig
+
+
+
+
+
+
+
+
+

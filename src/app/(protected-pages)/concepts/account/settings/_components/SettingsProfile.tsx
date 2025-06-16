@@ -135,7 +135,7 @@ const SettingsProfile = () => {
         let valid: string | boolean = true
         const allowedFileType = ['image/jpeg', 'image/png', 'image/webp']
         const maxFileSize = 5 * 1024 * 1024 // 5MB
-        
+
         if (files) {
             const fileArray = Array.from(files)
             for (const file of fileArray) {
@@ -182,10 +182,10 @@ const SettingsProfile = () => {
                 try {
                     // Get full user profile from API route
                     const response = await fetch('/api/user/profile')
-                    
+
                     if (response.ok) {
                         const profile = await response.json()
-                        
+
                         // Use database profile data to populate form
                         reset({
                             name: profile.name || '',
@@ -242,21 +242,21 @@ const SettingsProfile = () => {
 
     const handleAvatarUpload = async (files: File[]) => {
         if (!files.length || !session?.user?.id) return
-        
+
         try {
             setIsUploadingAvatar(true)
             const file = files[0]
-            
+
             // Upload to Supabase Storage
             const uploadResult = await supabaseStorageService.uploadAvatar(file, session.user.id)
-            
+
             if (uploadResult.error) {
-                const errorMessage = typeof uploadResult.error === 'string' 
-                    ? uploadResult.error 
-                    : uploadResult.error instanceof Error 
-                        ? uploadResult.error.message 
+                const errorMessage = typeof uploadResult.error === 'string'
+                    ? uploadResult.error
+                    : uploadResult.error instanceof Error
+                        ? uploadResult.error.message
                         : 'Unknown error occurred'
-                
+
                 toast.push(
                     <Notification title="Error" type="danger">
                         Failed to upload avatar: {errorMessage}
@@ -264,10 +264,14 @@ const SettingsProfile = () => {
                 )
                 return
             }
-            
+
             if (uploadResult.url) {
                 setValue('avatar_url', uploadResult.url)
-                
+
+                // Trigger custom event to update header avatar
+                console.log('🔔 Dispatching profileUpdated event after avatar upload')
+                window.dispatchEvent(new CustomEvent('profileUpdated'))
+
                 toast.push(
                     <Notification title="Success" type="success">
                         Avatar uploaded successfully!
@@ -290,7 +294,7 @@ const SettingsProfile = () => {
         try {
             setIsUploadingAvatar(true)
             const currentAvatarUrl = watch('avatar_url')
-            
+
             // Delete from Supabase Storage if it's a Supabase URL
             if (currentAvatarUrl && currentAvatarUrl.includes('supabase')) {
                 const deleteResult = await supabaseStorageService.deleteAvatar(currentAvatarUrl)
@@ -298,9 +302,9 @@ const SettingsProfile = () => {
                     console.warn('Failed to delete avatar from storage:', deleteResult.error)
                 }
             }
-            
+
             setValue('avatar_url', '')
-            
+
             toast.push(
                 <Notification title="Success" type="success">
                     Avatar removed successfully!
@@ -327,10 +331,10 @@ const SettingsProfile = () => {
             )
             return
         }
-        
+
         try {
             setIsLoading(true)
-            
+
             // Prepare the update data for the API
             const updateData = {
                 name: values.name,
@@ -345,7 +349,7 @@ const SettingsProfile = () => {
                 ...(values.postcode && { postcode: values.postcode }),
                 ...(values.city && { city: values.city }),
             }
-            
+
             // Update profile via API route
             const response = await fetch('/api/user/profile', {
                 method: 'PUT',
@@ -354,13 +358,13 @@ const SettingsProfile = () => {
                 },
                 body: JSON.stringify(updateData),
             })
-            
+
             const result = await response.json()
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Failed to update profile')
             }
-            
+
             // Update the NextAuth session with the new data
             await updateSession({
                 ...session,
@@ -371,7 +375,11 @@ const SettingsProfile = () => {
                     image: values.avatar_url,
                 },
             })
-            
+
+            // Trigger custom event to update header avatar
+            console.log('🔔 Dispatching profileUpdated event after form submission')
+            window.dispatchEvent(new CustomEvent('profileUpdated'))
+
             toast.push(
                 <Notification title="Success" type="success">
                     Profile updated successfully!
