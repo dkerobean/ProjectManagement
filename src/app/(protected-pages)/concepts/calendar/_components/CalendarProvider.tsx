@@ -2,19 +2,18 @@
 import { useEffect } from 'react'
 import { useCalendar } from '../_store/calendarStore'
 import type { CommonProps } from '@/@types/common'
-import type { CalendarEvents } from '../types'
 
-interface CalendarProviderProps extends CommonProps {
-    events: CalendarEvents
-}
-
-const CalendarProvider = ({ children, events }: CalendarProviderProps) => {
-    const setData = useCalendar((state) => state.setData)
-    const setInitialLoading = useCalendar((state) => state.setInitialLoading)
+const CalendarProvider = ({ children }: CommonProps) => {
+    const loadEvents = useCalendar((state) => state.loadEvents)
 
     useEffect(() => {
-        setData(events)
-        setInitialLoading(false)
+        const initializeCalendar = async () => {
+            // Always load events from Supabase database
+            console.log('🔄 Loading events from Supabase database...')
+            await loadEvents()
+        }
+
+        initializeCalendar()
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

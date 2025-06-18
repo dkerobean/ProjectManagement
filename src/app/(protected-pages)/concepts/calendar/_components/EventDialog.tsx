@@ -44,6 +44,7 @@ type EventDialogProps = {
     selected: SelectedCell
     onDialogOpen: (open: boolean) => void
     submit: (eventData: EventParam, type: string) => void
+    onDelete?: (eventId: string) => void
 }
 
 const { Control } = components
@@ -134,7 +135,7 @@ const validationSchema = z.object({
 })
 
 const EventDialog = (props: EventDialogProps) => {
-    const { submit, open, selected, onDialogOpen } = props
+    const { submit, open, selected, onDialogOpen, onDelete } = props
 
     const newId = useUniqueId('event-')
 
@@ -266,13 +267,34 @@ const EventDialog = (props: EventDialogProps) => {
                                     field.onChange(selected?.value)
                                 }}
                             />
-                        )}
-                    />
+                        )}                    />
                 </FormItem>
-                <FormItem className="mb-0 text-right rtl:text-left">
-                    <Button block variant="solid" type="submit">
-                        {selected.type === 'NEW' ? 'Create' : 'Update'}
-                    </Button>
+                <FormItem className="mb-0">
+                    <div className="flex gap-2">
+                        {selected.type === 'EDIT' && selected.id && onDelete && (
+                            <Button 
+                                variant="plain" 
+                                type="button"
+                                className="text-red-600 hover:text-red-700 flex-1"
+                                onClick={() => {
+                                    if (selected.id) {
+                                        onDelete(selected.id)
+                                        handleDialogClose()
+                                    }
+                                }}
+                            >
+                                Delete
+                            </Button>
+                        )}
+                        <Button 
+                            block={selected.type === 'NEW'} 
+                            variant="solid" 
+                            type="submit"
+                            className={selected.type === 'EDIT' ? 'flex-1' : ''}
+                        >
+                            {selected.type === 'NEW' ? 'Create' : 'Update'}
+                        </Button>
+                    </div>
                 </FormItem>
             </Form>
         </Dialog>

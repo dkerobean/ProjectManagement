@@ -4,6 +4,7 @@ export type CalendarEventParam = {
     start: string
     eventColor: string
     end?: string
+    groupId?: string
 }
 
 export type CalendarEvent = {
@@ -12,7 +13,7 @@ export type CalendarEvent = {
     start: string
     end?: string
     eventColor: string
-    groupId?: undefined
+    groupId?: string
 }
 
 export type SelectedCell = {
