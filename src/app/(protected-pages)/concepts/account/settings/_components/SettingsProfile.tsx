@@ -20,7 +20,6 @@ import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { HiOutlineUser, HiOutlineCloudUpload, HiOutlineTrash } from 'react-icons/hi'
 import { getRoleDisplayName, type UserRole } from '@/utils/roleBasedAccess'
-import supabaseStorageService from '@/services/SupabaseStorageService'
 import type { ZodType } from 'zod'
 
 type ProfileSchema = {
@@ -196,13 +195,13 @@ const SettingsProfile = () => {
                             avatar_url: profile.avatar_url || '',
                             timezone: profile.timezone || 'UTC',
                             role: profile.role as UserRole,
-                            // Removed non-existent fields
-                            dialCode: '',
-                            phoneNumber: '',
-                            country: '',
-                            address: '',
-                            postcode: '',
-                            city: '',
+                            // Now load additional fields from database
+                            dialCode: '', // This is for the phone country code selector
+                            phoneNumber: profile.phone_number || '',
+                            country: profile.country_code || '',
+                            address: profile.address || '',
+                            postcode: profile.postal_code || '',
+                            city: profile.city || '',
                         })
                         console.log('✅ Profile loaded from API successfully')
                     } else {
@@ -247,45 +246,67 @@ const SettingsProfile = () => {
     }, [session, reset])
 
     const handleAvatarUpload = async (files: File[]) => {
-        if (!files.length || !session?.user?.id) return
+        if (!files.length || !session?.user?.id) {
+            console.error('❌ Avatar upload failed: No files or user ID')
+            return
+        }
 
         try {
+            console.log('🔄 Starting avatar upload via API...')
             setIsUploadingAvatar(true)
             const file = files[0]
+            console.log('📁 File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            })
 
-            // Upload to Supabase Storage
-            const uploadResult = await supabaseStorageService.uploadAvatar(file, session.user.id)
+            // Create FormData for API upload
+            const formData = new FormData()
+            formData.append('file', file)
 
-            if (uploadResult.error) {
-                const errorMessage = typeof uploadResult.error === 'string'
-                    ? uploadResult.error
-                    : uploadResult.error instanceof Error
-                        ? uploadResult.error.message
-                        : 'Unknown error occurred'
+            console.log('☁️ Uploading via API endpoint...')
+            const response = await fetch('/api/upload/avatar', {
+                method: 'POST',
+                body: formData
+            })
 
+            const result = await response.json()
+            console.log('📤 Upload API response:', result)
+
+            if (!response.ok) {
+                console.error('❌ Upload API error:', result.error)
                 toast.push(
                     <Notification title="Error" type="danger">
-                        Failed to upload avatar: {errorMessage}
+                        Failed to upload avatar: {result.error}
                     </Notification>
                 )
                 return
             }
 
-            if (uploadResult.url) {
-                setValue('avatar_url', uploadResult.url)
+            if (result.url) {
+                console.log('✅ Avatar uploaded successfully, URL:', result.url)
+                
+                // Add timestamp to force cache refresh
+                const timestampedUrl = `${result.url}?t=${Date.now()}`
+                setValue('avatar_url', timestampedUrl)
 
                 // Trigger custom event to update header avatar
                 console.log('🔔 Dispatching profileUpdated event after avatar upload')
-                window.dispatchEvent(new CustomEvent('profileUpdated'))
+                window.dispatchEvent(new CustomEvent('profileUpdated', {
+                    detail: { avatarUrl: timestampedUrl }
+                }))
 
                 toast.push(
                     <Notification title="Success" type="success">
                         Avatar uploaded successfully!
                     </Notification>
                 )
+            } else {
+                throw new Error('No URL returned from upload')
             }
         } catch (error) {
-            console.error('Avatar upload error:', error)
+            console.error('💥 Avatar upload error:', error)
             toast.push(
                 <Notification title="Error" type="danger">
                     Failed to upload avatar. Please try again.
@@ -293,22 +314,17 @@ const SettingsProfile = () => {
             )
         } finally {
             setIsUploadingAvatar(false)
+            console.log('🏁 Avatar upload process completed')
         }
     }
 
     const handleAvatarRemove = async () => {
         try {
             setIsUploadingAvatar(true)
-            const currentAvatarUrl = watch('avatar_url')
-
-            // Delete from Supabase Storage if it's a Supabase URL
-            if (currentAvatarUrl && currentAvatarUrl.includes('supabase')) {
-                const deleteResult = await supabaseStorageService.deleteAvatar(currentAvatarUrl)
-                if (deleteResult.error) {
-                    console.warn('Failed to delete avatar from storage:', deleteResult.error)
-                }
-            }
-
+            console.log('🗑️ Removing avatar...')
+            
+            // Simply set the avatar_url to empty string
+            // We could implement a delete API endpoint later if needed
             setValue('avatar_url', '')
 
             toast.push(
@@ -347,9 +363,12 @@ const SettingsProfile = () => {
                 email: values.email,
                 avatar_url: values.avatar_url,
                 timezone: values.timezone,
-                // Only include fields that exist in the database
-                // dial_code, phone_number, country, address, postcode, city removed
-                // as they don't exist in the current database schema
+                // Include additional profile fields (now supported in database)
+                phone_number: values.phoneNumber || null,
+                country_code: values.country || null,
+                address: values.address || null,
+                city: values.city || null,
+                postal_code: values.postcode || null,
             }
 
             // Update profile via API route
@@ -403,7 +422,274 @@ const SettingsProfile = () => {
     return (
         <>
             <h4 className="mb-8">Personal Information</h4>
-            <Form onSubmit={handleSubmit(onSubmit)}>                {/* Avatar Section */}                <Card className="mb-6">                    <div className="flex items-center gap-6">                        <div className="flex-shrink-0">                            <Controller                                name="avatar_url"                                control={control}                                render={({ field }) => (                                    <Avatar                                        size={90}                                        className="border-4 border-white bg-gray-100 text-gray-300 shadow-lg"                                        icon={<HiOutlineUser />}                                        src={field.value}                                    />                                )}                            />                        </div>                        <div className="flex-1">                            <h4 className="font-semibold text-lg mb-2">Profile Picture</h4>                            <p className="text-gray-600 dark:text-gray-400 mb-4">                                Upload a high-quality image for your profile. Supported formats: JPEG, PNG, WebP (max 5MB)                            </p>                            <div className="flex items-center gap-2">                                <Upload                                    className="cursor-pointer"                                    showList={false}                                    uploadLimit={1}                                    accept="image/jpeg,image/png,image/webp"                                    beforeUpload={beforeAvatarUpload}                                    onChange={handleAvatarUpload}                                    disabled={isUploadingAvatar}                                >                                    <Button                                        variant="solid"                                        size="sm"                                        icon={<HiOutlineCloudUpload />}                                        loading={isUploadingAvatar}                                        disabled={isUploadingAvatar}                                        type="button"                                    >                                        {isUploadingAvatar ? 'Uploading...' : 'Upload'}                                    </Button>                                </Upload>                                {watchedAvatarUrl && (                                    <Button                                        variant="plain"                                        size="sm"                                        icon={<HiOutlineTrash />}                                        onClick={handleAvatarRemove}                                        disabled={isUploadingAvatar}                                        type="button"                                    >                                        Remove                                    </Button>                                )}                            </div>                            {session?.user?.role && (                                <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">                                    Current role: {getRoleDisplayName(session.user.role as UserRole)}                                </p>                            )}                        </div>                    </div>                </Card>                {/* Personal Information */}                <Card className="mb-6">                    <h4 className="font-semibold text-lg mb-4">Basic Information</h4>                    <div className="grid md:grid-cols-2 gap-4">                        <FormItem                            label="Full Name"                            invalid={Boolean(errors.name)}                            errorMessage={errors.name?.message}                        >                            <Controller                                name="name"                                control={control}                                render={({ field }) => (                                    <Input                                        type="text"                                        autoComplete="off"                                        placeholder="Full Name"                                        {...field}                                    />                                )}                            />                        </FormItem>                        <FormItem                            label="Email"                            invalid={Boolean(errors.email)}                            errorMessage={errors.email?.message}                        >                            <Controller                                name="email"                                control={control}                                render={({ field }) => (                                    <Input                                        type="email"                                        autoComplete="off"                                        placeholder="Email"                                        {...field}                                    />                                )}                            />                        </FormItem>                    </div>                                        <FormItem                        label="Timezone"                        invalid={Boolean(errors.timezone)}                        errorMessage={errors.timezone?.message}                    >                        <Controller                            name="timezone"                            control={control}                            render={({ field }) => (                                <Select                                    placeholder="Select your timezone"                                    options={timezoneOptions}                                    value={timezoneOptions.find(option => option.value === field.value)}                                    onChange={(option) => field.onChange(option?.value)}                                />                            )}                        />                    </FormItem>                </Card>                {/* Optional Information */}                <Card className="mb-6">                    <h4 className="font-semibold text-lg mb-4">Additional Information (Optional)</h4>                    <div className="flex items-end gap-4 w-full mb-6">                        <FormItem                            invalid={                                Boolean(errors.phoneNumber) ||                                Boolean(errors.dialCode)                            }                        >                            <label className="form-label mb-2">Phone number</label>                            <Controller                                name="dialCode"                                control={control}                                render={({ field }) => (                                    <Select<CountryOption>                                        instanceId="dial-code"                                        options={dialCodeList}                                        value={dialCodeList.find(option => option.value === field.value)}                                        onChange={(option) => field.onChange(option?.value)}                                        className="w-[150px]"                                        components={{                                            Option: (props) => (                                                <CustomSelectOption                                                    variant="phone"                                                    {...(props as OptionProps<CountryOption>)}                                                />                                            ),                                            Control: CustomControl,                                        }}                                        placeholder=""                                    />                                )}                            />                        </FormItem>                        <FormItem                            invalid={Boolean(errors.phoneNumber)}                            errorMessage={errors.phoneNumber?.message}                        >                            <Controller                                name="phoneNumber"                                control={control}                                render={({ field }) => (                                    <NumericInput                                        placeholder="Phone Number"                                        className="w-[250px]"                                        {...field}                                    />                                )}                            />                        </FormItem>                    </div>                                        <FormItem                        label="Country"                        invalid={Boolean(errors.country)}                        errorMessage={errors.country?.message}                    >                        <Controller                            name="country"                            control={control}                            render={({ field }) => (                                <Select<CountryOption>                                    instanceId="country"                                    options={countryList}                                    value={countryList.find(option => option.value === field.value)}                                    onChange={(option) => field.onChange(option?.value)}                                    components={{                                        Option: (props) => (                                            <CustomSelectOption                                                variant="country"                                                {...(props as OptionProps<CountryOption>)}                                            />                                        ),                                        Control: CustomControl,                                    }}                                    placeholder="Select Country"                                />                            )}                        />                    </FormItem>                                        <div className="grid md:grid-cols-3 gap-4">                        <FormItem                            label="Address"                            invalid={Boolean(errors.address)}                            errorMessage={errors.address?.message}                        >                            <Controller                                name="address"                                control={control}                                render={({ field }) => (                                    <Input                                        type="text"                                        autoComplete="off"                                        placeholder="Address"                                        {...field}                                    />                                )}                            />                        </FormItem>                        <FormItem                            label="Postcode"                            invalid={Boolean(errors.postcode)}                            errorMessage={errors.postcode?.message}                        >                            <Controller                                name="postcode"                                control={control}                                render={({ field }) => (                                    <Input                                        type="text"                                        autoComplete="off"                                        placeholder="Postcode"                                        {...field}                                    />                                )}                            />                        </FormItem>                        <FormItem                            label="City"                            invalid={Boolean(errors.city)}                            errorMessage={errors.city?.message}                        >                            <Controller                                name="city"                                control={control}                                render={({ field }) => (                                    <Input                                        type="text"                                        autoComplete="off"                                        placeholder="City"                                        {...field}                                    />                                )}                            />                        </FormItem>                    </div>                </Card>
+            <Form onSubmit={handleSubmit(onSubmit)}>
+                {/* Avatar Section */}
+                <Card className="mb-6">
+                    <div className="flex items-center gap-6">
+                        <div className="flex-shrink-0">
+                            <Controller
+                                name="avatar_url"
+                                control={control}
+                                render={({ field }) => (
+                                    <Avatar
+                                        size={90}
+                                        className="border-4 border-white bg-gray-100 text-gray-300 shadow-lg"
+                                        icon={<HiOutlineUser />}
+                                        src={field.value}
+                                    />
+                                )}
+                            />
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="font-semibold text-lg mb-2">Profile Picture</h4>
+                            <p className="text-gray-600 dark:text-gray-400 mb-4">
+                                Upload a high-quality image for your profile. Supported formats: JPEG, PNG, WebP (max 5MB)
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <Upload
+                                    className="cursor-pointer"
+                                    showList={false}
+                                    uploadLimit={1}
+                                    accept="image/jpeg,image/png,image/webp"
+                                    beforeUpload={beforeAvatarUpload}
+                                    onChange={handleAvatarUpload}
+                                    disabled={isUploadingAvatar}
+                                >
+                                    <Button
+                                        variant="solid"
+                                        size="sm"
+                                        icon={<HiOutlineCloudUpload />}
+                                        loading={isUploadingAvatar}
+                                        disabled={isUploadingAvatar}
+                                        type="button"
+                                    >
+                                        {isUploadingAvatar ? 'Uploading...' : 'Upload'}
+                                    </Button>
+                                </Upload>
+                                {watchedAvatarUrl && (
+                                    <Button
+                                        variant="plain"
+                                        size="sm"
+                                        icon={<HiOutlineTrash />}
+                                        onClick={handleAvatarRemove}
+                                        disabled={isUploadingAvatar}
+                                        type="button"
+                                    >
+                                        Remove
+                                    </Button>
+                                )}
+                            </div>
+                            {session?.user?.role && (
+                                <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                                    Current role: {getRoleDisplayName(session.user.role as UserRole)}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </Card>
+
+                {/* Basic Information */}
+                <Card className="mb-6">
+                    <h4 className="font-semibold text-lg mb-4">Basic Information</h4>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <FormItem
+                            label="Full Name"
+                            invalid={Boolean(errors.name)}
+                            errorMessage={errors.name?.message}
+                        >
+                            <Controller
+                                name="name"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Full Name"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                        <FormItem
+                            label="Email"
+                            invalid={Boolean(errors.email)}
+                            errorMessage={errors.email?.message}
+                        >
+                            <Controller
+                                name="email"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="email"
+                                        autoComplete="off"
+                                        placeholder="Email"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                    </div>
+                    
+                    <FormItem
+                        label="Timezone"
+                        invalid={Boolean(errors.timezone)}
+                        errorMessage={errors.timezone?.message}
+                    >
+                        <Controller
+                            name="timezone"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    placeholder="Select your timezone"
+                                    options={timezoneOptions}
+                                    value={timezoneOptions.find(option => option.value === field.value)}
+                                    onChange={(option) => field.onChange(option?.value)}
+                                />
+                            )}
+                        />
+                    </FormItem>
+                </Card>
+
+                {/* Additional Information (Optional) */}
+                <Card className="mb-6">
+                    <h4 className="font-semibold text-lg mb-4">Additional Information (Optional)</h4>
+                    
+                    <div className="flex items-end gap-4 w-full mb-6">
+                        <FormItem
+                            invalid={
+                                Boolean(errors.phoneNumber) ||
+                                Boolean(errors.dialCode)
+                            }
+                        >
+                            <label className="form-label mb-2">Phone number</label>
+                            <Controller
+                                name="dialCode"
+                                control={control}
+                                render={({ field }) => (
+                                    <Select<CountryOption>
+                                        instanceId="dial-code"
+                                        options={dialCodeList}
+                                        value={dialCodeList.find(option => option.value === field.value)}
+                                        onChange={(option) => field.onChange(option?.value)}
+                                        className="w-[150px]"
+                                        components={{
+                                            Option: (props) => (
+                                                <CustomSelectOption
+                                                    variant="phone"
+                                                    {...(props as OptionProps<CountryOption>)}
+                                                />
+                                            ),
+                                            Control: CustomControl,
+                                        }}
+                                        placeholder=""
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                        <FormItem
+                            invalid={Boolean(errors.phoneNumber)}
+                            errorMessage={errors.phoneNumber?.message}
+                        >
+                            <Controller
+                                name="phoneNumber"
+                                control={control}
+                                render={({ field }) => (
+                                    <NumericInput
+                                        placeholder="Phone Number"
+                                        className="w-[250px]"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                    </div>
+
+                    <FormItem
+                        label="Country"
+                        invalid={Boolean(errors.country)}
+                        errorMessage={errors.country?.message}
+                    >
+                        <Controller
+                            name="country"
+                            control={control}
+                            render={({ field }) => (
+                                <Select<CountryOption>
+                                    instanceId="country"
+                                    options={countryList}
+                                    value={countryList.find(option => option.value === field.value)}
+                                    onChange={(option) => field.onChange(option?.value)}
+                                    components={{
+                                        Option: (props) => (
+                                            <CustomSelectOption
+                                                variant="country"
+                                                {...(props as OptionProps<CountryOption>)}
+                                            />
+                                        ),
+                                        Control: CustomControl,
+                                    }}
+                                    placeholder="Select Country"
+                                />
+                            )}
+                        />
+                    </FormItem>
+
+                    <div className="grid md:grid-cols-3 gap-4">
+                        <FormItem
+                            label="Address"
+                            invalid={Boolean(errors.address)}
+                            errorMessage={errors.address?.message}
+                        >
+                            <Controller
+                                name="address"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Address"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                        <FormItem
+                            label="Postcode"
+                            invalid={Boolean(errors.postcode)}
+                            errorMessage={errors.postcode?.message}
+                        >
+                            <Controller
+                                name="postcode"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="Postcode"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                        <FormItem
+                            label="City"
+                            invalid={Boolean(errors.city)}
+                            errorMessage={errors.city?.message}
+                        >
+                            <Controller
+                                name="city"
+                                control={control}
+                                render={({ field }) => (
+                                    <Input
+                                        type="text"
+                                        autoComplete="off"
+                                        placeholder="City"
+                                        {...field}
+                                    />
+                                )}
+                            />
+                        </FormItem>
+                    </div>
+                </Card>
 
                 {/* Save Button */}
                 <div className="flex justify-end">

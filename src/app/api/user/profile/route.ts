@@ -8,8 +8,12 @@ const updateProfileSchema = z.object({
     email: z.string().email('Invalid email format'),
     avatar_url: z.string().optional(),
     timezone: z.string().min(1, 'Timezone is required'),
-    // Remove fields that don't exist in the database
-    // dial_code, phone_number, country, address, postcode, city
+    // Additional profile fields now supported
+    phone_number: z.string().optional(),
+    country_code: z.string().optional(),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    postal_code: z.string().optional(),
 })
 
 export async function PUT(request: NextRequest) {
@@ -74,6 +78,12 @@ export async function PUT(request: NextRequest) {
             email: validatedData.email,
             avatar_url: validatedData.avatar_url || null,
             timezone: validatedData.timezone,
+            // Include additional profile fields
+            phone_number: validatedData.phone_number || null,
+            country_code: validatedData.country_code || null,
+            address: validatedData.address || null,
+            city: validatedData.city || null,
+            postal_code: validatedData.postal_code || null,
             updated_at: new Date().toISOString(),
             role: session.user.role || 'member'
         }

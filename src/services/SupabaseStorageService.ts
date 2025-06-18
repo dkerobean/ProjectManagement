@@ -41,32 +41,52 @@ class SupabaseStorageService {
      */
     async uploadAvatar(file: File, userId: string): Promise<UploadResult> {
         try {
+            console.log('🔄 SupabaseStorageService: Starting avatar upload...')
+            console.log('📁 File details:', {
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                userId: userId
+            })
+
             // Validate file type
             const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
             if (!allowedTypes.includes(file.type)) {
-                return {
-                    url: null,
-                    error: 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
-                }
+                const error = 'Invalid file type. Only JPEG, PNG, and WebP images are allowed.'
+                console.error('❌ File type validation failed:', error)
+                return { url: null, error }
             }
 
             // Validate file size (5MB max)
             const maxSize = 5 * 1024 * 1024
             if (file.size > maxSize) {
-                return {
-                    url: null,
-                    error: 'File size too large. Maximum size is 5MB.'
-                }
+                const error = 'File size too large. Maximum size is 5MB.'
+                console.error('❌ File size validation failed:', error)
+                return { url: null, error }
             }
 
             // Create a unique filename
             const fileExt = file.name.split('.').pop() || 'jpg'
             const fileName = `${userId}/avatar_${Date.now()}.${fileExt}`
+            console.log('� Generated filename:', fileName)
 
-            console.log('🔄 Uploading avatar:', { fileName, fileSize: file.size, fileType: file.type })
+            // Check if we can access storage
+            try {
+                const { data: buckets, error: bucketsError } = await this.supabase.storage.listBuckets()
+                if (bucketsError) {
+                    console.error('❌ Failed to list buckets:', bucketsError)
+                    return { url: null, error: `Storage access error: ${bucketsError.message}` }
+                }
+                console.log('✅ Storage accessible, buckets found:', buckets?.length || 0)
+            } catch (storageError) {
+                console.error('❌ Storage connection error:', storageError)
+                return { url: null, error: 'Failed to connect to storage service' }
+            }
 
+            console.log('☁️ Uploading to avatars bucket...')
+            
             // Upload the file to the avatars bucket
-            const { error: uploadError } = await this.supabase.storage
+            const { data, error: uploadError } = await this.supabase.storage
                 .from('avatars')
                 .upload(fileName, file, {
                     cacheControl: '3600',
@@ -74,29 +94,30 @@ class SupabaseStorageService {
                 })
 
             if (uploadError) {
-                console.error('❌ Avatar upload error:', uploadError)
+                console.error('❌ Avatar upload error details:', {
+                    message: uploadError.message,
+                    error: uploadError
+                })
                 return {
                     url: null,
                     error: `Upload failed: ${uploadError.message}`
                 }
             }
 
-            console.log('✅ Avatar uploaded successfully:', fileName)
+            console.log('✅ Avatar uploaded successfully:', data)
 
             // Get the public URL
             const { data: { publicUrl } } = this.supabase.storage
                 .from('avatars')
                 .getPublicUrl(fileName)
 
-            console.log('🔗 Avatar public URL:', publicUrl)
+            console.log('🔗 Avatar public URL generated:', publicUrl)
 
             return { url: publicUrl, error: null }
         } catch (error) {
             console.error('💥 Avatar upload error:', error)
-            return {
-                url: null,
-                error: error instanceof Error ? error.message : 'Unknown upload error'
-            }
+            const errorMessage = error instanceof Error ? error.message : 'Unknown upload error'
+            return { url: null, error: errorMessage }
         }
     }
 
