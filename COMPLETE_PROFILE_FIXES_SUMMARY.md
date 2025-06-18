@@ -6,7 +6,7 @@
 **Problem:** Storage RLS policies were blocking server-side uploads
 ```
 ❌ Supabase upload error: {
-  statusCode: '403', 
+  statusCode: '403',
   error: 'Unauthorized',
   message: 'new row violates row-level security policy'
 }
@@ -31,9 +31,9 @@
 
 ### **New Columns Added:**
 ```sql
-ALTER TABLE public.users 
+ALTER TABLE public.users
 ADD COLUMN phone_number VARCHAR(20),
-ADD COLUMN country_code VARCHAR(3), 
+ADD COLUMN country_code VARCHAR(3),
 ADD COLUMN address TEXT,
 ADD COLUMN city VARCHAR(100),
 ADD COLUMN postal_code VARCHAR(20);
@@ -46,19 +46,19 @@ CREATE POLICY "avatars_upload_policy" ON storage.objects
     FOR INSERT TO public
     WITH CHECK (
         bucket_id = 'avatars' AND
-        (auth.role() = 'authenticated' OR 
-         auth.role() = 'service_role' OR 
+        (auth.role() = 'authenticated' OR
+         auth.role() = 'service_role' OR
          auth.role() = 'anon')
     );
 
--- New avatar update policy  
+-- New avatar update policy
 CREATE POLICY "avatars_update_policy" ON storage.objects
     FOR UPDATE TO public
     USING (bucket_id = 'avatars')
     WITH CHECK (
         bucket_id = 'avatars' AND
-        (auth.role() = 'authenticated' OR 
-         auth.role() = 'service_role' OR 
+        (auth.role() = 'authenticated' OR
+         auth.role() = 'service_role' OR
          auth.role() = 'anon')
     );
 ```
@@ -72,11 +72,11 @@ CREATE POLICY "avatars_update_policy" ON storage.objects
 // Added support for additional fields
 {
     name: string,
-    email: string, 
+    email: string,
     avatar_url?: string,
     timezone: string,
     phone_number?: string,
-    country_code?: string, 
+    country_code?: string,
     address?: string,
     city?: string,
     postal_code?: string
@@ -87,7 +87,7 @@ CREATE POLICY "avatars_update_policy" ON storage.objects
 ```typescript
 // Form field → Database column mapping
 phoneNumber → phone_number
-country → country_code  
+country → country_code
 address → address
 city → city
 postcode → postal_code

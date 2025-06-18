@@ -272,8 +272,8 @@ const EventDialog = (props: EventDialogProps) => {
                 <FormItem className="mb-0">
                     <div className="flex gap-2">
                         {selected.type === 'EDIT' && selected.id && onDelete && (
-                            <Button 
-                                variant="plain" 
+                            <Button
+                                variant="plain"
                                 type="button"
                                 className="text-red-600 hover:text-red-700 flex-1"
                                 onClick={() => {
@@ -286,9 +286,9 @@ const EventDialog = (props: EventDialogProps) => {
                                 Delete
                             </Button>
                         )}
-                        <Button 
-                            block={selected.type === 'NEW'} 
-                            variant="solid" 
+                        <Button
+                            block={selected.type === 'NEW'}
+                            variant="solid"
                             type="submit"
                             className={selected.type === 'EDIT' ? 'flex-1' : ''}
                         >

@@ -72,7 +72,7 @@ user_id: session.user.id
 
 ### **API-Level Protection:**
 - ✅ **Authentication required** - All endpoints verify session
-- ✅ **User isolation** - Users can only access their own events  
+- ✅ **User isolation** - Users can only access their own events
 - ✅ **Data integrity** - user_id always set from authenticated session
 - ✅ **Input validation** - Zod schemas prevent malformed data
 

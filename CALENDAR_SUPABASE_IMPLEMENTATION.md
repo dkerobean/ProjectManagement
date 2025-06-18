@@ -63,7 +63,7 @@ CREATE TABLE calendar_events (
 ```typescript
 // New async actions added:
 loadEvents()     // Load from Supabase
-createEvent()    // Create in Supabase + update state  
+createEvent()    // Create in Supabase + update state
 updateEvent()    // Update in Supabase + update state
 deleteEvent()    // Delete from Supabase + update state
 ```
@@ -71,7 +71,7 @@ deleteEvent()    // Delete from Supabase + update state
 ### **Automatic Sync:**
 - ✅ **On page load** - Fetches events from Supabase
 - ✅ **On event create** - Saves to Supabase then updates UI
-- ✅ **On drag & drop** - Updates Supabase then reflects in UI  
+- ✅ **On drag & drop** - Updates Supabase then reflects in UI
 - ✅ **On event edit** - Updates Supabase then reflects in UI
 - ✅ **On event delete** - Removes from Supabase then updates UI
 
@@ -104,7 +104,7 @@ deleteEvent()    // Delete from Supabase + update state
     groupId: UUID (optional)
 }
 
-// Update Event Schema  
+// Update Event Schema
 {
     id: UUID,
     title?: string,
@@ -206,14 +206,14 @@ Visit: http://localhost:3000/concepts/calendar
 
 ### **Check Events in Database:**
 ```sql
-SELECT id, title, start_date, end_date, event_color, user_id 
-FROM calendar_events 
+SELECT id, title, start_date, end_date, event_color, user_id
+FROM calendar_events
 ORDER BY start_date;
 ```
 
 ### **Check User-Specific Events:**
 ```sql
-SELECT * FROM calendar_events 
+SELECT * FROM calendar_events
 WHERE user_id = 'your-user-id';
 ```
 
@@ -221,11 +221,11 @@ WHERE user_id = 'your-user-id';
 
 ## 🎉 **Summary:**
 
-The calendar is now **fully persistent** with Supabase integration! 
+The calendar is now **fully persistent** with Supabase integration!
 
 ✅ **All original functionality preserved**
 ✅ **Real-time persistence** - No data loss
-✅ **User-specific data** - Privacy protected  
+✅ **User-specific data** - Privacy protected
 ✅ **Optimistic updates** - Responsive UI
 ✅ **Error handling** - Graceful degradation
 ✅ **Type safety** - Full TypeScript coverage

@@ -84,7 +84,7 @@ class SupabaseStorageService {
             }
 
             console.log('☁️ Uploading to avatars bucket...')
-            
+
             // Upload the file to the avatars bucket
             const { data, error: uploadError } = await this.supabase.storage
                 .from('avatars')

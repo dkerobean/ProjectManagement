@@ -15,8 +15,7 @@
             "aiDesc": "人工智能工具和资源",
             "chatDesc": "人工智能驱动的聊天系统",
             "imageDesc": "人工智能图像处理"
-        },
-        "conceptsCustomers": {
+        },        "conceptsCustomers": {
             "customers": "客户",
             "customerList": "列表",
             "customerEdit": "编辑",
@@ -27,6 +26,18 @@
             "customerEditDesc": "编辑客户信息",
             "customerCreateDesc": "添加新客户",
             "customerDetailsDesc": "客户详细信息"
+        },
+        "conceptsClients": {
+            "clients": "客户端",
+            "clientList": "列表",
+            "clientEdit": "编辑",
+            "clientCreate": "创建",
+            "clientDetails": "详情",
+            "clientsDesc": "客户端管理",
+            "clientListDesc": "所有客户端列表",
+            "clientEditDesc": "编辑客户端信息",
+            "clientCreateDesc": "添加新客户端",
+            "clientDetailsDesc": "客户端详细信息"
         },
         "conceptsProducts": {
             "products": "产品",

@@ -17,7 +17,7 @@ export async function GET() {
         })
 
         if (!session?.user?.id) {
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'No authentication',
                 session: null
             }, { status: 401 })
@@ -35,7 +35,7 @@ export async function GET() {
 
         if (error) {
             console.error('❌ Database test error:', error)
-            return NextResponse.json({ 
+            return NextResponse.json({
                 error: 'Database connection failed',
                 details: error.message,
                 session: {

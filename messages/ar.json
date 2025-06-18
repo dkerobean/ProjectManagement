@@ -15,8 +15,7 @@
             "aiDesc": "أدوات وموارد الذكاء الاصطناعي",
             "chatDesc": "أنظمة الدردشة المدعومة بالذكاء الاصطناعي",
             "imageDesc": "معالجة الصور بالذكاء الاصطناعي"
-        },
-        "conceptsCustomers": {
+        },        "conceptsCustomers": {
             "customers": "العملاء",
             "customerList": "القائمة",
             "customerEdit": "تعديل",
@@ -27,6 +26,18 @@
             "customerEditDesc": "تعديل معلومات العميل",
             "customerCreateDesc": "إضافة عميل جديد",
             "customerDetailsDesc": "معلومات مفصلة عن العميل"
+        },
+        "conceptsClients": {
+            "clients": "العملاء",
+            "clientList": "القائمة",
+            "clientEdit": "تعديل",
+            "clientCreate": "إنشاء",
+            "clientDetails": "التفاصيل",
+            "clientsDesc": "إدارة العملاء",
+            "clientListDesc": "قائمة بكل العملاء",
+            "clientEditDesc": "تعديل معلومات العميل",
+            "clientCreateDesc": "إضافة عميل جديد",
+            "clientDetailsDesc": "معلومات مفصلة عن العميل"
         },
         "conceptsProducts": {
             "products": "المنتجات",

@@ -16,8 +16,7 @@
             "aiDesc": "Herramientas y recursos de IA",
             "chatDesc": "Sistemas de chat impulsados por IA",
             "imageDesc": "Procesamiento de imágenes con IA"
-        },
-        "conceptsCustomers": {
+        },        "conceptsCustomers": {
             "customers": "Cliente",
             "customerList": "Lista",
             "customerEdit": "Editar",
@@ -28,6 +27,18 @@
             "customerEditDesc": "Editar la información del cliente",
             "customerCreateDesc": "Agregar un nuevo cliente",
             "customerDetailsDesc": "Información detallada del cliente"
+        },
+        "conceptsClients": {
+            "clients": "Clientes",
+            "clientList": "Lista",
+            "clientEdit": "Editar",
+            "clientCreate": "Crear",
+            "clientDetails": "Detalles",
+            "clientsDesc": "Gestión de clientes",
+            "clientListDesc": "Lista de todos los clientes",
+            "clientEditDesc": "Editar información del cliente",
+            "clientCreateDesc": "Agregar un nuevo cliente",
+            "clientDetailsDesc": "Información detallada del cliente"
         },
         "conceptsProducts": {
             "products": "Productos",

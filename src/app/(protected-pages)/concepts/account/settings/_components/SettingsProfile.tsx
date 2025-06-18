@@ -288,21 +288,21 @@ const SettingsProfile = () => {
 
             if (result.url) {
                 console.log('✅ Avatar uploaded successfully, URL:', result.url)
-                
+
                 // Add timestamp to force cache refresh
                 const timestampedUrl = `${result.url}?t=${Date.now()}`
                 setValue('avatar_url', timestampedUrl)
-                
+
                 // Force avatar component re-render
                 setAvatarKey(prev => prev + 1)
 
                 // Immediately save to database so header can fetch fresh data
                 try {
                     console.log('💾 Saving avatar URL to database...')
-                    
+
                     // Get current form values to include in save
                     const currentValues = getValues()
-                    
+
                     const saveResponse = await fetch('/api/user/profile', {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
@@ -319,7 +319,7 @@ const SettingsProfile = () => {
                             postal_code: currentValues.postcode?.trim() || null,
                         })
                     })
-                    
+
                     if (saveResponse.ok) {
                         console.log('✅ Avatar URL saved to database successfully')
                     } else {
@@ -360,7 +360,7 @@ const SettingsProfile = () => {
         try {
             setIsUploadingAvatar(true)
             console.log('🗑️ Removing avatar...')
-            
+
             // Simply set the avatar_url to empty string
             // We could implement a delete API endpoint later if needed
             setValue('avatar_url', '')
@@ -569,7 +569,7 @@ const SettingsProfile = () => {
                             />
                         </FormItem>
                     </div>
-                    
+
                     <FormItem
                         label="Timezone"
                         invalid={Boolean(errors.timezone)}
@@ -593,7 +593,7 @@ const SettingsProfile = () => {
                 {/* Additional Information (Optional) */}
                 <Card className="mb-6">
                     <h4 className="font-semibold text-lg mb-4">Additional Information (Optional)</h4>
-                    
+
                     <div className="flex items-end gap-4 w-full mb-6">
                         <FormItem
                             invalid={

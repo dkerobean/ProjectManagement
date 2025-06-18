@@ -79,7 +79,7 @@ const saveResponse = await fetch('/api/user/profile', {
 
 ### **Zod Schema Changes:**
 - ✅ **`.optional()`** - Allows `undefined` values
-- ✅ **`.nullable()`** - Allows `null` values  
+- ✅ **`.nullable()`** - Allows `null` values
 - ✅ **Combined** - `.optional().nullable()` allows both
 
 ### **Data Flow:**
@@ -92,7 +92,7 @@ const saveResponse = await fetch('/api/user/profile', {
 ```typescript
 Frontend Form Field → Database Column
 phoneNumber        → phone_number
-country           → country_code  
+country           → country_code
 address           → address
 city              → city
 postcode          → postal_code

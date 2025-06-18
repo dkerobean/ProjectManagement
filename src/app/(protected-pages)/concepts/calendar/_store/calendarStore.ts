@@ -26,22 +26,35 @@ export const useCalendar = create<CalendarState & CalendarAction>(
 
         setData: (data) => set(() => ({ data })),
 
-        setInitialLoading: (initialLoading) => set(() => ({ initialLoading })),
-
-        // Load all events from the API
+        setInitialLoading: (initialLoading) => set(() => ({ initialLoading })),        // Load all events from the API
         loadEvents: async () => {
             try {
                 console.log('🔄 Loading calendar events from API...')
-                set(() => ({ initialLoading: true }))
+
+                // Clear existing data and set loading state
+                set(() => ({
+                    data: [],
+                    initialLoading: true
+                }))
 
                 const response = await fetch('/api/calendar/events')
 
                 if (!response.ok) {
+                    const errorText = await response.text()
+                    console.error('❌ API Error:', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        body: errorText
+                    })
                     throw new Error(`HTTP error! status: ${response.status}`)
                 }
 
                 const result = await response.json()
-                console.log('✅ Events loaded successfully:', result.data?.length || 0)
+                console.log('✅ Events loaded from database:', result.data?.length || 0)
+
+                if (result.data && result.data.length > 0) {
+                    console.log('📋 Sample events:', result.data.slice(0, 2))
+                }
 
                 set(() => ({
                     data: result.data || [],

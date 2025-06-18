@@ -102,9 +102,50 @@ const conceptsRoute: Routes = {
             },
             footer: false,
         },
-    },
-    '/concepts/customers/customer-details/[slug]': {
+    },    '/concepts/customers/customer-details/[slug]': {
         key: 'concepts.customers.customerDetails',
+        authority: [ADMIN, USER],
+        meta: {
+            pageContainerType: 'contained',
+        },
+        dynamicRoute: true,
+    },
+    '/concepts/clients/client-list': {
+        key: 'concepts.clients.clientList',
+        authority: [ADMIN, USER],
+        meta: {
+            pageContainerType: 'contained',
+        },
+    },
+    '/concepts/clients/client-edit/[slug]': {
+        key: 'concepts.clients.clientEdit',
+        authority: [ADMIN, USER],
+        meta: {
+            header: {
+                title: 'Edit client',
+                description:
+                    'Manage client details, contact information, and project history.',
+                contained: true,
+            },
+            footer: false,
+        },
+        dynamicRoute: true,
+    },
+    '/concepts/clients/client-create': {
+        key: 'concepts.clients.clientCreate',
+        authority: [ADMIN, USER],
+        meta: {
+            header: {
+                title: 'Create client',
+                description:
+                    'Add new clients and manage their contact information and project details.',
+                contained: true,
+            },
+            footer: false,
+        },
+    },
+    '/concepts/clients/client-details/[slug]': {
+        key: 'concepts.clients.clientDetails',
         authority: [ADMIN, USER],
         meta: {
             pageContainerType: 'contained',

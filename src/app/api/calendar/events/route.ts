@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
             userId: session?.user?.id,
             userEmail: session?.user?.email
         })
-        
+
         if (!session?.user?.id) {
             console.error('❌ Unauthorized: No session or user ID')
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

@@ -37,7 +37,7 @@ start: z.string().refine((val) => {
   "success": true,
   "data": {
     "id": "uuid",
-    "title": "Event Title", 
+    "title": "Event Title",
     "start": "2025-06-21T00:00:00+00:00",
     "end": "2025-06-22T00:00:00+00:00",
     "eventColor": "red"
@@ -47,7 +47,7 @@ start: z.string().refine((val) => {
 
 ## 📝 **What Was Fixed:**
 - ✅ **Create Event** validation now accepts ISO datetime format
-- ✅ **Update Event** validation now accepts ISO datetime format  
+- ✅ **Update Event** validation now accepts ISO datetime format
 - ✅ **Both required and optional** date fields properly validated
 - ✅ **Maintains security** - still validates date format, just more flexible
 

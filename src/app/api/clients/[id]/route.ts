@@ -1,0 +1,126 @@
+import { NextResponse, NextRequest } from 'next/server'
+
+export async function GET(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+
+        // TODO: Replace with actual Supabase MCP call
+        // For now, return mock data based on ID
+        const mockClient = {
+            id,
+            name: "John Smith",
+            email: "john.smith@techcorp.com",
+            phone: "+1-555-0101",
+            company: "TechCorp Solutions",
+            address: "123 Main Street, Suite 100",
+            city: "New York",
+            state: "NY",
+            country: "United States",
+            postal_code: "10001",
+            image_url: "assets/img/profiles/avatar-01.jpg",
+            status: "active",
+            created_at: "2025-06-17T17:20:45.303056Z",
+            updated_at: "2025-06-17T17:20:45.303056Z"
+        }
+
+        return NextResponse.json({
+            success: true,
+            data: mockClient
+        })
+
+    } catch (error) {
+        console.error('Error fetching client:', error)
+        return NextResponse.json(
+            { error: 'Failed to fetch client' },
+            { status: 500 }
+        )
+    }
+}
+
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        const body = await request.json()
+
+        const {
+            name,
+            email,
+            phone,
+            company,
+            address,
+            city,
+            state,
+            country,
+            postal_code,
+            image_url,
+            status
+        } = body
+
+        // Validate required fields
+        if (!name || !email) {
+            return NextResponse.json(
+                { error: 'Name and email are required' },
+                { status: 400 }
+            )
+        }
+
+        // TODO: Replace with actual Supabase MCP call
+        const updatedClient = {
+            id,
+            name,
+            email,
+            phone,
+            company,
+            address,
+            city,
+            state,
+            country,
+            postal_code,
+            image_url,
+            status,
+            updated_at: new Date().toISOString()
+        }
+
+        return NextResponse.json({
+            success: true,
+            data: updatedClient
+        })
+
+    } catch (error) {
+        console.error('Error updating client:', error)
+        return NextResponse.json(
+            { error: 'Failed to update client' },
+            { status: 500 }
+        )
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+
+        // TODO: Replace with actual Supabase MCP call
+        // For now, just return success
+
+        return NextResponse.json({
+            success: true,
+            message: 'Client deleted successfully'
+        })
+
+    } catch (error) {
+        console.error('Error deleting client:', error)
+        return NextResponse.json(
+            { error: 'Failed to delete client' },
+            { status: 500 }
+        )
+    }
+}

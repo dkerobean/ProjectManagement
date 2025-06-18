@@ -32,7 +32,7 @@
 ### **Storage Policies:**
 - ✅ `Users can upload their own avatars` (INSERT)
 - ✅ `Public can view avatars` (SELECT)
-- ✅ `Users can update their own avatars` (UPDATE) 
+- ✅ `Users can update their own avatars` (UPDATE)
 - ✅ `Users can delete their own avatars` (DELETE)
 
 ### **Database Policies:**
@@ -64,7 +64,7 @@
 ### **Error Scenarios:**
 If upload still fails, console will show specific errors:
 - File type validation errors
-- File size limit errors  
+- File size limit errors
 - Supabase storage errors
 - Network connectivity issues
 

@@ -43,7 +43,7 @@ Run in browser console on calendar page:
 ### **Step 3: Check Server Logs**
 Monitor your Next.js terminal for detailed server-side logs including:
 - Session verification details
-- Supabase connection status  
+- Supabase connection status
 - Database operation results
 
 ## 🔍 **Potential Issues to Look For:**
