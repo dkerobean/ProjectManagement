@@ -6,6 +6,8 @@ import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Link from 'next/link'
 import signOut from '@/server/actions/auth/handleSignOut'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import useUserProfile from '@/hooks/useUserProfile'
+import { getUserDisplayName, getUserAvatarUrl } from '@/utils/userProfile'
 import {
     PiUserDuotone,
     PiGearDuotone,
@@ -29,12 +31,6 @@ interface ExtendedUser {
     avatar_url?: string | null
 }
 
-interface UserProfile {
-    avatar_url?: string | null
-    name?: string | null
-    email?: string | null
-}
-
 const dropdownItemList: DropdownList[] = [
     {
         label: 'Profile',
@@ -55,42 +51,22 @@ const dropdownItemList: DropdownList[] = [
 
 const _UserDropdown = () => {
     const { session } = useCurrentSession()
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+    const { user, profile, isLoading, refreshProfile, hasProfile } = useUserProfile()
     const [avatarKey, setAvatarKey] = useState(0) // Force re-render of avatar
 
-    const userId = (session?.user as ExtendedUser & { id?: string })?.id    // Fetch fresh user profile data
-    const fetchUserProfile = useCallback(async () => {
-        if (userId) {
-            try {
-                console.log('🔄 Fetching fresh user profile for userId:', userId)
-                const response = await fetch('/api/user/profile')
-                console.log('📡 Profile fetch response status:', response.status)
+    // Refresh profile data when needed
+    const handleRefreshProfile = useCallback(async () => {
+        console.log('🔄 Refreshing user profile data...')
+        await refreshProfile()
+        setAvatarKey(prev => prev + 1) // Force avatar refresh
+        console.log('✅ Profile refresh completed')
+    }, [refreshProfile])
 
-                if (response.ok) {
-                    const data = await response.json()
-                    console.log('✅ Fresh profile data received:', data.data)
-                    setUserProfile(data.data)
-                    setAvatarKey(prev => prev + 1) // Force avatar refresh
-                    console.log('🖼️ Avatar key updated, forcing re-render')
-                } else {
-                    console.error('❌ Profile fetch failed:', await response.text())
-                }
-            } catch (error) {
-                console.error('❌ Profile fetch error:', error)
-            }
-        } else {
-            console.log('⚠️ No userId available for profile fetch')
-        }
-    }, [userId])
-
-    // Fetch profile on mount and when session changes
-    useEffect(() => {
-        fetchUserProfile()
-    }, [fetchUserProfile])    // Listen for profile updates (could be triggered by settings page)
+    // Listen for profile updates (could be triggered by settings page)
     useEffect(() => {
         const handleProfileUpdate = () => {
-            console.log('🔔 Profile update event received, refreshing avatar...')
-            fetchUserProfile()
+            console.log('🔔 Profile update event received, refreshing...')
+            handleRefreshProfile()
         }
 
         // Listen for custom event from settings page
@@ -101,27 +77,29 @@ const _UserDropdown = () => {
             console.log('🧹 Cleaning up profile update event listener')
             window.removeEventListener('profileUpdated', handleProfileUpdate)
         }
-    }, [fetchUserProfile])
+    }, [handleRefreshProfile])
 
     const handleSignOut = async () => {
         await signOut()
-    }    // Use fresh profile data if available, otherwise fallback to session
-    const currentUser = userProfile || session?.user as ExtendedUser
-    const baseAvatarUrl = currentUser?.avatar_url || (session?.user as ExtendedUser)?.image
+    }    // Use enhanced user data from session (includes cached profile)
+    const currentUser = user || session?.user as ExtendedUser
+    const displayName = getUserDisplayName(currentUser)
+    const sessionUser = session?.user as ExtendedUser & { image?: string }
+    const baseAvatarUrl = getUserAvatarUrl(currentUser) || sessionUser?.image
 
     // Add cache-busting timestamp to avatar URL to ensure fresh image loads
     const avatarUrl = baseAvatarUrl ? `${baseAvatarUrl}?t=${avatarKey}` : null
 
     console.log('🖼️ Avatar URL generation:', {
-        userProfile: !!userProfile,
-        sessionUser: !!(session?.user),
+        hasUserData: !!user,
+        hasProfile,
         baseAvatarUrl,
         avatarKey,
-        finalAvatarUrl: avatarUrl
+        finalAvatarUrl: avatarUrl,
+        isLoading,        profileData: profile ? 'available' : 'not available'
     })
 
     const avatarProps = {
-        key: avatarKey, // Force re-render when avatar changes
         ...(avatarUrl
             ? { src: avatarUrl }
             : { icon: <PiUserDuotone /> }),
@@ -133,19 +111,26 @@ const _UserDropdown = () => {
             toggleClassName="flex items-center"
             renderTitle={
                 <div className="cursor-pointer flex items-center">
-                    <Avatar size={32} {...avatarProps} />
+                    <Avatar key={avatarKey} size={32} {...avatarProps} />
                 </div>
             }
             placement="bottom-end"
-        >            <Dropdown.Item variant="header">
+        >
+            <Dropdown.Item variant="header">
                 <div className="py-2 px-3 flex items-center gap-3">
-                    <Avatar {...avatarProps} />
-                    <div>                        <div className="font-bold text-gray-900 dark:text-gray-100">
-                            {currentUser?.name || 'Anonymous'}
+                    <Avatar key={`header-${avatarKey}`} {...avatarProps} />
+                    <div>
+                        <div className="font-bold text-gray-900 dark:text-gray-100">
+                            {displayName}
                         </div>
                         <div className="text-xs">
                             {currentUser?.email || 'No email available'}
                         </div>
+                        {hasProfile && profile?.country && (
+                            <div className="text-xs text-gray-500">
+                                {profile.country}
+                            </div>
+                        )}
                     </div>
                 </div>
             </Dropdown.Item>

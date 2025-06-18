@@ -13,6 +13,17 @@ export interface UserPreferences {
     language?: string
 }
 
+export interface UserProfile {
+    phone_number?: string
+    dial_code?: string
+    country?: string
+    address?: string
+    postcode?: string
+    city?: string
+    created_at?: string
+    updated_at?: string
+}
+
 declare module 'next-auth' {
     interface Session extends DefaultSession {
         user: {
@@ -22,6 +33,8 @@ declare module 'next-auth' {
             timezone: string
             preferences?: UserPreferences
             avatar_url?: string | null
+            profile?: UserProfile
+            lastProfileSync?: string
         } & DefaultSession['user']
     }
 
@@ -31,6 +44,7 @@ declare module 'next-auth' {
         timezone: string
         preferences?: UserPreferences
         avatar_url?: string | null
+        profile?: UserProfile
     }
 }
 
@@ -41,5 +55,7 @@ declare module 'next-auth/jwt' {
         timezone: string
         preferences?: UserPreferences
         avatar_url?: string | null
+        profile?: UserProfile
+        lastProfileSync?: string
     }
 }

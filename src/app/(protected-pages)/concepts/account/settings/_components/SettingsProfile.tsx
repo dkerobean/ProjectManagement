@@ -184,7 +184,10 @@ const SettingsProfile = () => {
                     const response = await fetch('/api/user/profile')
 
                     if (response.ok) {
-                        const profile = await response.json()
+                        const result = await response.json()
+                        console.log('📥 Profile API response:', result)
+
+                        const profile = result.data || result // Handle both { data: ... } and direct response
 
                         // Use database profile data to populate form
                         reset({
@@ -193,16 +196,19 @@ const SettingsProfile = () => {
                             avatar_url: profile.avatar_url || '',
                             timezone: profile.timezone || 'UTC',
                             role: profile.role as UserRole,
-                            dialCode: profile.dial_code || '',
-                            phoneNumber: profile.phone_number || '',
-                            country: profile.country || '',
-                            address: profile.address || '',
-                            postcode: profile.postcode || '',
-                            city: profile.city || '',
+                            // Removed non-existent fields
+                            dialCode: '',
+                            phoneNumber: '',
+                            country: '',
+                            address: '',
+                            postcode: '',
+                            city: '',
                         })
+                        console.log('✅ Profile loaded from API successfully')
                     } else {
-                        // Fallback to session data if API call fails
-                        console.warn('Failed to load profile from API, using session data')
+                        console.warn('❌ Failed to load profile from API, using session data')
+                        const errorData = await response.json()
+                        console.error('API Error:', errorData)
                         reset({
                             name: session.user.name || '',
                             email: session.user.email || '',
@@ -341,13 +347,9 @@ const SettingsProfile = () => {
                 email: values.email,
                 avatar_url: values.avatar_url,
                 timezone: values.timezone,
-                // Include additional profile fields if they have values
-                ...(values.dialCode && { dial_code: values.dialCode }),
-                ...(values.phoneNumber && { phone_number: values.phoneNumber }),
-                ...(values.country && { country: values.country }),
-                ...(values.address && { address: values.address }),
-                ...(values.postcode && { postcode: values.postcode }),
-                ...(values.city && { city: values.city }),
+                // Only include fields that exist in the database
+                // dial_code, phone_number, country, address, postcode, city removed
+                // as they don't exist in the current database schema
             }
 
             // Update profile via API route

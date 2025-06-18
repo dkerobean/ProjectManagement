@@ -64,7 +64,10 @@ const validateCredential = async (values: SignInCredential) => {
         // Fallback: Create user data from auth information
         console.log('📝 Using fallback user data from Supabase auth')
         console.log('🔍 Email for role assignment:', email)
-        const fallbackRole = email === 'admin@projectmgt.com' ? 'admin' : 'member'
+
+        // Check if user is admin based on email
+        const adminEmails = ['admin@projectmgt.com', 'superadmin@projectmgt.com', 'frogman@gmail.com']
+        const fallbackRole = adminEmails.includes(email) ? 'admin' : 'member'
         console.log('🎯 Assigned fallback role:', fallbackRole)
 
         const fallbackUser = {

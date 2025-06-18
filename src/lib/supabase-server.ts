@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import type { Database } from '@/@types/database'
 
@@ -46,4 +47,34 @@ export async function createSupabaseServerComponentClient() {
       },
     }
   )
+}
+
+export function createSupabaseServiceClient() {
+  console.log('🔑 Creating Supabase service client...')
+  console.log('🌐 URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
+  console.log('🔐 Service key length:', process.env.SUPABASE_SERVICE_ROLE_KEY?.length || 0)
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_SUPABASE_URL is not set')
+  }
+
+  if (!key) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+  }
+
+  if (key === 'your_service_role_key_here') {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured properly - still using placeholder')
+  }
+
+  // Validate that it looks like a JWT
+  if (!key.startsWith('eyJ')) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY does not look like a valid JWT token')
+  }
+
+  console.log('✅ Service client configuration valid')
+
+  return createClient<Database>(url, key)
 }

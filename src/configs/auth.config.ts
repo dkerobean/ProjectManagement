@@ -91,10 +91,9 @@ export default {
                             throw new Error('No profile found')
                         }                    } catch (error) {
                         console.error('⚠️ Database lookup failed, using hardcoded admin fallback:', (error as Error).message)
-                        console.log('🔍 Checking user email for admin fallback:', user.email)
-
-                        // Final fallback - assign admin role for admin email
-                        if (user.email === 'admin@projectmgt.com') {
+                        console.log('🔍 Checking user email for admin fallback:', user.email)                        // Final fallback - assign admin role for admin emails
+                        const adminEmails = ['admin@projectmgt.com', 'superadmin@projectmgt.com', 'frogman@gmail.com']
+                        if (adminEmails.includes(user.email || '')) {
                             console.log('🔑 Assigning admin role for admin email:', user.email)
                             token.role = 'admin'
                             token.timezone = 'UTC'
@@ -121,7 +120,55 @@ export default {
             /** apply extra user attributes here, for example, we add 'authority' & 'id' in this section */
             console.log('🎭 Session callback - token role:', token.role, 'for user:', token.email || session.user.email)
             console.log('🎭 Session callback - token avatar_url:', token.avatar_url)
-            console.log('🎭 Session callback - session.user.image:', session.user.image)
+            console.log('🎭 Session callback - session.user.image:', session.user.image)            // Check if we need to refresh profile data (every 5 minutes)
+            const now = new Date().toISOString()
+            const lastSync = token.lastProfileSync
+            const needsRefresh = !lastSync ||
+                (new Date(now).getTime() - new Date(lastSync).getTime()) > 5 * 60 * 1000
+
+            let profileData = token.profile            // Only try to refresh if we have a service role key configured
+            if (needsRefresh && token.sub) {
+                try {
+                    // Check if service role key is properly configured
+                    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+                    if (serviceKey &&
+                        serviceKey !== 'your_service_role_key_here' &&
+                        serviceKey !== 'REPLACE_WITH_ACTUAL_SERVICE_ROLE_KEY_FROM_DASHBOARD' &&
+                        serviceKey.startsWith('eyJ')) {
+
+                        console.log('🔄 Refreshing user profile data in session...')
+                        const supabase = await createSupabaseServerClient()
+                        const { data: freshProfile } = await supabase
+                            .from('users')
+                            .select('phone_number, dial_code, country, address, postcode, city, created_at, updated_at, preferences')
+                            .eq('id', token.sub)
+                            .single()
+
+                        if (freshProfile) {
+                            profileData = {
+                                phone_number: freshProfile.phone_number,
+                                dial_code: freshProfile.dial_code,
+                                country: freshProfile.country,
+                                address: freshProfile.address,
+                                postcode: freshProfile.postcode,
+                                city: freshProfile.city,
+                                created_at: freshProfile.created_at,
+                                updated_at: freshProfile.updated_at,
+                            }
+                            console.log('✅ Profile data refreshed successfully')
+
+                            // Update token for next session (if possible)
+                            token.profile = profileData
+                            token.preferences = freshProfile.preferences
+                            token.lastProfileSync = now
+                        }
+                    } else {
+                        console.warn('⚠️ Service role key not properly configured, skipping profile refresh')
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Failed to refresh profile data:', error)
+                }
+            }
 
             const finalSession = {
                 ...session,
@@ -133,11 +180,14 @@ export default {
                     preferences: token.preferences,
                     avatar_url: token.avatar_url || session.user.image,
                     authority: token.authority || [token.role || 'member'],
+                    profile: profileData,
+                    lastProfileSync: token.lastProfileSync,
                 },
             }
 
             console.log('🎯 Final session role:', finalSession.user.role, 'authority:', finalSession.user.authority)
             console.log('🎯 Final session avatar_url:', finalSession.user.avatar_url)
+            console.log('📊 Profile data included:', !!finalSession.user.profile)
             return finalSession
         },
         async signIn({ user, account }) {
