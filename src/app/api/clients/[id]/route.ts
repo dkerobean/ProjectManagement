@@ -1,4 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 // Helper function to get default image for clients
 const getDefaultClientImage = (name: string) => {
@@ -14,29 +15,41 @@ export async function GET(
     try {
         const { id } = await params
 
-        // TODO: Replace with actual Supabase MCP call
-        // For now, return mock data based on ID
-        const mockClient = {
-            id,
-            name: "John Smith",
-            email: "john.smith@techcorp.com",
-            phone: "+1-555-0101",
-            company: "TechCorp Solutions",
-            address: "123 Main Street, Suite 100",
-            city: "New York",
-            state: "NY",
-            country: "United States",
-            postal_code: "10001",
-            image_url: "", // Test default image
-            status: "active",
-            created_at: "2025-06-17T17:20:45.303056Z",
-            updated_at: "2025-06-17T17:20:45.303056Z"
+        // Use Supabase client to fetch data directly from the database
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        // Fetch the client from the database
+        const { data: client, error } = await supabase
+            .from('clients')
+            .select('*')
+            .eq('id', id)
+            .single()
+
+        if (error) {
+            console.error('Supabase error:', error)
+            if (error.code === 'PGRST116') {
+                return NextResponse.json(
+                    { success: false, error: 'Client not found' },
+                    { status: 404 }
+                )
+            }
+            throw error
+        }
+
+        if (!client) {
+            return NextResponse.json(
+                { success: false, error: 'Client not found' },
+                { status: 404 }
+            )
         }
 
         // Apply default image if none provided
         const clientWithImage = {
-            ...mockClient,
-            image_url: mockClient.image_url || getDefaultClientImage(mockClient.name)
+            ...client,
+            image_url: client.image_url || getDefaultClientImage(client.name)
         }
 
         return NextResponse.json({
@@ -83,21 +96,36 @@ export async function PUT(
             )
         }
 
-        // TODO: Replace with actual Supabase MCP call
-        const updatedClient = {
-            id,
-            name,
-            email,
-            phone,
-            company,
-            address,
-            city,
-            state,
-            country,
-            postal_code,
-            image_url: image_url || getDefaultClientImage(name),
-            status,
-            updated_at: new Date().toISOString()
+        // Use Supabase client to update data in the database
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        // Update the client in the database
+        const { data: updatedClient, error } = await supabase
+            .from('clients')
+            .update({
+                name,
+                email,
+                phone,
+                company,
+                address,
+                city,
+                state,
+                country,
+                postal_code,
+                image_url: image_url || getDefaultClientImage(name),
+                status,
+                updated_at: new Date().toISOString()
+            })
+            .eq('id', id)
+            .select()
+            .single()
+
+        if (error) {
+            console.error('Supabase error:', error)
+            throw error
         }
 
         return NextResponse.json({
@@ -121,8 +149,22 @@ export async function DELETE(
     try {
         const { id } = await params
 
-        // TODO: Replace with actual Supabase MCP call
-        // For now, just return success
+        // Use Supabase client to delete data from the database
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        // Delete the client from the database
+        const { error } = await supabase
+            .from('clients')
+            .delete()
+            .eq('id', id)
+
+        if (error) {
+            console.error('Supabase error:', error)
+            throw error
+        }
 
         return NextResponse.json({
             success: true,

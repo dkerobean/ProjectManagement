@@ -22,6 +22,9 @@ const getProjects = async () => {
             console.warn('No session found in getProjects, returning empty array')
             return []
         }
+        
+        console.log(`[getProjects] Starting fetch for user: ${session.user.email} (${session.user.id})`)
+        const startTime = Date.now()
 
         const supabase = await createSupabaseServerClient()        // Fetch projects with related member data
         const { data: projects, error } = await supabase
@@ -54,8 +57,11 @@ const getProjects = async () => {
             return []
         }
 
+        const fetchTime = Date.now() - startTime
+        console.log(`[getProjects] Fetched ${projects?.length || 0} projects in ${fetchTime}ms`)
+        
         if (!projects || projects.length === 0) {
-            console.log('No projects found, returning empty array')
+            console.log('[getProjects] No projects found, returning empty array')
             return []
         }        // Transform the data to match the expected format with real member data and task counts
         // Using 'any' temporarily for complex Supabase return types
@@ -134,7 +140,12 @@ const getProjects = async () => {
             }
         }))
 
-        console.log(`Successfully fetched ${transformedProjects.length} projects`)
+        const totalTime = Date.now() - startTime
+        console.log(`[getProjects] Successfully transformed ${transformedProjects.length} projects in ${totalTime}ms`)
+        
+        // Log project IDs for debugging
+        console.log('[getProjects] Project IDs:', transformedProjects.map((p: any) => p.id).join(', '))
+        
         return transformedProjects
     } catch (error) {
         console.error('Error in getProjects:', error)

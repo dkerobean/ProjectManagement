@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
@@ -40,6 +40,8 @@ const statusOptions = [
 const ClientCreate = () => {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [previewAvatar, setPreviewAvatar] = useState('assets/img/profiles/avatar-01.jpg')
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {
         handleSubmit,
@@ -65,7 +67,17 @@ const ClientCreate = () => {
     const onSubmit = async (values: ClientFormSchema) => {
         setIsSubmitting(true)
         try {
-            await apiCreateClient(values)
+            console.log('🚀 Starting client creation...')
+            console.log('📋 Form values:', values)
+            
+            // Validate data before sending
+            if (!values.name || !values.email) {
+                throw new Error('Name and email are required')
+            }
+            
+            console.log('✅ Validation passed, calling API...')
+            const result = await apiCreateClient(values)
+            console.log('📡 API call completed:', result)
 
             toast.push(
                 <Notification type="success">
@@ -74,12 +86,19 @@ const ClientCreate = () => {
                 { placement: 'top-center' }
             )
 
+            console.log('🎉 Success! Redirecting to client list...')
             router.push('/concepts/clients/client-list')
         } catch (error) {
-            console.error('Error creating client:', error)
+            console.error('❌ Error creating client:', error)
+            console.error('🔍 Error details:', {
+                name: error instanceof Error ? error.name : 'Unknown',
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : 'No stack trace'
+            })
+            
             toast.push(
                 <Notification type="danger">
-                    Failed to create client. Please try again.
+                    Failed to create client. Please try again. {error instanceof Error ? error.message : ''}
                 </Notification>,
                 { placement: 'top-center' }
             )
@@ -88,18 +107,57 @@ const ClientCreate = () => {
         }
     }
 
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (file) {
+            // For now, we'll just use a preview URL
+            // In a real application, you'd upload the file to a storage service
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                const result = e.target?.result as string
+                setPreviewAvatar(result)
+                // Update the form value with the preview URL
+                // In production, this would be the uploaded file URL
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click()
+    }
+
     return (
         <Container>
             <div className="max-w-2xl mx-auto">
                 <AdaptiveCard>
                     <div className="mb-6 text-center">
-                        <Avatar
-                            size={80}
-                            src="assets/img/profiles/avatar-01.jpg"
-                            className="mx-auto mb-4"
-                        />
+                        <div className="relative inline-block">
+                            <Avatar
+                                size={80}
+                                src={previewAvatar}
+                                className="mx-auto mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={handleAvatarClick}
+                            />
+                            <Button
+                                size="xs"
+                                variant="solid"
+                                className="absolute bottom-2 right-2 rounded-full p-2"
+                                onClick={handleAvatarClick}
+                            >
+                                📷
+                            </Button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileUpload}
+                                className="hidden"
+                            />
+                        </div>
                         <h4>Create New Client</h4>
                         <p className="text-gray-500">Add a new client to your system</p>
+                        <p className="text-xs text-gray-400 mt-1">Click on the avatar to upload an image</p>
                     </div>
 
                     <Form onSubmit={handleSubmit(onSubmit)}>
@@ -275,11 +333,44 @@ const ClientCreate = () => {
                                 <Controller
                                     name="status"
                                     control={control}
+                                    render={({ field }) => {
+                                        // Convert the string value to the expected format for the Select component
+                                        const selectValue = statusOptions.find(
+                                            option => option.value === field.value
+                                        )
+                                        
+                                        return (
+                                            <Select
+                                                options={statusOptions}
+                                                placeholder="Select status"
+                                                value={selectValue}
+                                                onChange={(option) => field.onChange(option?.value)}
+                                            />
+                                        )
+                                    }}
+                                />
+                            </FormItem>
+
+                            <FormItem
+                                label="Profile Image URL (Optional)"
+                                className="md:col-span-2"
+                                invalid={Boolean(errors.image_url)}
+                                errorMessage={errors.image_url?.message}
+                            >
+                                <Controller
+                                    name="image_url"
+                                    control={control}
                                     render={({ field }) => (
-                                        <Select
-                                            options={statusOptions}
-                                            placeholder="Select status"
+                                        <Input
+                                            type="url"
+                                            placeholder="Enter image URL or upload above"
                                             {...field}
+                                            onChange={(e) => {
+                                                field.onChange(e)
+                                                if (e.target.value) {
+                                                    setPreviewAvatar(e.target.value)
+                                                }
+                                            }}
                                         />
                                     )}
                                 />

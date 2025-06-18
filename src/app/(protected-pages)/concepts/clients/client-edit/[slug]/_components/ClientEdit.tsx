@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Container from '@/components/shared/Container'
 import AdaptiveCard from '@/components/shared/AdaptiveCard'
@@ -46,6 +46,8 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [client, setClient] = useState<Client | null>(null)
+    const [previewAvatar, setPreviewAvatar] = useState('')
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {
         handleSubmit,
@@ -60,10 +62,17 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
         const fetchClient = async () => {
             try {
                 setIsLoading(true)
-                const response = await apiGetClient<{ success: boolean; data: Client }>({ id: clientId })
+                console.log('Fetching client with ID:', clientId)
+                type ApiResponse = {
+                    success: boolean;
+                    data: Client;
+                }
+                const response = await apiGetClient<ApiResponse, { id: string }>({ id: clientId })
+                console.log('API Response:', response)
 
-                if (response.data.success) {
-                    const clientData = response.data.data
+                if (response && response.success && response.data) {
+                    const clientData = response.data
+                    console.log('Setting client data:', clientData)
                     setClient(clientData)
                     reset({
                         name: clientData.name,
@@ -76,7 +85,7 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
                         country: clientData.country || '',
                         postal_code: clientData.postal_code || '',
                         image_url: clientData.image_url || 'assets/img/profiles/avatar-01.jpg',
-                        status: clientData.status,
+                        status: clientData.status || 'active',
                     })
                 }
             } catch (error) {
@@ -331,13 +340,21 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
                                 <Controller
                                     name="status"
                                     control={control}
-                                    render={({ field }) => (
-                                        <Select
-                                            options={statusOptions}
-                                            placeholder="Select status"
-                                            {...field}
-                                        />
-                                    )}
+                                    render={({ field }) => {
+                                        // Convert the string value to the expected format for the Select component
+                                        const selectValue = statusOptions.find(
+                                            option => option.value === field.value
+                                        )
+                                        
+                                        return (
+                                            <Select
+                                                options={statusOptions}
+                                                placeholder="Select status"
+                                                value={selectValue}
+                                                onChange={(option) => field.onChange(option?.value)}
+                                            />
+                                        )
+                                    }}
                                 />
                             </FormItem>
                         </div>

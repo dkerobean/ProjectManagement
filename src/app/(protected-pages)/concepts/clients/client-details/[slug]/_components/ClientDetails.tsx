@@ -35,22 +35,68 @@ const ClientDetails = ({ clientId }: ClientDetailsProps) => {
     const [client, setClient] = useState<Client | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
-    const [isDeleting, setIsDeleting] = useState(false)
+    const [, setIsDeleting] = useState(false)
 
     useEffect(() => {
         const fetchClient = async () => {
             try {
                 setIsLoading(true)
-                const response = await apiGetClient<{ success: boolean; data: Client }>({ id: clientId })
+                console.log('Fetching client with ID:', clientId)
+                type ApiResponse = 
+                    | { success: true; data: Client }
+                    | { success: false; error: string }
+                
+                const response = await apiGetClient<ApiResponse, { id: string }>({ id: clientId })
+                console.log('API Response:', response)
 
-                if (response.data.success) {
-                    setClient(response.data.data)
+                // Check if response is valid and has the expected structure
+                if (response && typeof response === 'object') {
+                    if (response.success && 'data' in response) {
+                        console.log('Setting client data:', response.data)
+                        setClient(response.data)
+                        return
+                    } else if (!response.success && 'error' in response) {
+                        console.error('API Error:', response.error)
+                        toast.push(
+                            <Notification type="danger">
+                                {response.error}
+                            </Notification>,
+                            { placement: 'top-center' }
+                        )
+                        return
+                    }
                 }
-            } catch (error) {
-                console.error('Error fetching client:', error)
+                
+                console.error('Unexpected response format:', response)
                 toast.push(
                     <Notification type="danger">
-                        Failed to load client data
+                        Received unexpected data format from server
+                    </Notification>,
+                    { placement: 'top-center' }
+                )
+            } catch (error: unknown) {
+                console.error('Error fetching client:', error)
+                // Check if it's an Axios error
+                if (error && typeof error === 'object') {
+                    const axiosError = error as {
+                        response?: { data?: unknown; status?: number; headers?: unknown }
+                        request?: unknown
+                        message?: string
+                    }
+                    if (axiosError.response) {
+                        console.error('Response data:', axiosError.response.data)
+                        console.error('Response status:', axiosError.response.status)
+                        console.error('Response headers:', axiosError.response.headers)
+                    } else if (axiosError.request) {
+                        console.error('No response received:', axiosError.request)
+                    } else if (axiosError.message) {
+                        console.error('Error:', axiosError.message)
+                    }
+                }
+                
+                toast.push(
+                    <Notification type="danger">
+                        Failed to load client data. Please check the console for details.
                     </Notification>,
                     { placement: 'top-center' }
                 )
@@ -60,7 +106,11 @@ const ClientDetails = ({ clientId }: ClientDetailsProps) => {
         }
 
         if (clientId) {
+            console.log('Client ID detected, starting fetch...')
             fetchClient()
+        } else {
+            console.error('No client ID provided')
+            setIsLoading(false)
         }
     }, [clientId])
 
@@ -259,19 +309,13 @@ const ClientDetails = ({ clientId }: ClientDetailsProps) => {
                 isOpen={deleteConfirmationOpen}
                 type="danger"
                 title="Delete Client"
-                confirmButtonColor="red-600"
                 confirmText="Delete"
                 cancelText="Cancel"
-                loading={isDeleting}
                 onClose={() => setDeleteConfirmationOpen(false)}
-                onRequestClose={() => setDeleteConfirmationOpen(false)}
                 onCancel={() => setDeleteConfirmationOpen(false)}
                 onConfirm={handleConfirmDelete}
             >
-                <p>
-                    Are you sure you want to delete <strong>{client.name}</strong>?
-                    This action cannot be undone.
-                </p>
+                <p>Are you sure you want to delete this client? This action cannot be undone.</p>
             </ConfirmDialog>
         </Container>
     )

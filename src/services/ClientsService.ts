@@ -24,11 +24,19 @@ export async function apiGetClient<T, U extends Record<string, unknown>>({
 export async function apiCreateClient<T, U extends Record<string, unknown>>(
     data: U
 ) {
-    return ApiService.fetchDataWithAxios<T>({
-        url: `/clients`,
-        method: 'post',
-        data,
-    })
+    console.log('🔄 ClientsService.apiCreateClient called with:', data)
+    try {
+        const result = await ApiService.fetchDataWithAxios<T>({
+            url: `/clients`,
+            method: 'post',
+            data,
+        })
+        console.log('✅ ClientsService.apiCreateClient success:', result)
+        return result
+    } catch (error) {
+        console.error('❌ ClientsService.apiCreateClient error:', error)
+        throw error
+    }
 }
 
 export async function apiUpdateClient<T, U extends Record<string, unknown>>({
