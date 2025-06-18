@@ -119,6 +119,7 @@ const SettingsProfile = () => {
     const { data: session, update: updateSession } = useSession()
     const [isLoading, setIsLoading] = useState(false)
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [avatarKey, setAvatarKey] = useState(0) // Force avatar re-render
 
         const dialCodeList = useMemo(() => {
         const newCountryList: Array<CountryOption> = JSON.parse(
@@ -157,6 +158,7 @@ const SettingsProfile = () => {
         control,
         watch,
         setValue,
+        getValues, // Add getValues for accessing current form values
     } = useForm<ProfileSchema>({
         resolver: zodResolver(validationSchema),
         defaultValues: {
@@ -290,6 +292,42 @@ const SettingsProfile = () => {
                 // Add timestamp to force cache refresh
                 const timestampedUrl = `${result.url}?t=${Date.now()}`
                 setValue('avatar_url', timestampedUrl)
+                
+                // Force avatar component re-render
+                setAvatarKey(prev => prev + 1)
+
+                // Immediately save to database so header can fetch fresh data
+                try {
+                    console.log('💾 Saving avatar URL to database...')
+                    
+                    // Get current form values to include in save
+                    const currentValues = getValues()
+                    
+                    const saveResponse = await fetch('/api/user/profile', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: currentValues.name || session.user.name,
+                            email: currentValues.email || session.user.email,
+                            avatar_url: result.url,
+                            timezone: currentValues.timezone || 'UTC',
+                            // Include additional fields if they exist
+                            phone_number: currentValues.phoneNumber?.trim() || null,
+                            country_code: currentValues.country?.trim() || null,
+                            address: currentValues.address?.trim() || null,
+                            city: currentValues.city?.trim() || null,
+                            postal_code: currentValues.postcode?.trim() || null,
+                        })
+                    })
+                    
+                    if (saveResponse.ok) {
+                        console.log('✅ Avatar URL saved to database successfully')
+                    } else {
+                        console.warn('⚠️ Failed to save avatar URL to database')
+                    }
+                } catch (saveError) {
+                    console.error('❌ Error saving avatar URL to database:', saveError)
+                }
 
                 // Trigger custom event to update header avatar
                 console.log('🔔 Dispatching profileUpdated event after avatar upload')
@@ -361,14 +399,15 @@ const SettingsProfile = () => {
             const updateData = {
                 name: values.name,
                 email: values.email,
-                avatar_url: values.avatar_url,
+                avatar_url: values.avatar_url || null,
                 timezone: values.timezone,
                 // Include additional profile fields (now supported in database)
-                phone_number: values.phoneNumber || null,
-                country_code: values.country || null,
-                address: values.address || null,
-                city: values.city || null,
-                postal_code: values.postcode || null,
+                // Convert empty strings to null for database storage
+                phone_number: values.phoneNumber?.trim() || null,
+                country_code: values.country?.trim() || null,
+                address: values.address?.trim() || null,
+                city: values.city?.trim() || null,
+                postal_code: values.postcode?.trim() || null,
             }
 
             // Update profile via API route
@@ -432,6 +471,7 @@ const SettingsProfile = () => {
                                 control={control}
                                 render={({ field }) => (
                                     <Avatar
+                                        key={avatarKey} // Force re-render when key changes
                                         size={90}
                                         className="border-4 border-white bg-gray-100 text-gray-300 shadow-lg"
                                         icon={<HiOutlineUser />}

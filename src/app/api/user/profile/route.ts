@@ -6,14 +6,14 @@ import { z } from 'zod'
 const updateProfileSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email format'),
-    avatar_url: z.string().optional(),
+    avatar_url: z.string().optional().nullable(),
     timezone: z.string().min(1, 'Timezone is required'),
-    // Additional profile fields now supported
-    phone_number: z.string().optional(),
-    country_code: z.string().optional(),
-    address: z.string().optional(),
-    city: z.string().optional(),
-    postal_code: z.string().optional(),
+    // Additional profile fields now supported - allow string, empty string, or null
+    phone_number: z.string().optional().nullable(),
+    country_code: z.string().optional().nullable(),
+    address: z.string().optional().nullable(),
+    city: z.string().optional().nullable(),
+    postal_code: z.string().optional().nullable(),
 })
 
 export async function PUT(request: NextRequest) {
