@@ -1,5 +1,12 @@
 import { NextResponse, NextRequest } from 'next/server'
 
+// Helper function to get default image for clients
+const getDefaultClientImage = (name: string) => {
+    // Use a consistent default avatar based on the client's name
+    const avatarIndex = ((name.charCodeAt(0) + name.length) % 10) + 1
+    return `assets/img/profiles/avatar-${avatarIndex.toString().padStart(2, '0')}.jpg`
+}
+
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -20,15 +27,21 @@ export async function GET(
             state: "NY",
             country: "United States",
             postal_code: "10001",
-            image_url: "assets/img/profiles/avatar-01.jpg",
+            image_url: "", // Test default image
             status: "active",
             created_at: "2025-06-17T17:20:45.303056Z",
             updated_at: "2025-06-17T17:20:45.303056Z"
         }
 
+        // Apply default image if none provided
+        const clientWithImage = {
+            ...mockClient,
+            image_url: mockClient.image_url || getDefaultClientImage(mockClient.name)
+        }
+
         return NextResponse.json({
             success: true,
-            data: mockClient
+            data: clientWithImage
         })
 
     } catch (error) {
@@ -82,7 +95,7 @@ export async function PUT(
             state,
             country,
             postal_code,
-            image_url,
+            image_url: image_url || getDefaultClientImage(name),
             status,
             updated_at: new Date().toISOString()
         }

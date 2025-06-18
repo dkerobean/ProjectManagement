@@ -14,6 +14,13 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { TbPencil, TbTrash, TbMail, TbPhone, TbBuilding, TbMapPin } from 'react-icons/tb'
 import type { Client } from '../../../types'
 
+// Helper function to get default image for clients
+const getDefaultClientImage = (name: string) => {
+    // Use a consistent default avatar based on the client's name
+    const avatarIndex = ((name.charCodeAt(0) + name.length) % 10) + 1
+    return `assets/img/profiles/avatar-${avatarIndex.toString().padStart(2, '0')}.jpg`
+}
+
 type ClientDetailsProps = {
     clientId: string
 }
@@ -135,7 +142,7 @@ const ClientDetails = ({ clientId }: ClientDetailsProps) => {
                         <div className="flex items-center">
                             <Avatar
                                 size={96}
-                                src={client.image_url || "assets/img/profiles/avatar-01.jpg"}
+                                src={client.image_url || getDefaultClientImage(client.name)}
                                 className="mr-6"
                             />
                             <div>
