@@ -55,7 +55,9 @@ const getProjectDashboard = async () => {
             .eq('owner_id', session.user.id)
 
         if (projectError) {
-            console.error('Error fetching project stats:', projectError)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching project stats:', projectError)
+            }
         }
 
         console.log(`[getProjectDashboard] Found ${projectStats?.length || 0} projects`)
@@ -77,7 +79,9 @@ const getProjectDashboard = async () => {
             .gte('created_at', oneWeekAgo.toISOString())
 
         if (taskError) {
-            console.error('Error fetching task stats:', taskError)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching task stats:', taskError)
+            }
         }
 
         // Filter tasks by user's projects
@@ -98,7 +102,9 @@ const getProjectDashboard = async () => {
             .limit(10)
 
         if (currentTasksError) {
-            console.error('Error fetching current tasks:', currentTasksError)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching current tasks:', currentTasksError)
+            }
         }
 
         console.log(`[getProjectDashboard] Found ${currentTasks?.length || 0} current tasks`)
@@ -126,7 +132,9 @@ const getProjectDashboard = async () => {
             .limit(5)
 
         if (scheduleError) {
-            console.error('Error fetching schedule data:', scheduleError)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching schedule data:', scheduleError)
+            }
         }
 
         // Transform schedule data to match expected format
@@ -141,7 +149,9 @@ const getProjectDashboard = async () => {
             .limit(6)
 
         if (activityError) {
-            console.error('Error fetching recent activity:', activityError)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching recent activity:', activityError)
+            }
         }
 
         // Transform recent activity to match expected format
@@ -173,7 +183,9 @@ const getProjectDashboard = async () => {
         }
 
     } catch (error) {
-        console.error('Error in getProjectDashboard:', error)
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error in getProjectDashboard:', error)
+        }
         // Return empty structure on error
         return {
             projectOverview: {

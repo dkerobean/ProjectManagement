@@ -5,7 +5,7 @@ export default async function getRecentActivities() {
     try {
         const session = await auth()
         if (!session?.user?.id) {
-            console.warn('No session found in getRecentActivities, returning empty array')
+            // No session - return empty array
             return []
         }
 
@@ -30,7 +30,10 @@ export default async function getRecentActivities() {
             .limit(10)
 
         if (error) {
-            console.error('Error fetching recent activities:', error)
+            // Log error for debugging - server action
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching recent activities:', error)
+            }
             return []
         }
 
@@ -42,7 +45,10 @@ export default async function getRecentActivities() {
             .single()
 
         if (userError) {
-            console.error('Error fetching user data:', userError)
+            // Log error for debugging - server action
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching user data:', userError)
+            }
         }
 
         // Transform activities to match the expected format
@@ -66,7 +72,10 @@ export default async function getRecentActivities() {
         return transformedActivities
 
     } catch (error) {
-        console.error('Error in getRecentActivities:', error)
+        // Log error for debugging - server action
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error in getRecentActivities:', error)
+        }
         return []
     }
 }
@@ -84,7 +93,10 @@ function mapActivityTypeToStatus(activityType: string): number {
             return 4 // File attached
         case 'CREATE-TICKET':
         case 'CREATE-PROJECT':
+        case 'PROJECT-COMPLETED':
             return 0 // Created/completed
+        case 'PROJECT-REACTIVATED':
+            return 1 // Reactivated/in progress
         case 'COMMENT-MENTION':
             return 5 // Mentioned
         case 'ASSIGN-TICKET':

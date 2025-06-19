@@ -6,7 +6,6 @@ export default async function getUpcomingCalendarEvents() {
     try {
         const session = await auth()
         if (!session?.user?.id) {
-            console.warn('No session found in getUpcomingCalendarEvents, returning empty array')
             return []
         }
 
@@ -26,7 +25,9 @@ export default async function getUpcomingCalendarEvents() {
             .limit(10)
 
         if (error) {
-            console.error('Error fetching upcoming calendar events:', error)
+            if (process.env.NODE_ENV === 'development') {
+                console.error('Error fetching upcoming calendar events:', error)
+            }
             return []
         }
 
@@ -42,7 +43,9 @@ export default async function getUpcomingCalendarEvents() {
         return upcomingEvents
 
     } catch (error) {
-        console.error('Error in getUpcomingCalendarEvents:', error)
+        if (process.env.NODE_ENV === 'development') {
+            console.error('Error in getUpcomingCalendarEvents:', error)
+        }
         return []
     }
 }
