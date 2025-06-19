@@ -58,7 +58,7 @@ const ViewInvoices = () => {
             try {
                 setLoading(true)
                 const response = await fetch('/api/invoicing/invoices')
-                
+
                 if (response.ok) {
                     const data = await response.json()
                     if (data.success) {
@@ -87,13 +87,13 @@ const ViewInvoices = () => {
 
     // Filter invoices based on search term and status
     const filteredInvoices = invoices.filter(invoice => {
-        const matchesSearch = !searchTerm || 
+        const matchesSearch = !searchTerm ||
             invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
             invoice.client_name.toLowerCase().includes(searchTerm.toLowerCase())
-        
-        const matchesStatus = statusFilter === 'all' || 
+
+        const matchesStatus = statusFilter === 'all' ||
             invoice.status.toLowerCase() === statusFilter.toLowerCase()
-        
+
         return matchesSearch && matchesStatus
     })
 
@@ -161,8 +161,8 @@ const ViewInvoices = () => {
             if (response.ok) {
                 const result = await response.json()
                 if (result.success) {
-                    setInvoices(invoices => 
-                        invoices.map(inv => 
+                    setInvoices(invoices =>
+                        invoices.map(inv =>
                             inv.id === invoiceId ? { ...inv, status: newStatus as 'Draft' | 'Sent' | 'Paid' } : inv
                         )
                     )
@@ -293,7 +293,7 @@ const ViewInvoices = () => {
                                 {searchTerm || statusFilter !== 'all' ? 'No invoices found' : 'No invoices yet'}
                             </h3>
                             <p className="text-gray-500 mb-4">
-                                {searchTerm || statusFilter !== 'all' 
+                                {searchTerm || statusFilter !== 'all'
                                     ? 'Try adjusting your search or filter criteria'
                                     : 'Create your first invoice to get started'
                                 }

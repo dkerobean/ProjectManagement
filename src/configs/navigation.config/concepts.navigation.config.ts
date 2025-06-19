@@ -323,8 +323,7 @@ const conceptsNavigationConfig: NavigationTree[] = [
                             },
                         },
                         subMenu: [],
-                    },
-                    {
+                    },                    {
                         key: 'concepts.invoicing.viewInvoices',
                         path: `${CONCEPTS_PREFIX_PATH}/invoicing/view-invoices`,
                         title: 'View Invoices',
@@ -341,17 +340,33 @@ const conceptsNavigationConfig: NavigationTree[] = [
                         subMenu: [],
                     },
                     {
-                        key: 'concepts.invoicing.paymentDetails',
-                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/payment-details`,
-                        title: 'Payment Details',
-                        translateKey: 'nav.conceptsInvoicing.paymentDetails',
+                        key: 'concepts.invoicing.paymentMethods',
+                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/payment-methods`,
+                        title: 'Payment Methods',
+                        translateKey: 'nav.conceptsInvoicing.paymentMethods',
                         icon: 'payment',
                         type: NAV_ITEM_TYPE_ITEM,
                         authority: [ADMIN, USER],
                         meta: {
                             description: {
-                                translateKey: 'nav.conceptsInvoicing.paymentDetailsDesc',
-                                label: 'Manage payment information',
+                                translateKey: 'nav.conceptsInvoicing.paymentMethodsDesc',
+                                label: 'Manage payment methods',
+                            },
+                        },
+                        subMenu: [],
+                    },
+                    {
+                        key: 'concepts.invoicing.companySettings',
+                        path: `${CONCEPTS_PREFIX_PATH}/invoicing/company-settings`,
+                        title: 'Company Settings',
+                        translateKey: 'nav.conceptsInvoicing.companySettings',
+                        icon: 'companySettings',
+                        type: NAV_ITEM_TYPE_ITEM,
+                        authority: [ADMIN, USER],
+                        meta: {
+                            description: {
+                                translateKey: 'nav.conceptsInvoicing.companySettingsDesc',
+                                label: 'Manage company profile and logo',
                             },
                         },
                         subMenu: [],
