@@ -148,7 +148,7 @@ export const apiCreateTask = async (payload: CreateTaskPayload): Promise<ApiResp
 export const apiUpdateTask = async (payload: UpdateTaskPayload): Promise<ApiResponse<Task>> => {
     try {
         const response = await fetch(`/api/tasks/${payload.id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -212,7 +212,7 @@ export const apiDeleteTask = async (taskId: string): Promise<ApiResponse<void>> 
 export const apiMoveTask = async (taskId: string, newProjectId: string): Promise<ApiResponse<Task>> => {
     try {
         const response = await fetch(`/api/tasks/${taskId}/move`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -245,7 +245,7 @@ export const apiMoveTask = async (taskId: string, newProjectId: string): Promise
 export const apiUpdateTaskStatus = async (taskId: string, status: Task['status']): Promise<ApiResponse<Task>> => {
     try {
         const response = await fetch(`/api/tasks/${taskId}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
