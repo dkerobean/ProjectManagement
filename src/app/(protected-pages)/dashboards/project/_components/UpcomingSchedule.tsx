@@ -6,7 +6,7 @@ import Card from '@/components/ui/Card'
 import Calendar from '@/components/ui/Calendar'
 import ScrollBar from '@/components/ui/ScrollBar'
 import CreateEventDialog, { eventTypes } from './CreateEventDialog'
-import { eventGenerator, isToday } from '../utils'
+import { isToday } from '../utils'
 import classNames from '@/utils/classNames'
 
 import dayjs from 'dayjs'
@@ -62,8 +62,7 @@ type UpcomingScheduleProps = {
     }>
 }
 
-const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {
-    const [selectedDate, setSelectedDate] = useState<Date | null>(
+const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {    const [selectedDate, setSelectedDate] = useState<Date | null>(
         dayjs().toDate(),
     )
     const [createdEventCache, setCreatedEventCache] = useState<
@@ -80,13 +79,9 @@ const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {
         const previousCreatedEvent =
             createdEventCache[dayjs(date).toISOString()] || []
 
-        // Use real events if available, otherwise fall back to generated events
-        const baseEvents = eventsForDate.length > 0
-            ? eventsForDate
-            : eventGenerator(date as Date)
-
+        // Only use real events from the database, no fallback to mock data
         const eventList = [
-            ...baseEvents,
+            ...eventsForDate,
             ...previousCreatedEvent,
         ]
 
