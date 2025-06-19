@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useReactToPrint } from 'react-to-print'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
@@ -40,7 +40,7 @@ interface InvoiceData {
     invoiceNumber: string
     issueDate: string
     dueDate: string
-    status: 'Draft' | 'Sent' | 'Paid'
+    status: 'draft' | 'sent' | 'paid'
 
     // Company Info (auto-populated from profile)
     companyName: string
@@ -71,6 +71,10 @@ interface InvoiceData {
 
 const CreateInvoice = () => {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const viewInvoiceId = searchParams.get('view')
+    const isViewMode = Boolean(viewInvoiceId)
+    
     const printRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -82,7 +86,7 @@ const CreateInvoice = () => {
         invoiceNumber: '',
         issueDate: format(new Date(), 'yyyy-MM-dd'),
         dueDate: format(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd'), // 30 days from now
-        status: 'Draft',
+        status: 'draft',
 
         // Company Info (will be populated from profile)
         companyName: 'Your Company Name',
@@ -124,18 +128,69 @@ const CreateInvoice = () => {
         const loadData = async () => {
             setIsLoading(true)
             try {
-                // Load invoice number, user profile, and payment methods in parallel
-                const [invoiceNumResponse, profileResponse, paymentMethodsResponse] = await Promise.all([
-                    fetch('/api/invoicing/generate-invoice-number'),
-                    fetch('/api/invoicing/company-profile'),
-                    fetch('/api/invoicing/payment-methods')
-                ])
+                let promises = []
+                
+                if (isViewMode && viewInvoiceId) {
+                    // In view mode, load the specific invoice
+                    promises = [
+                        fetch(`/api/invoicing/invoices/${viewInvoiceId}`),
+                        fetch('/api/invoicing/company-profile'),
+                        fetch('/api/invoicing/payment-methods')
+                    ]
+                } else {
+                    // In create mode, load invoice number, user profile, and payment methods
+                    promises = [
+                        fetch('/api/invoicing/generate-invoice-number'),
+                        fetch('/api/invoicing/company-profile'),
+                        fetch('/api/invoicing/payment-methods')
+                    ]
+                }
 
-                // Handle invoice number
-                if (invoiceNumResponse.ok) {
-                    const invoiceNumData = await invoiceNumResponse.json()
-                    if (invoiceNumData.success) {
-                        setInvoice(prev => ({ ...prev, invoiceNumber: invoiceNumData.data.invoice_number }))
+                const [firstResponse, profileResponse, paymentMethodsResponse] = await Promise.all(promises)
+
+                if (isViewMode && viewInvoiceId) {
+                    // Handle loading existing invoice
+                    if (firstResponse.ok) {
+                        const invoiceData = await firstResponse.json()
+                        if (invoiceData.success && invoiceData.data) {
+                            const invoice = invoiceData.data
+                            setInvoice({
+                                id: invoice.id,
+                                invoiceNumber: invoice.invoice_number,
+                                issueDate: invoice.issue_date || invoice.date,
+                                dueDate: invoice.due_date,
+                                status: invoice.status,
+                                companyName: invoice.company_name || 'Your Company Name',
+                                companyAddress: invoice.company_address || '123 Business Street',
+                                companyPhone: invoice.company_phone || '+1 (555) 123-4567',
+                                companyEmail: invoice.company_email || 'contact@yourcompany.com',
+                                companyLogo: '',
+                                clientName: invoice.client_name,
+                                clientAddress: invoice.client_address || '',
+                                clientEmail: invoice.client_email || '',
+                                items: invoice.invoice_items?.map((item: { description: string; quantity: number; rate: number; amount: number }) => ({
+                                    description: item.description,
+                                    quantity: item.quantity,
+                                    rate: item.rate,
+                                    amount: item.amount
+                                })) || [],
+                                subtotal: invoice.subtotal,
+                                taxRate: invoice.tax_rate,
+                                taxAmount: invoice.tax_amount,
+                                total: invoice.total,
+                                paymentMethodId: invoice.payment_method_id || '',
+                                paymentInstructions: invoice.payment_instructions || '',
+                                notes: invoice.notes || ''
+                            })
+                        }
+                    }
+                } else {
+                    // Handle invoice number generation for create mode
+                    if (firstResponse.ok) {
+                        const invoiceNumData = await firstResponse.json()
+                        if (invoiceNumData.success) {
+                            setInvoice(prev => ({ ...prev, invoiceNumber: invoiceNumData.data.invoice_number }))
+                        }
                     }
                 }
 
@@ -145,14 +200,17 @@ const CreateInvoice = () => {
                     if (profileData.success && profileData.data) {
                         const profile = profileData.data
                         setUserProfile(profile)
-                        setInvoice(prev => ({
-                            ...prev,
-                            companyName: profile.company_name || 'Your Company Name',
-                            companyAddress: profile.company_address || '123 Business Street',
-                            companyPhone: profile.phone_number || '+1 (555) 123-4567',
-                            companyEmail: profile.contact_email || 'contact@yourcompany.com',
-                            companyLogo: profile.logo_url || '',
-                        }))
+                        if (!isViewMode) {
+                            // Only update company info in create mode
+                            setInvoice(prev => ({
+                                ...prev,
+                                companyName: profile.company_name || 'Your Company Name',
+                                companyAddress: profile.company_address || '123 Business Street',
+                                companyPhone: profile.phone_number || '+1 (555) 123-4567',
+                                companyEmail: profile.contact_email || 'contact@yourcompany.com',
+                                companyLogo: profile.logo_url || '',
+                            }))
+                        }
                     }
                 }
 
@@ -177,7 +235,7 @@ const CreateInvoice = () => {
         }
 
         loadData()
-    }, [])
+    }, [isViewMode, viewInvoiceId])
 
     // Calculate totals whenever items or tax rate changes
     const calculateTotals = (items: InvoiceItem[], taxRate: number) => {
@@ -383,16 +441,20 @@ const CreateInvoice = () => {
             <div className="max-w-4xl mx-auto">
                 {/* Action Buttons */}
                 <div className="mb-6 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Create Invoice</h1>
+                    <h1 className="text-2xl font-bold">
+                        {isViewMode ? `Invoice ${invoice.invoiceNumber}` : 'Create Invoice'}
+                    </h1>
                     <div className="flex gap-2">
-                        <Button
-                            variant="default"
-                            icon={<HiOutlineSave />}
-                            onClick={saveInvoice}
-                            loading={isSaving}
-                        >
-                            Save
-                        </Button>
+                        {!isViewMode && (
+                            <Button
+                                variant="default"
+                                icon={<HiOutlineSave />}
+                                onClick={saveInvoice}
+                                loading={isSaving}
+                            >
+                                Save
+                            </Button>
+                        )}
                         <Button
                             variant="default"
                             icon={<HiOutlineDocumentDownload />}
@@ -400,6 +462,14 @@ const CreateInvoice = () => {
                         >
                             Export PDF
                         </Button>
+                        {isViewMode && (
+                            <Button
+                                variant="default"
+                                onClick={() => router.push('/concepts/invoicing/view-invoices')}
+                            >
+                                Back to Invoices
+                            </Button>
+                        )}
                         <Button
                             variant="default"
                             icon={<HiOutlinePrinter />}
@@ -457,17 +527,20 @@ const CreateInvoice = () => {
                                         value={invoice.clientName}
                                         onChange={(e) => updateInvoiceField('clientName', e.target.value)}
                                         className="font-medium"
+                                        readOnly={isViewMode}
                                     />
                                     <Input
                                         placeholder="Client Address"
                                         value={invoice.clientAddress}
                                         onChange={(e) => updateInvoiceField('clientAddress', e.target.value)}
+                                        readOnly={isViewMode}
                                     />
                                     <Input
                                         placeholder="Client Email"
                                         type="email"
                                         value={invoice.clientEmail}
                                         onChange={(e) => updateInvoiceField('clientEmail', e.target.value)}
+                                        readOnly={isViewMode}
                                     />
                                 </div>
                             </div>
@@ -483,6 +556,7 @@ const CreateInvoice = () => {
                                     type="date"
                                     value={invoice.issueDate}
                                     onChange={(e) => updateInvoiceField('issueDate', e.target.value)}
+                                    readOnly={isViewMode}
                                 />
                             </div>
                             <div>
@@ -493,6 +567,7 @@ const CreateInvoice = () => {
                                     type="date"
                                     value={invoice.dueDate}
                                     onChange={(e) => updateInvoiceField('dueDate', e.target.value)}
+                                    readOnly={isViewMode}
                                 />
                             </div>
                         </div>
@@ -506,6 +581,7 @@ const CreateInvoice = () => {
                                     variant="default"
                                     icon={<HiOutlinePlus />}
                                     onClick={addItem}
+                                    style={{ display: isViewMode ? 'none' : 'inline-flex' }}
                                 >
                                     Add Item
                                 </Button>
@@ -530,6 +606,7 @@ const CreateInvoice = () => {
                                                         placeholder="Item description"
                                                         value={item.description}
                                                         onChange={(e) => updateInvoiceItem(item.id, 'description', e.target.value)}
+                                                        readOnly={isViewMode}
                                                     />
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -540,6 +617,7 @@ const CreateInvoice = () => {
                                                         value={item.quantity}
                                                         onChange={(e) => updateInvoiceItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                                                         className="text-center"
+                                                        readOnly={isViewMode}
                                                     />
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -550,13 +628,14 @@ const CreateInvoice = () => {
                                                         value={item.rate}
                                                         onChange={(e) => updateInvoiceItem(item.id, 'rate', parseFloat(e.target.value) || 0)}
                                                         className="text-right"
+                                                        readOnly={isViewMode}
                                                     />
                                                 </td>
                                                 <td className="px-4 py-3 text-right font-medium">
                                                     ${item.amount.toFixed(2)}
                                                 </td>
                                                 <td className="px-2 py-3">
-                                                    {invoice.items.length > 1 && (
+                                                    {invoice.items.length > 1 && !isViewMode && (
                                                         <Button
                                                             size="sm"
                                                             variant="plain"
@@ -605,6 +684,7 @@ const CreateInvoice = () => {
                                         value={invoice.notes}
                                         onChange={(e) => updateInvoiceField('notes', e.target.value)}
                                         className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        readOnly={isViewMode}
                                     />
                                 </div>
 

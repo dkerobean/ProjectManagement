@@ -59,18 +59,21 @@ export async function PATCH(
 
         const { status } = body
 
-        // Validate status
-        if (status && !['Draft', 'Sent', 'Paid'].includes(status)) {
+        // Validate and normalize status
+        if (status && !['Draft', 'Sent', 'Paid', 'draft', 'sent', 'paid'].includes(status)) {
             return NextResponse.json(
                 { success: false, error: 'Invalid status' },
                 { status: 400 }
             )
         }
 
+        // Normalize status to lowercase to match database constraint
+        const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : undefined
+
         const { data: invoice, error } = await supabase
             .from('invoices')
             .update({
-                status,
+                status: normalizedStatus,
                 updated_at: new Date().toISOString()
             })
             .eq('id', id)

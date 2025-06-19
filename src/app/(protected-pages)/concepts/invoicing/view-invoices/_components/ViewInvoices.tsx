@@ -21,7 +21,7 @@ interface Invoice {
     client_address?: string
     issue_date: string
     due_date: string
-    status: 'Draft' | 'Sent' | 'Paid'
+    status: 'draft' | 'sent' | 'paid' | 'Draft' | 'Sent' | 'Paid'
     subtotal: number
     tax_rate: number
     tax_amount: number
@@ -163,7 +163,7 @@ const ViewInvoices = () => {
                 if (result.success) {
                     setInvoices(invoices => 
                         invoices.map(inv => 
-                            inv.id === invoiceId ? { ...inv, status: newStatus as 'Draft' | 'Sent' | 'Paid' } : inv
+                            inv.id === invoiceId ? { ...inv, status: newStatus as 'draft' | 'sent' | 'paid' | 'Draft' | 'Sent' | 'Paid' } : inv
                         )
                     )
                     toast.push(
@@ -191,17 +191,103 @@ const ViewInvoices = () => {
 
     // Navigate to invoice detail/edit
     const handleViewInvoice = (invoiceId: string) => {
-        router.push(`/concepts/invoicing/view-invoices/${invoiceId}`)
+        // For now, redirect to create-invoice page with the invoice ID as a parameter
+        // Later we can create a dedicated view page
+        router.push(`/concepts/invoicing/create-invoice?view=${invoiceId}`)
     }
 
-    // Export invoice (placeholder for PDF generation)
+    // Export invoice as PDF
     const handleExportInvoice = async (invoiceId: string, invoiceNumber: string) => {
-        toast.push(
-            <Notification type="info">
-                PDF export for {invoiceNumber} will be implemented
-            </Notification>,
-            { placement: 'top-center' }
-        )
+        try {
+            toast.push(
+                <Notification type="info">
+                    Generating PDF for {invoiceNumber}...
+                </Notification>,
+                { placement: 'top-center' }
+            )
+
+            // Create a simple PDF export using browser print
+            const invoice = invoices.find(inv => inv.id === invoiceId)
+            if (!invoice) return
+
+            // Create a new window with invoice content for printing
+            const printWindow = window.open('', '_blank')
+            if (!printWindow) return
+
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Invoice ${invoice.invoice_number}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        .header { text-align: center; margin-bottom: 30px; }
+                        .invoice-details { margin-bottom: 30px; }
+                        .client-info { margin-bottom: 30px; }
+                        .amount { font-size: 24px; font-weight: bold; color: #059669; }
+                        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+                        .status.paid { background-color: #d1fae5; color: #065f46; }
+                        .status.sent { background-color: #dbeafe; color: #1e40af; }
+                        .status.draft { background-color: #f3f4f6; color: #374151; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                        th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+                        th { background-color: #f9fafb; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>INVOICE</h1>
+                        <h2>${invoice.invoice_number}</h2>
+                    </div>
+                    
+                    <div class="invoice-details">
+                        <table>
+                            <tr><td><strong>Issue Date:</strong></td><td>${new Date(invoice.issue_date).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Due Date:</strong></td><td>${new Date(invoice.due_date).toLocaleDateString()}</td></tr>
+                            <tr><td><strong>Status:</strong></td><td><span class="status ${invoice.status.toLowerCase()}">${invoice.status}</span></td></tr>
+                        </table>
+                    </div>
+
+                    <div class="client-info">
+                        <h3>Bill To:</h3>
+                        <p><strong>${invoice.client_name}</strong></p>
+                        ${invoice.client_email ? `<p>${invoice.client_email}</p>` : ''}
+                        ${invoice.client_address ? `<p>${invoice.client_address}</p>` : ''}
+                    </div>
+
+                    <div class="amount">
+                        <p>Total Amount: $${invoice.total.toFixed(2)}</p>
+                    </div>
+
+                    ${invoice.notes ? `<div style="margin-top: 30px;"><h3>Notes:</h3><p>${invoice.notes}</p></div>` : ''}
+                </body>
+                </html>
+            `
+
+            printWindow.document.write(printContent)
+            printWindow.document.close()
+            
+            // Auto-print after a short delay
+            setTimeout(() => {
+                printWindow.print()
+                printWindow.close()
+            }, 500)
+
+            toast.push(
+                <Notification type="success">
+                    PDF export initiated for {invoiceNumber}
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        } catch (error) {
+            console.error('Error exporting invoice:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to export invoice PDF
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        }
     }
 
     return (
@@ -353,14 +439,14 @@ const ViewInvoices = () => {
                                         <Td>
                                             <Select
                                                 size="sm"
-                                                value={{ label: invoice.status, value: invoice.status }}
+                                                value={{ label: invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1), value: invoice.status }}
                                                 onChange={(option) => option && handleStatusUpdate(invoice.id, option.value)}
                                                 options={[
-                                                    { label: 'Draft', value: 'Draft' },
-                                                    { label: 'Sent', value: 'Sent' },
-                                                    { label: 'Paid', value: 'Paid' },
+                                                    { label: 'Draft', value: 'draft' },
+                                                    { label: 'Sent', value: 'sent' },
+                                                    { label: 'Paid', value: 'paid' },
                                                 ]}
-                                                {...getStatusProps(invoice.status)}
+                                                className={`status-select ${getStatusProps(invoice.status).className}`}
                                             />
                                         </Td>
                                         <Td>
@@ -402,27 +488,48 @@ const ViewInvoices = () => {
 
                 {/* Summary Stats */}
                 {filteredInvoices.length > 0 && (
-                    <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-5 gap-4">
                         <Card className="p-4">
                             <div className="text-sm text-gray-600">Total Invoices</div>
                             <div className="text-2xl font-bold">{filteredInvoices.length}</div>
+                            <div className="text-sm text-gray-500 mt-1">
+                                ${filteredInvoices.reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
+                            </div>
                         </Card>
                         <Card className="p-4">
                             <div className="text-sm text-gray-600">Draft</div>
                             <div className="text-2xl font-bold text-gray-600">
-                                {filteredInvoices.filter(inv => inv.status === 'Draft').length}
+                                {filteredInvoices.filter(inv => inv.status.toLowerCase() === 'draft').length}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">
+                                ${filteredInvoices.filter(inv => inv.status.toLowerCase() === 'draft').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
                             </div>
                         </Card>
                         <Card className="p-4">
                             <div className="text-sm text-gray-600">Sent</div>
                             <div className="text-2xl font-bold text-blue-600">
-                                {filteredInvoices.filter(inv => inv.status === 'Sent').length}
+                                {filteredInvoices.filter(inv => inv.status.toLowerCase() === 'sent').length}
+                            </div>
+                            <div className="text-sm text-blue-500 mt-1">
+                                ${filteredInvoices.filter(inv => inv.status.toLowerCase() === 'sent').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
                             </div>
                         </Card>
                         <Card className="p-4">
                             <div className="text-sm text-gray-600">Paid</div>
                             <div className="text-2xl font-bold text-green-600">
-                                {filteredInvoices.filter(inv => inv.status === 'Paid').length}
+                                {filteredInvoices.filter(inv => inv.status.toLowerCase() === 'paid').length}
+                            </div>
+                            <div className="text-sm text-green-500 mt-1">
+                                ${filteredInvoices.filter(inv => inv.status.toLowerCase() === 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
+                            </div>
+                        </Card>
+                        <Card className="p-4">
+                            <div className="text-sm text-gray-600">Outstanding</div>
+                            <div className="text-2xl font-bold text-orange-600">
+                                {filteredInvoices.filter(inv => inv.status.toLowerCase() !== 'paid').length}
+                            </div>
+                            <div className="text-sm text-orange-500 mt-1">
+                                ${filteredInvoices.filter(inv => inv.status.toLowerCase() !== 'paid').reduce((sum, inv) => sum + inv.total, 0).toFixed(2)}
                             </div>
                         </Card>
                     </div>

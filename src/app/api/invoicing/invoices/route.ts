@@ -101,10 +101,26 @@ export async function POST(request: NextRequest) {
         // Generate invoice number
         const invoice_number = await generateInvoiceNumber(userId)
 
+        // Get user profile for company information
+        const { data: userProfile } = await supabase
+            .from('user_profiles')
+            .select('*')
+            .eq('user_id', userId)
+            .single()
+
+        // Set default company info if profile doesn't exist
+        const companyName = userProfile?.company_name || 'Your Company Name'
+        const companyAddress = userProfile?.company_address || '123 Business Street'
+        const companyPhone = userProfile?.phone_number || '+1 (555) 123-4567'
+        const companyEmail = userProfile?.contact_email || 'contact@yourcompany.com'
+
         // Calculate totals
         const subtotal = items.reduce((sum: number, item: InvoiceItem) => sum + (item.quantity * item.rate), 0)
         const tax_amount = (subtotal * tax_rate) / 100
         const total = subtotal + tax_amount
+
+        // Normalize status to lowercase to match database constraint
+        const normalizedStatus = typeof status === 'string' ? status.toLowerCase() : 'draft'
 
         // Create invoice
         const { data: invoice, error: invoiceError } = await supabase
@@ -113,13 +129,19 @@ export async function POST(request: NextRequest) {
                 user_id: userId,
                 created_by: userId,
                 invoice_number,
+                // Company information (required fields)
+                company_name: companyName,
+                company_address: companyAddress,
+                company_phone: companyPhone,
+                company_email: companyEmail,
+                // Client information
                 client_name,
                 client_email,
                 client_address,
                 issue_date,
                 date: issue_date,
                 due_date,
-                status,
+                status: normalizedStatus,
                 subtotal,
                 tax_rate,
                 tax_amount,

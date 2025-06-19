@@ -62,15 +62,18 @@
             "projectListDesc": "Organiza todos los proyectos",
             "projectDetailsDesc": "Información detallada del proyecto",            "projectTasksDesc": "Gestionar las tareas del proyecto",
             "projectIssueDesc": "Resolver problemas del proyecto"
-        },
-        "conceptsInvoicing": {
+        },        "conceptsInvoicing": {
             "invoicing": "Facturación",
             "createInvoice": "Crear Factura",
             "viewInvoices": "Ver Facturas",
+            "paymentMethods": "Métodos de Pago",
+            "companySettings": "Configuración de Empresa",
             "paymentDetails": "Detalles de Pago",
             "invoicingDesc": "Gestión de facturación y cobros",
             "createInvoiceDesc": "Crear nuevas facturas",
             "viewInvoicesDesc": "Gestionar y ver todas las facturas",
+            "paymentMethodsDesc": "Gestionar métodos de pago",
+            "companySettingsDesc": "Gestionar perfil y logo de empresa",
             "paymentDetailsDesc": "Gestionar información de pagos"
         },
         "conceptsOrders": {

@@ -63,15 +63,18 @@
             "projectListDesc": "Organize all projects",
             "projectDetailsDesc": "Project detailed information",            "projectTasksDesc": "Manage project tasks",
             "projectIssueDesc": "Resolve project issues"
-        },
-        "conceptsInvoicing": {
+        },        "conceptsInvoicing": {
             "invoicing": "Invoicing",
             "createInvoice": "Create Invoice",
             "viewInvoices": "View Invoices",
+            "paymentMethods": "Payment Methods",
+            "companySettings": "Company Settings",
             "paymentDetails": "Payment Details",
             "invoicingDesc": "Invoice and billing management",
             "createInvoiceDesc": "Create new invoices",
             "viewInvoicesDesc": "Manage and view all invoices",
+            "paymentMethodsDesc": "Manage payment methods",
+            "companySettingsDesc": "Manage company profile and logo",
             "paymentDetailsDesc": "Manage payment information"
         },
         "conceptsOrders": {

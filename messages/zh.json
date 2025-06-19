@@ -60,8 +60,21 @@
             "scrumBoardDesc": "管理你的 Scrum 工作流",
             "projectListDesc": "组织所有项目",
             "projectDetailsDesc": "项目详细信息",
-            "projectTasksDesc": "管理项目任务",
-            "projectIssueDesc": "解决项目问题"
+            "projectTasksDesc": "管理项目任务",            "projectIssueDesc": "解决项目问题"
+        },
+        "conceptsInvoicing": {
+            "invoicing": "发票管理",
+            "createInvoice": "创建发票",
+            "viewInvoices": "查看发票",
+            "paymentMethods": "支付方式",
+            "companySettings": "公司设置",
+            "paymentDetails": "支付详情",
+            "invoicingDesc": "发票和账单管理",
+            "createInvoiceDesc": "创建新发票",
+            "viewInvoicesDesc": "管理和查看所有发票",
+            "paymentMethodsDesc": "管理支付方式",
+            "companySettingsDesc": "管理公司资料和标志",
+            "paymentDetailsDesc": "管理支付信息"
         },
         "conceptsOrders": {
             "orders": "订单",
