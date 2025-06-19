@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import Table from '@/components/ui/Table'
@@ -196,7 +198,7 @@ const ViewInvoices = () => {
         router.push(`/concepts/invoicing/create-invoice?view=${invoiceId}`)
     }
 
-    // Export invoice as PDF
+    // Enhanced PDF export with automatic download and logo support
     const handleExportInvoice = async (invoiceId: string, invoiceNumber: string) => {
         try {
             toast.push(
@@ -206,76 +208,296 @@ const ViewInvoices = () => {
                 { placement: 'top-center' }
             )
 
-            // Create a simple PDF export using browser print
-            const invoice = invoices.find(inv => inv.id === invoiceId)
-            if (!invoice) return
-
-            // Create a new window with invoice content for printing
-            const printWindow = window.open('', '_blank')
-            if (!printWindow) return
-
-            const printContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Invoice ${invoice.invoice_number}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 40px; }
-                        .header { text-align: center; margin-bottom: 30px; }
-                        .invoice-details { margin-bottom: 30px; }
-                        .client-info { margin-bottom: 30px; }
-                        .amount { font-size: 24px; font-weight: bold; color: #059669; }
-                        .status { padding: 4px 8px; border-radius: 4px; font-size: 12px; }
-                        .status.paid { background-color: #d1fae5; color: #065f46; }
-                        .status.sent { background-color: #dbeafe; color: #1e40af; }
-                        .status.draft { background-color: #f3f4f6; color: #374151; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                        th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
-                        th { background-color: #f9fafb; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h1>INVOICE</h1>
-                        <h2>${invoice.invoice_number}</h2>
-                    </div>
-                    
-                    <div class="invoice-details">
-                        <table>
-                            <tr><td><strong>Issue Date:</strong></td><td>${new Date(invoice.issue_date).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Due Date:</strong></td><td>${new Date(invoice.due_date).toLocaleDateString()}</td></tr>
-                            <tr><td><strong>Status:</strong></td><td><span class="status ${invoice.status.toLowerCase()}">${invoice.status}</span></td></tr>
-                        </table>
-                    </div>
-
-                    <div class="client-info">
-                        <h3>Bill To:</h3>
-                        <p><strong>${invoice.client_name}</strong></p>
-                        ${invoice.client_email ? `<p>${invoice.client_email}</p>` : ''}
-                        ${invoice.client_address ? `<p>${invoice.client_address}</p>` : ''}
-                    </div>
-
-                    <div class="amount">
-                        <p>Total Amount: $${invoice.total.toFixed(2)}</p>
-                    </div>
-
-                    ${invoice.notes ? `<div style="margin-top: 30px;"><h3>Notes:</h3><p>${invoice.notes}</p></div>` : ''}
-                </body>
-                </html>
-            `
-
-            printWindow.document.write(printContent)
-            printWindow.document.close()
+            // Get full invoice data with items
+            const response = await fetch(`/api/invoicing/invoices/${invoiceId}`)
+            if (!response.ok) {
+                throw new Error('Failed to fetch invoice details')
+            }
             
-            // Auto-print after a short delay
-            setTimeout(() => {
-                printWindow.print()
-                printWindow.close()
-            }, 500)
+            const result = await response.json()
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to fetch invoice details')
+            }
+            
+            const fullInvoice = result.data
+
+            // Create PDF using jsPDF for better control and auto-download
+            const pdf = new jsPDF('p', 'mm', 'a4')
+            const pageWidth = pdf.internal.pageSize.getWidth()
+            const pageHeight = pdf.internal.pageSize.getHeight()
+            const margin = 20
+
+            // Set up fonts and colors
+            pdf.setFont('helvetica', 'normal')
+            
+            // Helper function to add company logo
+            const addLogo = async (logoUrl: string | null) => {
+                if (logoUrl) {
+                    try {
+                        // Create a promise to load the image
+                        const img = new Image()
+                        img.crossOrigin = 'anonymous'
+                        
+                        return new Promise((resolve) => {
+                            img.onload = () => {
+                                // Add logo to PDF (top right)
+                                const logoWidth = 30
+                                const logoHeight = 20
+                                const logoX = pageWidth - margin - logoWidth
+                                const logoY = margin
+                                
+                                pdf.addImage(img, 'JPEG', logoX, logoY, logoWidth, logoHeight)
+                                resolve(true)
+                            }
+                            img.onerror = () => resolve(false) // Continue without logo if failed
+                            img.src = logoUrl
+                        })
+                    } catch (error) {
+                        console.log('Logo loading failed:', error)
+                        return false
+                    }
+                }
+                return false
+            }
+
+            // Add logo if available
+            await addLogo(fullInvoice.company_logo || null)
+
+            let yPosition = margin + 10
+
+            // Company Header
+            pdf.setFontSize(24)
+            pdf.setTextColor(79, 70, 229) // Blue color
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(fullInvoice.company_name || 'Your Company Name', margin, yPosition)
+            
+            yPosition += 10
+            pdf.setFontSize(10)
+            pdf.setTextColor(100, 100, 100)
+            pdf.setFont('helvetica', 'normal')
+            
+            if (fullInvoice.company_address) {
+                pdf.text(fullInvoice.company_address, margin, yPosition)
+                yPosition += 5
+            }
+            if (fullInvoice.company_phone) {
+                pdf.text(fullInvoice.company_phone, margin, yPosition)
+                yPosition += 5
+            }
+            if (fullInvoice.company_email) {
+                pdf.text(fullInvoice.company_email, margin, yPosition)
+                yPosition += 5
+            }
+
+            // Invoice Title and Number (top right)
+            pdf.setFontSize(32)
+            pdf.setTextColor(79, 70, 229)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('INVOICE', pageWidth - margin - 50, margin + 15, { align: 'right' })
+            
+            pdf.setFontSize(14)
+            pdf.setTextColor(100, 100, 100)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(fullInvoice.invoice_number, pageWidth - margin - 50, margin + 25, { align: 'right' })
+
+            // Line separator
+            yPosition += 10
+            pdf.setDrawColor(79, 70, 229)
+            pdf.setLineWidth(1)
+            pdf.line(margin, yPosition, pageWidth - margin, yPosition)
+            yPosition += 15
+
+            // Bill To and Invoice Details (two columns)
+            const leftColX = margin
+            const rightColX = pageWidth / 2 + 10
+
+            // Bill To section
+            pdf.setFontSize(12)
+            pdf.setTextColor(79, 70, 229)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('Bill To', leftColX, yPosition)
+
+            yPosition += 8
+            pdf.setFontSize(11)
+            pdf.setTextColor(0, 0, 0)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(fullInvoice.client_name, leftColX, yPosition)
+
+            yPosition += 6
+            pdf.setFont('helvetica', 'normal')
+            if (fullInvoice.client_address) {
+                pdf.text(fullInvoice.client_address, leftColX, yPosition)
+                yPosition += 5
+            }
+            if (fullInvoice.client_email) {
+                pdf.text(fullInvoice.client_email, leftColX, yPosition)
+            }
+
+            // Invoice Details section (right column)
+            let rightYPosition = yPosition - 20
+            pdf.setFontSize(12)
+            pdf.setTextColor(79, 70, 229)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('Invoice Details', rightColX, rightYPosition)
+
+            rightYPosition += 8
+            pdf.setFontSize(10)
+            pdf.setTextColor(0, 0, 0)
+            pdf.setFont('helvetica', 'normal')
+            
+            const addDetailRow = (label: string, value: string) => {
+                pdf.setFont('helvetica', 'bold')
+                pdf.text(label + ':', rightColX, rightYPosition)
+                pdf.setFont('helvetica', 'normal')
+                pdf.text(value, rightColX + 25, rightYPosition)
+                rightYPosition += 5
+            }
+
+            addDetailRow('Issue Date', new Date(fullInvoice.issue_date || fullInvoice.date).toLocaleDateString())
+            addDetailRow('Due Date', new Date(fullInvoice.due_date).toLocaleDateString())
+            addDetailRow('Status', fullInvoice.status.toUpperCase())
+
+            yPosition += 30
+
+            // Items Table
+            if (fullInvoice.invoice_items && fullInvoice.invoice_items.length > 0) {
+                // Table headers
+                const tableY = yPosition
+                const colX = [margin, margin + 80, margin + 105, margin + 135]
+                
+                // Header background
+                pdf.setFillColor(79, 70, 229)
+                pdf.rect(margin, tableY, pageWidth - 2 * margin, 8, 'F')
+                
+                // Header text
+                pdf.setFontSize(10)
+                pdf.setTextColor(255, 255, 255)
+                pdf.setFont('helvetica', 'bold')
+                pdf.text('Description', colX[0] + 2, tableY + 5)
+                pdf.text('Qty', colX[1] + 2, tableY + 5)
+                pdf.text('Rate', colX[2] + 2, tableY + 5)
+                pdf.text('Amount', colX[3] + 2, tableY + 5)
+
+                yPosition = tableY + 8
+
+                // Table rows
+                pdf.setTextColor(0, 0, 0)
+                pdf.setFont('helvetica', 'normal')
+                
+                fullInvoice.invoice_items.forEach((item: { description: string; quantity: number; rate: number; amount: number }, index: number) => {
+                    yPosition += 6
+                    
+                    // Alternating row background
+                    if (index % 2 === 1) {
+                        pdf.setFillColor(249, 250, 251)
+                        pdf.rect(margin, yPosition - 3, pageWidth - 2 * margin, 6, 'F')
+                    }
+                    
+                    // Add border lines
+                    pdf.setDrawColor(229, 231, 235)
+                    pdf.setLineWidth(0.1)
+                    pdf.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2)
+                    
+                    // Item data
+                    pdf.text(item.description.substring(0, 45), colX[0] + 2, yPosition)
+                    pdf.text(item.quantity.toString(), colX[1] + 2, yPosition)
+                    pdf.text('$' + item.rate.toFixed(2), colX[2] + 2, yPosition)
+                    pdf.text('$' + item.amount.toFixed(2), colX[3] + 2, yPosition)
+                })
+
+                yPosition += 15
+            }
+
+            // Totals section (right-aligned)
+            const totalsX = pageWidth - margin - 60
+            yPosition += 10
+
+            // Totals box background
+            pdf.setFillColor(248, 250, 252)
+            pdf.setDrawColor(229, 231, 235)
+            pdf.rect(totalsX - 5, yPosition - 5, 65, 30, 'FD')
+
+            pdf.setFontSize(10)
+            pdf.setTextColor(0, 0, 0)
+            
+            const addTotalRow = (label: string, amount: number, isFinal = false) => {
+                if (isFinal) {
+                    pdf.setFont('helvetica', 'bold')
+                    pdf.setFontSize(12)
+                    pdf.setTextColor(79, 70, 229)
+                } else {
+                    pdf.setFont('helvetica', 'normal')
+                    pdf.setFontSize(10)
+                    pdf.setTextColor(0, 0, 0)
+                }
+                
+                pdf.text(label + ':', totalsX, yPosition)
+                pdf.text('$' + amount.toFixed(2), totalsX + 40, yPosition, { align: 'right' })
+                yPosition += isFinal ? 8 : 6
+            }
+
+            addTotalRow('Subtotal', fullInvoice.subtotal)
+            if (fullInvoice.tax_rate > 0) {
+                addTotalRow(`Tax (${fullInvoice.tax_rate}%)`, fullInvoice.tax_amount)
+            }
+            
+            // Final total with line
+            pdf.setDrawColor(79, 70, 229)
+            pdf.setLineWidth(0.5)
+            pdf.line(totalsX, yPosition - 2, totalsX + 55, yPosition - 2)
+            yPosition += 2
+            addTotalRow('Total', fullInvoice.total, true)
+
+            // Notes section
+            if (fullInvoice.notes) {
+                yPosition += 15
+                pdf.setFontSize(12)
+                pdf.setTextColor(79, 70, 229)
+                pdf.setFont('helvetica', 'bold')
+                pdf.text('Notes', margin, yPosition)
+                
+                yPosition += 8
+                pdf.setFontSize(10)
+                pdf.setTextColor(0, 0, 0)
+                pdf.setFont('helvetica', 'normal')
+                
+                // Split long notes into lines
+                const splitNotes = pdf.splitTextToSize(fullInvoice.notes, pageWidth - 2 * margin)
+                pdf.text(splitNotes, margin, yPosition)
+                yPosition += splitNotes.length * 5
+            }
+
+            // Payment Instructions
+            if (fullInvoice.payment_instructions) {
+                yPosition += 10
+                pdf.setFontSize(12)
+                pdf.setTextColor(79, 70, 229)
+                pdf.setFont('helvetica', 'bold')
+                pdf.text('Payment Instructions', margin, yPosition)
+                
+                yPosition += 8
+                pdf.setFontSize(10)
+                pdf.setTextColor(0, 0, 0)
+                pdf.setFont('helvetica', 'normal')
+                
+                const splitInstructions = pdf.splitTextToSize(fullInvoice.payment_instructions, pageWidth - 2 * margin)
+                pdf.text(splitInstructions, margin, yPosition)
+            }
+
+            // Footer
+            pdf.setFontSize(8)
+            pdf.setTextColor(150, 150, 150)
+            pdf.setFont('helvetica', 'normal')
+            const footerText = `Generated on ${new Date().toLocaleDateString()} | ${fullInvoice.company_name || 'Your Company Name'}`
+            pdf.text(footerText, pageWidth / 2, pageHeight - 10, { align: 'center' })
+
+            // Auto-download the PDF
+            const fileName = `Invoice_${fullInvoice.invoice_number}_${new Date().toISOString().split('T')[0]}.pdf`
+            pdf.save(fileName)
 
             toast.push(
                 <Notification type="success">
-                    PDF export initiated for {invoiceNumber}
+                    PDF downloaded successfully: {fileName}
                 </Notification>,
                 { placement: 'top-center' }
             )
@@ -283,7 +505,7 @@ const ViewInvoices = () => {
             console.error('Error exporting invoice:', error)
             toast.push(
                 <Notification type="danger">
-                    Failed to export invoice PDF
+                    Failed to export invoice PDF: {error instanceof Error ? error.message : 'Unknown error'}
                 </Notification>,
                 { placement: 'top-center' }
             )
