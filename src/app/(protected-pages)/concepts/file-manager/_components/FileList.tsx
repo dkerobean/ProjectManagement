@@ -10,7 +10,7 @@ type FileListProps = {
     fileList: Files
     layout: Layout
     onRename: (id: string) => void
-    onDownload: () => void
+    onDownload: (id: string) => void
     onShare: (id: string) => void
     onDelete: (id: string) => void
     onOpen: (id: string) => void
@@ -41,14 +41,13 @@ const FileList = (props: FileListProps) => {
 
     const renderFileSegment = (list: Files, isFolder?: boolean) => (
         <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-4 lg:gap-6">
-            {list.map((file) => (
-                <FileSegment
+            {list.map((file) => (                <FileSegment
                     key={file.id}
                     fileType={file.fileType}
                     size={file.size}
                     name={file.name}
                     onClick={() => onClick(file.id)}
-                    onDownload={onDownload}
+                    onDownload={() => onDownload(file.id)}
                     onShare={() => onShare(file.id)}
                     onDelete={() => onDelete(file.id)}
                     onRename={() => onRename(file.id)}
@@ -69,14 +68,13 @@ const FileList = (props: FileListProps) => {
                 </Tr>
             </THead>
             <TBody>
-                {list.map((file) => (
-                    <FileRow
+                {list.map((file) => (                    <FileRow
                         key={file.id}
                         fileType={file.fileType}
                         size={file.size}
                         name={file.name}
                         onClick={() => onClick(file.id)}
-                        onDownload={onDownload}
+                        onDownload={() => onDownload(file.id)}
                         onShare={() => onShare(file.id)}
                         onDelete={() => onDelete(file.id)}
                         onRename={() => onRename(file.id)}

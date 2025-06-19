@@ -3,7 +3,11 @@
 import { useFileManagerStore } from '../_store/useFileManagerStore'
 import ConfirmDialog from '@/components/shared/ConfirmDialog'
 
-const FileManagerDeleteDialog = () => {
+type FileManagerDeleteDialogProps = {
+    onConfirm?: () => void
+}
+
+const FileManagerDeleteDialog = ({ onConfirm }: FileManagerDeleteDialogProps) => {
     const { deleteDialog, setDeleteDialog, deleteFile } = useFileManagerStore()
 
     const handleDeleteDialogClose = () => {
@@ -11,8 +15,13 @@ const FileManagerDeleteDialog = () => {
     }
 
     const handleDeleteConfirm = () => {
-        deleteFile(deleteDialog.id)
-        setDeleteDialog({ id: '', open: false })
+        if (onConfirm) {
+            onConfirm()
+        } else {
+            // Fallback to store function if no custom onConfirm provided
+            deleteFile(deleteDialog.id)
+            setDeleteDialog({ id: '', open: false })
+        }
     }
 
     return (

@@ -408,7 +408,6 @@ const CreateInvoice = () => {
             // Create PDF using jsPDF for better control and auto-download
             const pdf = new jsPDF('p', 'mm', 'a4')
             const pageWidth = pdf.internal.pageSize.getWidth()
-            const pageHeight = pdf.internal.pageSize.getHeight()
             const margin = 20
 
             // Set up fonts and colors
@@ -423,26 +422,43 @@ const CreateInvoice = () => {
                         
                         return new Promise((resolve) => {
                             img.onload = () => {
-                                const logoWidth = 30
-                                const logoHeight = 20
-                                const logoX = pageWidth - margin - logoWidth
-                                const logoY = margin
-                                
-                                pdf.addImage(img, 'JPEG', logoX, logoY, logoWidth, logoHeight)
-                                resolve(true)
+                                try {
+                                    const logoWidth = 30
+                                    const logoHeight = 20
+                                    const logoX = pageWidth - margin - logoWidth
+                                    const logoY = margin
+                                    
+                                    // Determine image format for better compatibility
+                                    let format = 'JPEG'
+                                    if (logoUrl.toLowerCase().includes('.png')) {
+                                        format = 'PNG'
+                                    }
+                                    
+                                    pdf.addImage(img, format, logoX, logoY, logoWidth, logoHeight)
+                                    console.log('Logo successfully added to PDF')
+                                    resolve(true)
+                                } catch (error) {
+                                    console.log('Failed to add logo to PDF:', error)
+                                    resolve(false)
+                                }
                             }
-                            img.onerror = () => resolve(false)
+                            img.onerror = () => {
+                                console.log('Logo image failed to load from:', logoUrl)
+                                resolve(false)
+                            }
                             img.src = logoUrl
                         })
                     } catch (error) {
                         console.log('Logo loading failed:', error)
                         return false
                     }
+                } else {
+                    console.log('No logo URL provided')
+                    return false
                 }
-                return false
             }
 
-            // Add logo if available
+            // Add logo if available - check multiple possible logo fields
             await addLogo(invoice.companyLogo || null)
 
             let yPosition = margin + 10
@@ -657,13 +673,6 @@ const CreateInvoice = () => {
                 const splitInstructions = pdf.splitTextToSize(invoice.paymentInstructions, pageWidth - 2 * margin)
                 pdf.text(splitInstructions, margin, yPosition)
             }
-
-            // Footer
-            pdf.setFontSize(8)
-            pdf.setTextColor(150, 150, 150)
-            pdf.setFont('helvetica', 'normal')
-            const footerText = `Generated on ${new Date().toLocaleDateString()} | ${invoice.companyName}`
-            pdf.text(footerText, pageWidth / 2, pageHeight - 10, { align: 'center' })
 
             // Auto-download the PDF
             const fileName = `Invoice_${invoice.invoiceNumber}_${new Date().toISOString().split('T')[0]}.pdf`
