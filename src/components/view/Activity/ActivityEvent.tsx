@@ -94,6 +94,9 @@ const ActivityEvent = ({ data, compact }: ActivityEventProps) => {
         },
     }
 
+    // Ensure status exists in ticketStatus, default to 0 if not
+    const safeStatus = (data.status !== undefined && ticketStatus[data.status]) ? data.status : 0
+
     switch (data.type) {
         case UPDATE_TICKET:
             return compact ? (
@@ -107,15 +110,14 @@ const ActivityEvent = ({ data, compact }: ActivityEventProps) => {
                     <div className="mt-2">
                         <span className="mx-1">has change </span>
                         <HighlightedText>{data.ticket}</HighlightedText>
-                        <span className="mx-1"> status to </span>
-                        <span className="inline-flex items-center gap-1">
+                        <span className="mx-1"> status to </span>                        <span className="inline-flex items-center gap-1">
                             <Badge
                                 className={
-                                    ticketStatus[data.status || 0].bgClass
+                                    ticketStatus[safeStatus].bgClass
                                 }
                             />
                             <HighlightedText className="ml-1 rtl:mr-1">
-                                {ticketStatus[data.status || 0].label}
+                                {ticketStatus[safeStatus].label}
                             </HighlightedText>
                         </span>
                     </div>
@@ -125,13 +127,12 @@ const ActivityEvent = ({ data, compact }: ActivityEventProps) => {
                     <HighlightedText>{data.userName}</HighlightedText>
                     <span className="mx-1">has change </span>
                     <HighlightedText>{data.ticket}</HighlightedText>
-                    <span className="mx-1"> status to </span>
-                    <span className="inline-flex items-center gap-1">
+                    <span className="mx-1"> status to </span>                    <span className="inline-flex items-center gap-1">
                         <Badge
-                            className={ticketStatus[data.status || 0].bgClass}
+                            className={ticketStatus[safeStatus].bgClass}
                         />
                         <HighlightedText>
-                            {ticketStatus[data.status || 0].label}
+                            {ticketStatus[safeStatus].label}
                         </HighlightedText>
                     </span>
                     <span className="ml-1 rtl:mr-1 md;ml-3 md:rtl:mr-3 font-semibold">

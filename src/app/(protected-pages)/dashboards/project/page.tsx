@@ -4,7 +4,7 @@ import CurrentTasks from './_components/CurrentTasks'
 import Schedule from './_components/Schedule'
 import ProjectOverview from './_components/ProjectOverview'
 import RecentActivity from './_components/RecentActivity'
-import getProjectDashboard from '@/server/actions/getProjectDashboard'
+import getProjectDashboard from '@/server/actions/getProjectDashboardNew'
 
 export default async function Page() {
     const data = await getProjectDashboard()
