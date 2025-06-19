@@ -119,25 +119,7 @@ const conceptsNavigationConfig: NavigationTree[] = [
                                     'nav.conceptsClients.clientListDesc',
                                 label: 'List of all clients',
                             },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.clients.clientEdit',
-                        path: `${CONCEPTS_PREFIX_PATH}/clients/client-edit/1`,
-                        title: 'Edit',
-                        translateKey: 'nav.conceptsClients.clientEdit',
-                        icon: 'customerEdit',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsClients.clientEditDesc',
-                                label: 'Edit client info',
-                            },
-                        },
-                        subMenu: [],
+                        },                        subMenu: [],
                     },
                     {
                         key: 'concepts.clients.clientCreate',
@@ -152,23 +134,6 @@ const conceptsNavigationConfig: NavigationTree[] = [
                                 translateKey:
                                     'nav.conceptsClients.clientCreateDesc',
                                 label: 'Add a new client',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.clients.clientDetails',
-                        path: `${CONCEPTS_PREFIX_PATH}/clients/client-details/1`,
-                        title: 'Details',
-                        translateKey: 'nav.conceptsClients.clientDetails',
-                        icon: 'customerDetails',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsClients.clientDetailsDesc',
-                                label: 'Detailed client info',
                             },
                         },
                         subMenu: [],

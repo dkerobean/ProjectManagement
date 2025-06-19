@@ -24,7 +24,7 @@ const testClientCreation = async () => {
 
         const result = await response.json();
         console.log('API Response:', result);
-        
+
         if (response.ok) {
             console.log('✅ Client created successfully:', result.data);
         } else {
@@ -41,7 +41,7 @@ const testClientFetching = async () => {
         const response = await fetch('/api/clients');
         const result = await response.json();
         console.log('Fetch API Response:', result);
-        
+
         if (response.ok) {
             console.log('✅ Clients fetched successfully. Total:', result.data.total);
             console.log('📋 Clients:', result.data.list);

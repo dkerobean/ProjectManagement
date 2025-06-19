@@ -24,10 +24,7 @@ const validationSchema: ZodType<ClientFormSchema> = z.object({
     phone: z.string().optional(),
     company: z.string().optional(),
     address: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
     country: z.string().optional(),
-    postal_code: z.string().optional(),
     image_url: z.string().optional(),
     status: z.enum(['active', 'inactive']).optional(),
 })
@@ -40,7 +37,7 @@ const statusOptions = [
 const ClientCreate = () => {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [previewAvatar, setPreviewAvatar] = useState('assets/img/profiles/avatar-01.jpg')
+    const [previewAvatar, setPreviewAvatar] = useState('/img/avatars/thumb-1.jpg')
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {
@@ -54,11 +51,8 @@ const ClientCreate = () => {
             phone: '',
             company: '',
             address: '',
-            city: '',
-            state: '',
             country: '',
-            postal_code: '',
-            image_url: 'assets/img/profiles/avatar-01.jpg',
+            image_url: '/img/avatars/thumb-1.jpg',
             status: 'active',
         },
         resolver: zodResolver(validationSchema),
@@ -69,12 +63,12 @@ const ClientCreate = () => {
         try {
             console.log('🚀 Starting client creation...')
             console.log('📋 Form values:', values)
-            
+
             // Validate data before sending
             if (!values.name || !values.email) {
                 throw new Error('Name and email are required')
             }
-            
+
             console.log('✅ Validation passed, calling API...')
             const result = await apiCreateClient(values)
             console.log('📡 API call completed:', result)
@@ -95,7 +89,7 @@ const ClientCreate = () => {
                 message: error instanceof Error ? error.message : 'Unknown error',
                 stack: error instanceof Error ? error.stack : 'No stack trace'
             })
-            
+
             toast.push(
                 <Notification type="danger">
                     Failed to create client. Please try again. {error instanceof Error ? error.message : ''}
@@ -254,42 +248,6 @@ const ClientCreate = () => {
                             </FormItem>
 
                             <FormItem
-                                label="City"
-                                invalid={Boolean(errors.city)}
-                                errorMessage={errors.city?.message}
-                            >
-                                <Controller
-                                    name="city"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input
-                                            type="text"
-                                            placeholder="Enter city"
-                                            {...field}
-                                        />
-                                    )}
-                                />
-                            </FormItem>
-
-                            <FormItem
-                                label="State"
-                                invalid={Boolean(errors.state)}
-                                errorMessage={errors.state?.message}
-                            >
-                                <Controller
-                                    name="state"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input
-                                            type="text"
-                                            placeholder="Enter state"
-                                            {...field}
-                                        />
-                                    )}
-                                />
-                            </FormItem>
-
-                            <FormItem
                                 label="Country"
                                 invalid={Boolean(errors.country)}
                                 errorMessage={errors.country?.message}
@@ -301,24 +259,6 @@ const ClientCreate = () => {
                                         <Input
                                             type="text"
                                             placeholder="Enter country"
-                                            {...field}
-                                        />
-                                    )}
-                                />
-                            </FormItem>
-
-                            <FormItem
-                                label="Postal Code"
-                                invalid={Boolean(errors.postal_code)}
-                                errorMessage={errors.postal_code?.message}
-                            >
-                                <Controller
-                                    name="postal_code"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input
-                                            type="text"
-                                            placeholder="Enter postal code"
                                             {...field}
                                         />
                                     )}
@@ -338,7 +278,7 @@ const ClientCreate = () => {
                                         const selectValue = statusOptions.find(
                                             option => option.value === field.value
                                         )
-                                        
+
                                         return (
                                             <Select
                                                 options={statusOptions}

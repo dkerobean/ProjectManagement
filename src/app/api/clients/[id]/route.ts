@@ -2,10 +2,9 @@ import { NextResponse, NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Helper function to get default image for clients
-const getDefaultClientImage = (name: string) => {
-    // Use a consistent default avatar based on the client's name
-    const avatarIndex = ((name.charCodeAt(0) + name.length) % 10) + 1
-    return `assets/img/profiles/avatar-${avatarIndex.toString().padStart(2, '0')}.jpg`
+const getDefaultClientImage = () => {
+    // Use a consistent generic image for all clients
+    return '/img/avatars/thumb-1.jpg'
 }
 
 export async function GET(
@@ -18,7 +17,7 @@ export async function GET(
         // Use Supabase client to fetch data directly from the database
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
-        
+
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
         // Fetch the client from the database
@@ -49,7 +48,7 @@ export async function GET(
         // Apply default image if none provided
         const clientWithImage = {
             ...client,
-            image_url: client.image_url || getDefaultClientImage(client.name)
+            image_url: client.image_url || getDefaultClientImage()
         }
 
         return NextResponse.json({
@@ -99,7 +98,7 @@ export async function PUT(
         // Use Supabase client to update data in the database
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
-        
+
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
         // Update the client in the database
@@ -115,7 +114,7 @@ export async function PUT(
                 state,
                 country,
                 postal_code,
-                image_url: image_url || getDefaultClientImage(name),
+                image_url: image_url || getDefaultClientImage(),
                 status,
                 updated_at: new Date().toISOString()
             })
@@ -152,7 +151,7 @@ export async function DELETE(
         // Use Supabase client to delete data from the database
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
         const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
-        
+
         const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
         // Delete the client from the database
