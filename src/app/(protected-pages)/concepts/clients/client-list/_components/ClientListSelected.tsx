@@ -28,6 +28,7 @@ const ClientListSelected = () => {
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
     const [sendMessageDialogOpen, setSendMessageDialogOpen] = useState(false)
     const [sendMessageLoading, setSendMessageLoading] = useState(false)
+    const [deleteLoading, setDeleteLoading] = useState(false)
 
     const handleDelete = () => {
         setDeleteConfirmationOpen(true)
@@ -37,15 +38,58 @@ const ClientListSelected = () => {
         setDeleteConfirmationOpen(false)
     }
 
-    const handleConfirmDelete = () => {
-        const newClientList = clientList.filter((client) => {
-            return !selectedClient.some(
-                (selected) => selected.id === client.id,
+    const handleConfirmDelete = async () => {
+        setDeleteLoading(true)
+        
+        try {
+            // Delete each selected client from the database
+            const deletePromises = selectedClient.map(async (client) => {
+                const response = await fetch(`/api/clients/${client.id}`, {
+                    method: 'DELETE',
+                })
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to delete client ${client.name}`)
+                }
+                
+                return response.json()
+            })
+            
+            await Promise.all(deletePromises)
+            
+            // Update local state after successful database deletion
+            const newClientList = clientList.filter((client) => {
+                return !selectedClient.some(
+                    (selected) => selected.id === client.id,
+                )
+            })
+            
+            setSelectAllClient([])
+            setClientList(newClientList)
+            setDeleteConfirmationOpen(false)
+            
+            // Show success notification
+            toast.push(
+                <Notification type="success">
+                    {selectedClient.length > 1 
+                        ? `${selectedClient.length} clients deleted successfully!`
+                        : 'Client deleted successfully!'
+                    }
+                </Notification>,
+                { placement: 'top-center' }
             )
-        })
-        setSelectAllClient([])
-        setClientList(newClientList)
-        setDeleteConfirmationOpen(false)
+            
+        } catch (error) {
+            console.error('Error deleting clients:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to delete clients. Please try again.
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        } finally {
+            setDeleteLoading(false)
+        }
     }
 
     const handleSend = () => {
@@ -93,6 +137,7 @@ const ClientListSelected = () => {
                                     size="sm"
                                     className="ltr:mr-3 rtl:ml-3"
                                     type="button"
+                                    loading={deleteLoading}
                                     customColorClass={() =>
                                         'border-error ring-1 ring-error text-error hover:border-error hover:ring-error hover:text-error'
                                     }

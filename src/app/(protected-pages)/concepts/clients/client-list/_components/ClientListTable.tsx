@@ -1,15 +1,18 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Avatar from '@/components/ui/Avatar'
 import Tag from '@/components/ui/Tag'
 import Tooltip from '@/components/ui/Tooltip'
+import Notification from '@/components/ui/Notification'
+import toast from '@/components/ui/toast'
+import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import DataTable from '@/components/shared/DataTable'
 import { useClientListStore } from '../_store/clientListStore'
 import useAppendQueryParams from '@/utils/hooks/useAppendQueryParams'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { TbPencil, TbEye } from 'react-icons/tb'
+import { TbPencil, TbEye, TbTrash } from 'react-icons/tb'
 import type { OnSortParam, ColumnDef, Row } from '@/components/shared/DataTable'
 import type { Client } from '../../types'
 
@@ -41,9 +44,11 @@ const NameColumn = ({ row }: { row: Client }) => {
 const ActionColumn = ({
     onEdit,
     onViewDetail,
+    onDelete,
 }: {
     onEdit: () => void
     onViewDetail: () => void
+    onDelete: () => void
 }) => {
     return (
         <div className="flex items-center gap-3">
@@ -65,6 +70,15 @@ const ActionColumn = ({
                     <TbEye />
                 </div>
             </Tooltip>
+            <Tooltip title="Delete">
+                <div
+                    className={`text-xl cursor-pointer select-none font-semibold text-red-500 hover:text-red-600`}
+                    role="button"
+                    onClick={onDelete}
+                >
+                    <TbTrash />
+                </div>
+            </Tooltip>
         </div>
     )
 }
@@ -77,6 +91,7 @@ const ClientListTable = ({
     const router = useRouter()
 
     const clientList = useClientListStore((state) => state.clientList)
+    const setClientList = useClientListStore((state) => state.setClientList)
     const selectedClient = useClientListStore(
         (state) => state.selectedClient,
     )
@@ -90,6 +105,9 @@ const ClientListTable = ({
         (state) => state.setSelectAllClient,
     )
 
+    const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false)
+    const [clientToDelete, setClientToDelete] = useState<Client | null>(null)
+
     const { onAppendQueryParams } = useAppendQueryParams()
 
     const handleEdit = (client: Client) => {
@@ -98,6 +116,59 @@ const ClientListTable = ({
 
     const handleViewDetails = (client: Client) => {
         router.push(`/concepts/clients/client-details/${client.id}`)
+    }
+
+    const handleDelete = (client: Client) => {
+        setClientToDelete(client)
+        setDeleteConfirmationOpen(true)
+    }
+
+    const handleCancelDelete = () => {
+        setDeleteConfirmationOpen(false)
+        setClientToDelete(null)
+    }
+
+    const handleConfirmDelete = async () => {
+        if (!clientToDelete) return
+        
+        try {
+            const response = await fetch(`/api/clients/${clientToDelete.id}`, {
+                method: 'DELETE',
+            })
+            
+            if (!response.ok) {
+                throw new Error('Failed to delete client')
+            }
+            
+            // Update local state after successful database deletion
+            const newClientList = clientList.filter((client) => client.id !== clientToDelete.id)
+            setClientList(newClientList)
+            
+            // Remove from selected if it was selected
+            if (selectedClient.some(selected => selected.id === clientToDelete.id)) {
+                const newSelectedClients = selectedClient.filter(selected => selected.id !== clientToDelete.id) as Client[]
+                setSelectAllClient(newSelectedClients)
+            }
+            
+            setDeleteConfirmationOpen(false)
+            setClientToDelete(null)
+            
+            toast.push(
+                <Notification type="success">
+                    Client deleted successfully!
+                </Notification>,
+                { placement: 'top-center' }
+            )
+            
+        } catch (error) {
+            console.error('Error deleting client:', error)
+            toast.push(
+                <Notification type="danger">
+                    Failed to delete client. Please try again.
+                </Notification>,
+                { placement: 'top-center' }
+            )
+        }
     }
 
     const columns: ColumnDef<Client>[] = useMemo(
@@ -145,6 +216,7 @@ const ClientListTable = ({
                         onViewDetail={() =>
                             handleViewDetails(props.row.original)
                         }
+                        onDelete={() => handleDelete(props.row.original)}
                     />
                 ),
             },
@@ -187,28 +259,45 @@ const ClientListTable = ({
     }
 
     return (
-        <DataTable
-            selectable
-            columns={columns}
-            data={clientList}
-            noData={clientList.length === 0}
-            skeletonAvatarColumns={[0]}
-            skeletonAvatarProps={{ width: 28, height: 28 }}
-            loading={isInitialLoading}
-            pagingData={{
-                total: clientListTotal,
-                pageIndex,
-                pageSize,
-            }}
-            checkboxChecked={(row) =>
-                selectedClient.some((selected) => selected.id === row.id)
-            }
-            onPaginationChange={handlePaginationChange}
-            onSelectChange={handleSelectChange}
-            onSort={handleSort}
-            onCheckBoxChange={handleRowSelect}
-            onIndeterminateCheckBoxChange={handleAllRowSelect}
-        />
+        <>
+            <DataTable
+                selectable
+                columns={columns}
+                data={clientList}
+                noData={clientList.length === 0}
+                skeletonAvatarColumns={[0]}
+                skeletonAvatarProps={{ width: 28, height: 28 }}
+                loading={isInitialLoading}
+                pagingData={{
+                    total: clientListTotal,
+                    pageIndex,
+                    pageSize,
+                }}
+                checkboxChecked={(row) =>
+                    selectedClient.some((selected) => selected.id === row.id)
+                }
+                onPaginationChange={handlePaginationChange}
+                onSelectChange={handleSelectChange}
+                onSort={handleSort}
+                onCheckBoxChange={handleRowSelect}
+                onIndeterminateCheckBoxChange={handleAllRowSelect}
+            />
+            
+            <ConfirmDialog
+                isOpen={deleteConfirmationOpen}
+                type="danger"
+                title="Delete Client"
+                onClose={handleCancelDelete}
+                onRequestClose={handleCancelDelete}
+                onCancel={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+            >
+                <p>
+                    Are you sure you want to delete <strong>{clientToDelete?.name}</strong>? 
+                    This action cannot be undone.
+                </p>
+            </ConfirmDialog>
+        </>
     )
 }
 

@@ -94,8 +94,7 @@ const FileManager = () => {
                         Failed to delete file. Please try again.
                     </Notification>,
                     { placement: 'top-center' }
-                )
-            }
+                )            }
         },
     )
 
@@ -115,7 +114,10 @@ const FileManager = () => {
 
     const handleConfirmDelete = () => {
         if (deleteDialog.id) {
+            console.log('🗑️ Deleting file with ID:', deleteDialog.id)
             triggerDeleteFile(deleteDialog.id)
+        } else {
+            console.error('❌ No file ID to delete')
         }
     }
 
