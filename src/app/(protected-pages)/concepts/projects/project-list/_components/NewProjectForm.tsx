@@ -106,8 +106,7 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
             title: string
             due_date?: string
             status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
-            checked: boolean
-        }>
+            checked: boolean        }>
     }) => {
         // Task count handled locally in NewTaskField component
         console.log('Task count updated:', count)
@@ -125,13 +124,22 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
         }
 
         try {
-            await apiCreateProject(payload)
-            // Optionally update the local store with the response
-            // updateProjectList(response.data)
-            setSubmiting(false)
-            onClose()
-        } catch {
+            const response = await apiCreateProject(payload)
+            
+            if (response.success) {
+                // Optionally update the local store with the response
+                // updateProjectList(response.data)
+                setSubmiting(false)
+                onClose()
+                
+                // You can add a success notification here
+                console.log('Project created successfully:', response.data)
+            } else {
+                throw new Error(response.error || 'Failed to create project')
+            }
+        } catch (error) {
             // Handle error (show notification, etc.)
+            console.error('Error creating project:', error)
             setSubmiting(false)
         }
     }
