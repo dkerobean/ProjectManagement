@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
                 totalPages: Math.ceil(filteredFiles.length / limit)
             }
         })
-        
+
     } catch (error) {
         console.error('List files error:', error)
         return NextResponse.json(

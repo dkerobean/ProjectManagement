@@ -21,7 +21,7 @@ async function getFiles(_: string, { arg }: { arg: { entityType?: string; entity
     const params = new URLSearchParams()
     if (arg.entityType) params.append('entity_type', arg.entityType)
     if (arg.entityId) params.append('entity_id', arg.entityId)
-    
+
     const response = await fetch(`/api/files?${params.toString()}`)
     if (!response.ok) {
         throw new Error('Failed to fetch files')
@@ -131,7 +131,7 @@ const FileManager = () => {
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
-        
+
         toast.push(
             <Notification type="success" title="Download Started">
                 {file.name}

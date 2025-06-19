@@ -20,7 +20,7 @@ Updated `/api/invoicing/invoices` POST endpoint to:
 ### 2. **Required Fields Now Populated**
 The API now properly sets all required (NOT NULL) fields:
 - ✅ `company_name` - From user profile or default
-- ✅ `company_address` - From user profile or default  
+- ✅ `company_address` - From user profile or default
 - ✅ `company_phone` - From user profile or default
 - ✅ `company_email` - From user profile or default
 - ✅ All other required fields (were already working)
@@ -45,7 +45,7 @@ const companyEmail = userProfile?.contact_email || 'contact@yourcompany.com'
     // ... existing fields ...
     // Company information (required fields)
     company_name: companyName,
-    company_address: companyAddress, 
+    company_address: companyAddress,
     company_phone: companyPhone,
     company_email: companyEmail,
     // ... rest of fields ...

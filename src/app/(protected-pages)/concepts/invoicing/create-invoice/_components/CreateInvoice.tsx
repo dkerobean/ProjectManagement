@@ -75,7 +75,7 @@ const CreateInvoice = () => {
     const searchParams = useSearchParams()
     const viewInvoiceId = searchParams.get('view')
     const isViewMode = Boolean(viewInvoiceId)
-    
+
     const printRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -130,7 +130,7 @@ const CreateInvoice = () => {
             setIsLoading(true)
             try {
                 let promises = []
-                
+
                 if (isViewMode && viewInvoiceId) {
                     // In view mode, load the specific invoice
                     promises = [
@@ -412,14 +412,14 @@ const CreateInvoice = () => {
 
             // Set up fonts and colors
             pdf.setFont('helvetica', 'normal')
-            
+
             // Helper function to add company logo
             const addLogo = async (logoUrl: string | null) => {
                 if (logoUrl) {
                     try {
                         const img = new Image()
                         img.crossOrigin = 'anonymous'
-                        
+
                         return new Promise((resolve) => {
                             img.onload = () => {
                                 try {
@@ -427,13 +427,13 @@ const CreateInvoice = () => {
                                     const logoHeight = 20
                                     const logoX = pageWidth - margin - logoWidth
                                     const logoY = margin
-                                    
+
                                     // Determine image format for better compatibility
                                     let format = 'JPEG'
                                     if (logoUrl.toLowerCase().includes('.png')) {
                                         format = 'PNG'
                                     }
-                                    
+
                                     pdf.addImage(img, format, logoX, logoY, logoWidth, logoHeight)
                                     console.log('Logo successfully added to PDF')
                                     resolve(true)
@@ -468,12 +468,12 @@ const CreateInvoice = () => {
             pdf.setTextColor(79, 70, 229)
             pdf.setFont('helvetica', 'bold')
             pdf.text(invoice.companyName, margin, yPosition)
-            
+
             yPosition += 10
             pdf.setFontSize(10)
             pdf.setTextColor(100, 100, 100)
             pdf.setFont('helvetica', 'normal')
-            
+
             pdf.text(invoice.companyAddress, margin, yPosition)
             yPosition += 5
             pdf.text(invoice.companyPhone, margin, yPosition)
@@ -486,7 +486,7 @@ const CreateInvoice = () => {
             pdf.setTextColor(79, 70, 229)
             pdf.setFont('helvetica', 'bold')
             pdf.text('INVOICE', pageWidth - margin - 50, margin + 15, { align: 'right' })
-            
+
             pdf.setFontSize(14)
             pdf.setTextColor(100, 100, 100)
             pdf.setFont('helvetica', 'normal')
@@ -536,7 +536,7 @@ const CreateInvoice = () => {
             pdf.setFontSize(10)
             pdf.setTextColor(0, 0, 0)
             pdf.setFont('helvetica', 'normal')
-            
+
             const addDetailRow = (label: string, value: string) => {
                 pdf.setFont('helvetica', 'bold')
                 pdf.text(label + ':', rightColX, rightYPosition)
@@ -555,11 +555,11 @@ const CreateInvoice = () => {
             if (invoice.items && invoice.items.length > 0) {
                 const tableY = yPosition
                 const colX = [margin, margin + 80, margin + 105, margin + 135]
-                
+
                 // Header background
                 pdf.setFillColor(79, 70, 229)
                 pdf.rect(margin, tableY, pageWidth - 2 * margin, 8, 'F')
-                
+
                 // Header text
                 pdf.setFontSize(10)
                 pdf.setTextColor(255, 255, 255)
@@ -574,21 +574,21 @@ const CreateInvoice = () => {
                 // Table rows
                 pdf.setTextColor(0, 0, 0)
                 pdf.setFont('helvetica', 'normal')
-                
+
                 invoice.items.forEach((item, index) => {
                     yPosition += 6
-                    
+
                     // Alternating row background
                     if (index % 2 === 1) {
                         pdf.setFillColor(249, 250, 251)
                         pdf.rect(margin, yPosition - 3, pageWidth - 2 * margin, 6, 'F')
                     }
-                    
+
                     // Add border lines
                     pdf.setDrawColor(229, 231, 235)
                     pdf.setLineWidth(0.1)
                     pdf.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2)
-                    
+
                     // Item data
                     pdf.text(item.description.substring(0, 45), colX[0] + 2, yPosition)
                     pdf.text(item.quantity.toString(), colX[1] + 2, yPosition)
@@ -610,7 +610,7 @@ const CreateInvoice = () => {
 
             pdf.setFontSize(10)
             pdf.setTextColor(0, 0, 0)
-            
+
             const addTotalRow = (label: string, amount: number, isFinal = false) => {
                 if (isFinal) {
                     pdf.setFont('helvetica', 'bold')
@@ -621,7 +621,7 @@ const CreateInvoice = () => {
                     pdf.setFontSize(10)
                     pdf.setTextColor(0, 0, 0)
                 }
-                
+
                 pdf.text(label + ':', totalsX, yPosition)
                 pdf.text('$' + amount.toFixed(2), totalsX + 40, yPosition, { align: 'right' })
                 yPosition += isFinal ? 8 : 6
@@ -631,7 +631,7 @@ const CreateInvoice = () => {
             if (invoice.taxRate > 0) {
                 addTotalRow(`Tax (${invoice.taxRate}%)`, invoice.taxAmount)
             }
-            
+
             // Final total with line
             pdf.setDrawColor(79, 70, 229)
             pdf.setLineWidth(0.5)
@@ -646,12 +646,12 @@ const CreateInvoice = () => {
                 pdf.setTextColor(79, 70, 229)
                 pdf.setFont('helvetica', 'bold')
                 pdf.text('Notes', margin, yPosition)
-                
+
                 yPosition += 8
                 pdf.setFontSize(10)
                 pdf.setTextColor(0, 0, 0)
                 pdf.setFont('helvetica', 'normal')
-                
+
                 const splitNotes = pdf.splitTextToSize(invoice.notes, pageWidth - 2 * margin)
                 pdf.text(splitNotes, margin, yPosition)
                 yPosition += splitNotes.length * 5
@@ -664,12 +664,12 @@ const CreateInvoice = () => {
                 pdf.setTextColor(79, 70, 229)
                 pdf.setFont('helvetica', 'bold')
                 pdf.text('Payment Instructions', margin, yPosition)
-                
+
                 yPosition += 8
                 pdf.setFontSize(10)
                 pdf.setTextColor(0, 0, 0)
                 pdf.setFont('helvetica', 'normal')
-                
+
                 const splitInstructions = pdf.splitTextToSize(invoice.paymentInstructions, pageWidth - 2 * margin)
                 pdf.text(splitInstructions, margin, yPosition)
             }

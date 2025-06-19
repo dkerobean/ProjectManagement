@@ -60,11 +60,11 @@ export async function DELETE(
             return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 })
         }
 
-        return NextResponse.json({ 
-            success: true, 
-            message: 'File deleted successfully' 
+        return NextResponse.json({
+            success: true,
+            message: 'File deleted successfully'
         })
-        
+
     } catch (error) {
         console.error('Delete file error:', error)
         return NextResponse.json(

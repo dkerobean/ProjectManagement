@@ -22,28 +22,28 @@ const UploadFile = () => {
 
     const handleUpload = async () => {
         if (uploadedFiles.length === 0) return
-        
+
         setIsUploading(true)
-        
+
         try {
             const formData = new FormData()
-            
+
             // Add all files to FormData
             uploadedFiles.forEach((file) => {
                 formData.append('files', file)
             })
-            
+
             // Add entity information if needed (for future use)
             // formData.append('entity_type', 'general')
             // formData.append('entity_id', 'some-id')
-            
+
             const response = await fetch('/api/files/upload', {
                 method: 'POST',
                 body: formData,
             })
-            
+
             const result = await response.json()
-            
+
             if (!response.ok) {
                 throw new Error(result.error || 'Upload failed')
             }
@@ -71,26 +71,26 @@ const UploadFile = () => {
                 activities: [],
                 permissions: []
             }))
-            
+
             // Add new files to the beginning of the list
             setFileList([...newFiles, ...fileList])
-            
+
             handleUploadDialogClose()
-            
+
             toast.push(
-                <Notification 
-                    title={`Successfully uploaded ${result.files.length} file(s)`} 
-                    type="success" 
+                <Notification
+                    title={`Successfully uploaded ${result.files.length} file(s)`}
+                    type="success"
                 />,
                 { placement: 'top-center' }
             )
-            
+
         } catch (error) {
             console.error('Upload error:', error)
             toast.push(
-                <Notification 
-                    title="Upload failed" 
-                    type="danger" 
+                <Notification
+                    title="Upload failed"
+                    type="danger"
                 >
                     {error instanceof Error ? error.message : 'Unknown error occurred'}
                 </Notification>,
@@ -105,18 +105,18 @@ const UploadFile = () => {
         // Check file size limit (500MB per file)
         const maxSize = 500 * 1024 * 1024 // 500MB
         const oversizedFiles = files.filter(file => file.size > maxSize)
-        
+
         if (oversizedFiles.length > 0) {
             toast.push(
-                <Notification 
-                    title="File size limit exceeded" 
+                <Notification
+                    title="File size limit exceeded"
                     type="warning"
                 >
                     Some files exceed the 500MB limit and were not added.
                 </Notification>,
                 { placement: 'top-center' }
             )
-            
+
             // Filter out oversized files
             const validFiles = files.filter(file => file.size <= maxSize)
             setUploadedFiles(validFiles)

@@ -5,8 +5,8 @@ import Drawer from '@/components/ui/Drawer'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
 import CloseButton from '@/components/ui/CloseButton'
-import FileIcon from '@/components/view/FileIcon'
 import FileType from './FileType'
+import FilePreview from './FilePreview'
 import fileSizeUnit from '@/utils/fileSizeUnit'
 import { useFileManagerStore } from '../_store/useFileManagerStore'
 import dayjs from 'dayjs'
@@ -44,34 +44,38 @@ const FileDetails = ({ onShare }: FileDetailsProps) => {
     }
 
     return (
-        <Drawer
-            title={null}
+        <Drawer            title={null}
             closable={false}
             isOpen={Boolean(selectedFile)}
             showBackdrop={false}
-            width={350}
+            width={400}
             onClose={handleDrawerClose}
             onRequestClose={handleDrawerClose}
         >
             {file && (
-                <div>
-                    <div className="flex justify-end">
+                <div>                    <div className="flex justify-end">
                         <CloseButton onClick={handleDrawerClose} />
                     </div>
-                    <div className="mt-10 flex justify-center">
-                        {file.fileType.startsWith('jpeg') ||
-                        file.fileType.startsWith('png') ? (
-                            <img
-                                src={file.srcUrl}
-                                className="max-h-[170px] rounded-xl"
-                                alt={file.name}
-                            />
-                        ) : (
-                            <FileIcon type={file.fileType} size={120} />
-                        )}
+                    
+                    {/* File Preview Section */}
+                    <div className="mt-6">
+                        <FilePreview 
+                            file={file} 
+                            onDownload={() => {
+                                // Create download link
+                                const link = document.createElement('a')
+                                link.href = file.srcUrl
+                                link.download = file.name
+                                link.target = '_blank'
+                                document.body.appendChild(link)
+                                link.click()
+                                document.body.removeChild(link)
+                            }} 
+                        />
                     </div>
-                    <div className="mt-10 text-center">
-                        <h4>{file.name}</h4>
+                    
+                    <div className="mt-6 text-center">
+                        <h4 className="truncate" title={file.name}>{file.name}</h4>
                     </div>
                     <div className="mt-8">
                         <h6>Info</h6>
@@ -83,18 +87,13 @@ const FileDetails = ({ onShare }: FileDetailsProps) => {
                             <InfoRow
                                 label="Type"
                                 value={<FileType type={file.fileType} />}
-                            />
-                            <InfoRow
+                            />                            <InfoRow
                                 label="Created"
-                                value={dayjs
-                                    .unix(file.uploadDate)
-                                    .format('MMM DD, YYYY')}
+                                value={dayjs(file.uploadDate).format('MMM DD, YYYY')}
                             />
                             <InfoRow
                                 label="Last modified"
-                                value={dayjs
-                                    .unix(file.activities[0].timestamp)
-                                    .format('MMM DD, YYYY')}
+                                value={dayjs(file.uploadDate).format('MMM DD, YYYY')}
                             />
                         </div>
                     </div>

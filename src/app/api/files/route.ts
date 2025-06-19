@@ -9,7 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // For now, we'll simulate user authentication
 // In a real app, you'd get this from your auth system
 const getCurrentUserId = () => {
-    // This is a mock user ID - in reality you'd get this from your auth system  
+    // This is a mock user ID - in reality you'd get this from your auth system
     return 'a8fa04b3-d73c-4048-980a-e94db5ebf70c'
 }
 
@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
                 totalPages: Math.ceil((count || 0) / limit)
             }
         })
-        
+
     } catch (error) {
         console.error('List files error:', error)
         return NextResponse.json(

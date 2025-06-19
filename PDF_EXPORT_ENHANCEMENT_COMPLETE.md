@@ -43,7 +43,7 @@ const handleExportInvoice = async (invoiceId: string, invoiceNumber: string) => 
     // 3. Open in new window with print capabilities
     const printWindow = window.open('', '_blank')
     printWindow.document.write(printContent)
-    
+
     // 4. Auto-trigger print dialog
     printWindow.onload = () => printWindow.print()
 }

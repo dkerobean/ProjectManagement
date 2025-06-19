@@ -33,14 +33,14 @@ export async function POST(request: NextRequest) {
         if (!userId) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
-        
+
         await ensureUploadDir()
-        
+
         const formData = await request.formData()
         const files = formData.getAll('files') as File[]
         const entityType = formData.get('entity_type') as string || null
         const entityId = formData.get('entity_id') as string || null
-        
+
         if (!files || files.length === 0) {
             return NextResponse.json({ error: 'No files provided' }, { status: 400 })
         }
@@ -61,15 +61,15 @@ export async function POST(request: NextRequest) {
             const uniqueId = nanoid()
             const fileName = `${uniqueId}${fileExtension}`
             const filePath = path.join(UPLOAD_DIR, fileName)
-            
+
             // Save file to public/uploads
             const bytes = await file.arrayBuffer()
             const buffer = Buffer.from(bytes)
             await writeFile(filePath, buffer)
-            
+
             // Create URL for the file
             const fileUrl = `/uploads/${fileName}`
-            
+
             // Save file metadata to Supabase
             const { data: fileRecord, error: dbError } = await supabase
                 .from('files')
@@ -102,12 +102,12 @@ export async function POST(request: NextRequest) {
             })
         }
 
-        return NextResponse.json({ 
-            success: true, 
+        return NextResponse.json({
+            success: true,
             files: uploadedFiles,
-            message: `Successfully uploaded ${uploadedFiles.length} file(s)` 
+            message: `Successfully uploaded ${uploadedFiles.length} file(s)`
         })
-        
+
     } catch (error) {
         console.error('Upload error:', error)
         return NextResponse.json(

@@ -43,10 +43,10 @@ npm install jspdf html2canvas
 const exportToPDF = async () => {
     // Create PDF with A4 dimensions
     const pdf = new jsPDF('p', 'mm', 'a4')
-    
+
     // Add company logo (if available)
     await addLogo(invoice.companyLogo)
-    
+
     // Build professional layout:
     // 1. Company header with branding
     // 2. Invoice title and number
@@ -55,7 +55,7 @@ const exportToPDF = async () => {
     // 5. Totals section with background
     // 6. Notes and payment instructions
     // 7. Footer with timestamp
-    
+
     // Auto-download
     pdf.save(fileName)
 }
@@ -67,7 +67,7 @@ const addLogo = async (logoUrl: string | null) => {
     if (logoUrl) {
         const img = new Image()
         img.crossOrigin = 'anonymous'
-        
+
         return new Promise((resolve) => {
             img.onload = () => {
                 pdf.addImage(img, 'JPEG', logoX, logoY, logoWidth, logoHeight)
@@ -91,7 +91,7 @@ const addLogo = async (logoUrl: string | null) => {
 
 ### 2. **Content Layout**
 - **Separator line**: Blue line dividing header from content
-- **Two-column design**: 
+- **Two-column design**:
   - Left: Bill To information
   - Right: Invoice details (dates, status)
 - **Section titles**: Blue text with underlines
@@ -134,7 +134,7 @@ Invoice_INV-2025-0002_2025-06-19.pdf
 try {
     // PDF generation logic
     pdf.save(fileName)
-    
+
     toast.push(<Notification type="success">
         PDF downloaded successfully: {fileName}
     </Notification>)

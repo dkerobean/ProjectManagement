@@ -46,7 +46,7 @@ Added missing keys:
 ### 3. **Updated Chinese Translations (zh.json)**
 ```json
 "paymentMethods": "支付方式",
-"companySettings": "公司设置", 
+"companySettings": "公司设置",
 "paymentMethodsDesc": "管理支付方式",
 "companySettingsDesc": "管理公司资料和标志"
 ```
@@ -55,7 +55,7 @@ Added missing keys:
 ```json
 "paymentMethods": "طرق الدفع",
 "companySettings": "إعدادات الشركة",
-"paymentMethodsDesc": "إدارة طرق الدفع", 
+"paymentMethodsDesc": "إدارة طرق الدفع",
 "companySettingsDesc": "إدارة ملف الشركة والشعار"
 ```
 
@@ -68,7 +68,7 @@ Added missing keys:
 
 ## 📝 **Files Updated**
 - `/messages/en.json` - English translations
-- `/messages/es.json` - Spanish translations  
+- `/messages/es.json` - Spanish translations
 - `/messages/zh.json` - Chinese translations
 - `/messages/ar.json` - Arabic translations
 

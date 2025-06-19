@@ -7,7 +7,7 @@
 **Root Cause**: Using NextAuth session instead of the mock authentication pattern used by other APIs
 **Solution**: Updated all file APIs to use the same mock `getCurrentUserId()` pattern as existing invoicing APIs
 
-### ✅ **2. Database Connection Issues** 
+### ✅ **2. Database Connection Issues**
 **Problem**: APIs couldn't connect to Supabase properly
 **Root Cause**: Incorrect Supabase client configuration and missing service role key
 **Solution**: Used the same Supabase client pattern as existing APIs with anon key
@@ -59,7 +59,7 @@ const getCurrentUserId = () => {
 files (
     id UUID PRIMARY KEY,
     name VARCHAR(255),           -- Server filename
-    original_name VARCHAR(255),  -- User's original filename  
+    original_name VARCHAR(255),  -- User's original filename
     url TEXT,                    -- /uploads/filename
     size BIGINT,                 -- File size in bytes
     type VARCHAR(100),           -- MIME type

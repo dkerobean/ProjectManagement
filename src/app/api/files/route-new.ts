@@ -16,7 +16,7 @@ const getCurrentUserId = () => {
 export async function GET(request: NextRequest) {
     try {
         const userId = getCurrentUserId()
-        
+
         const { searchParams } = new URL(request.url)
         const entityType = searchParams.get('entity_type')
         const entityId = searchParams.get('entity_id')
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest) {
                 totalPages: Math.ceil((count || 0) / limit)
             }
         })
-        
+
     } catch (error) {
         console.error('List files error:', error)
         return NextResponse.json(

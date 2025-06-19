@@ -30,7 +30,7 @@ CREATE POLICY "Allow service role access" ON public.files
 
 Try uploading a file to the file manager:
 1. Go to: http://localhost:3001/concepts/file-manager
-2. Click "Upload" 
+2. Click "Upload"
 3. Select a file
 4. Should now upload successfully without RLS errors
 
@@ -46,7 +46,7 @@ ALTER TABLE public.files DISABLE ROW LEVEL SECURITY;
 
 After this fix:
 - ✅ File uploads should work without 401/500 errors
-- ✅ Files should save to both filesystem and database  
+- ✅ Files should save to both filesystem and database
 - ✅ File list should load from database
 - ✅ Delete operations should work
 - ✅ File details should display
