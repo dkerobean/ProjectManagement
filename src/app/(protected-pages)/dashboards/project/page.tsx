@@ -5,9 +5,11 @@ import Schedule from './_components/Schedule'
 import ProjectOverview from './_components/ProjectOverview'
 import RecentActivity from './_components/RecentActivity'
 import getProjectDashboard from '@/server/actions/getProjectDashboardNew'
+import getUpcomingCalendarEvents from '@/server/actions/getUpcomingCalendarEvents'
 
 export default async function Page() {
     const data = await getProjectDashboard()
+    const upcomingEvents = await getUpcomingCalendarEvents()
 
     return (
         <div className="flex flex-col gap-4">
@@ -15,9 +17,8 @@ export default async function Page() {
                 <div className="flex flex-col gap-4 flex-1 xl:max-w-[calc(100%-350px)]">
                     <ProjectOverview data={data.projectOverview} />
                     <Schedule data={data.schedule} />
-                </div>
-                <div>
-                    <UpcomingSchedule />
+                </div>                <div>
+                    <UpcomingSchedule upcomingEvents={upcomingEvents} />
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

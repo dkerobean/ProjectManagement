@@ -86,7 +86,7 @@ const getProjectDashboard = async () => {
 
         // Generate weekly task overview
         const weeklyData = generateWeeklyTaskData(taskStats || [])
-        
+
         // 3. Fetch current tasks (high priority and overdue)
         const { data: currentTasks, error: currentTasksError } = await supabase
             .from('tasks')
@@ -165,8 +165,8 @@ const getProjectDashboard = async () => {
         const transformedActivity = (recentActivity || []).map((task) => {
             const timeDiff = Date.now() - new Date(task.updated_at).getTime()
             const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60))
-            const timeString = hoursAgo < 1 ? 'Just now' : 
-                              hoursAgo < 24 ? `${hoursAgo}h ago` : 
+            const timeString = hoursAgo < 1 ? 'Just now' :
+                              hoursAgo < 24 ? `${hoursAgo}h ago` :
                               `${Math.floor(hoursAgo / 24)}d ago`
 
             return {
@@ -236,22 +236,22 @@ function generateWeeklyTaskData(tasks: any[]) {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     const onGoingData = [0, 0, 0, 0, 0, 0, 0]
     const finishedData = [0, 0, 0, 0, 0, 0, 0]
-    
+
     // Group tasks by day of week
     tasks.forEach(task => {
         const dayIndex = new Date(task.created_at).getDay()
         const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1 // Adjust Sunday to be last
-        
+
         if (task.status === 'done') {
             finishedData[adjustedIndex]++
         } else if (task.status === 'in_progress' || task.status === 'todo') {
             onGoingData[adjustedIndex]++
         }
     })
-    
+
     const onGoing = onGoingData.reduce((a, b) => a + b, 0)
     const finished = finishedData.reduce((a, b) => a + b, 0)
-    
+
     return {
         onGoing,
         finished,
@@ -281,7 +281,7 @@ function generateDailyTaskData() {
 function generateScheduleData(projects: any[]) {
     const currentDate = new Date()
     const schedule: any[] = []
-    
+
     projects.forEach((project, index) => {
         // Add project as main item
         schedule.push({
@@ -295,7 +295,7 @@ function generateScheduleData(projects: any[]) {
             displayOrder: index * 10,
             barVariant: getProjectVariant(index),
         })
-        
+
         // Add top 3 tasks from project
         if (project.tasks && project.tasks.length > 0) {
             project.tasks.slice(0, 3).forEach((task: any, taskIndex: number) => {
@@ -313,7 +313,7 @@ function generateScheduleData(projects: any[]) {
             })
         }
     })
-    
+
     return schedule
 }
 

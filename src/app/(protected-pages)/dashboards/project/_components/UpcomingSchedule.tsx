@@ -52,7 +52,17 @@ const ScheduledEvent = (props: ScheduledEventProps) => {
     )
 }
 
-const UpcomingSchedule = () => {
+type UpcomingScheduleProps = {
+    upcomingEvents?: Array<{
+        id: string
+        type: Event
+        label: string
+        time: Date
+        date: string
+    }>
+}
+
+const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(
         dayjs().toDate(),
     )
@@ -62,10 +72,21 @@ const UpcomingSchedule = () => {
 
     const eventList = useMemo(() => {
         const date = selectedDate
+        const dateString = dayjs(date).format('YYYY-MM-DD')
+
+        // Filter upcoming events for the selected date
+        const eventsForDate = upcomingEvents.filter(event => event.date === dateString)
+
         const previousCreatedEvent =
             createdEventCache[dayjs(date).toISOString()] || []
+
+        // Use real events if available, otherwise fall back to generated events
+        const baseEvents = eventsForDate.length > 0
+            ? eventsForDate
+            : eventGenerator(date as Date)
+
         const eventList = [
-            ...eventGenerator(date as Date),
+            ...baseEvents,
             ...previousCreatedEvent,
         ]
 
@@ -81,7 +102,7 @@ const UpcomingSchedule = () => {
             }
             return a.time.getTime() - b.time.getTime()
         })
-    }, [selectedDate, createdEventCache])
+    }, [selectedDate, createdEventCache, upcomingEvents])
 
     const handleCreateEvent = (value: CreateEventPayload & { id: string }) => {
         const payload = {

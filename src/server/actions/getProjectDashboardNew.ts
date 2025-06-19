@@ -57,7 +57,7 @@ const getProjectDashboard = async () => {
         if (projectError) {
             console.error('Error fetching project stats:', projectError)
         }
-        
+
         console.log(`[getProjectDashboard] Found ${projectStats?.length || 0} projects`)
 
         // Calculate project overview
@@ -86,7 +86,7 @@ const getProjectDashboard = async () => {
 
         // Generate weekly task overview
         const weeklyData = generateWeeklyTaskData(userTasks)
-        
+
         // 3. Fetch current tasks (simplified)
         console.log('[getProjectDashboard] Fetching current tasks...')
         const { data: currentTasks, error: currentTasksError } = await supabase
@@ -100,7 +100,7 @@ const getProjectDashboard = async () => {
         if (currentTasksError) {
             console.error('Error fetching current tasks:', currentTasksError)
         }
-        
+
         console.log(`[getProjectDashboard] Found ${currentTasks?.length || 0} current tasks`)
 
         // Transform current tasks to match expected format
@@ -215,22 +215,22 @@ function generateWeeklyTaskData(tasks: Array<{id: string, status: string, create
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     const onGoingData = [0, 0, 0, 0, 0, 0, 0]
     const finishedData = [0, 0, 0, 0, 0, 0, 0]
-    
+
     // Group tasks by day of week
     tasks.forEach(task => {
         const dayIndex = new Date(task.created_at).getDay()
         const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1 // Adjust Sunday to be last
-        
+
         if (task.status === 'done') {
             finishedData[adjustedIndex]++
         } else if (task.status === 'in_progress' || task.status === 'todo') {
             onGoingData[adjustedIndex]++
         }
     })
-    
+
     const onGoing = onGoingData.reduce((a, b) => a + b, 0)
     const finished = finishedData.reduce((a, b) => a + b, 0)
-    
+
     return {
         onGoing,
         finished,
@@ -270,17 +270,17 @@ function generateScheduleData(projects: Array<{id: string, name: string, start_d
         displayOrder: number
         barVariant: string
     }> = []
-    
+
     projects.forEach((project, index) => {
         // Add project as main item
         const startDate = project.start_date ? new Date(project.start_date) : currentDate
         const endDate = project.end_date ? new Date(project.end_date) : new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000)
-        
+
         // Calculate progress based on dates
         const totalDuration = endDate.getTime() - startDate.getTime()
         const elapsed = currentDate.getTime() - startDate.getTime()
         const calculatedProgress = totalDuration > 0 ? Math.max(0, Math.min(100, Math.round((elapsed / totalDuration) * 100))) : 0
-        
+
         schedule.push({
             start: startDate,
             end: endDate,
@@ -293,7 +293,7 @@ function generateScheduleData(projects: Array<{id: string, name: string, start_d
             barVariant: getProjectVariant(index),
         })
     })
-    
+
     return schedule
 }
 
@@ -315,7 +315,7 @@ function getProgressByStatus(status: string) {
 function getStatusCode(status: string) {
     switch (status) {
         case 'done': return 0  // Completed
-        case 'in_progress': return 1  // In progress  
+        case 'in_progress': return 1  // In progress
         case 'review': return 2  // Ready to test
         case 'todo': return 1  // In progress (since it's being worked on)
         default: return 0  // Default to completed

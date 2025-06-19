@@ -31,7 +31,7 @@ Updated `getStatusCode` function in `/src/server/actions/getProjectDashboardNew.
 function getStatusCode(status: string) {
     switch (status) {
         case 'done': return 0       // ✅ Completed
-        case 'in_progress': return 1 // ✅ In progress  
+        case 'in_progress': return 1 // ✅ In progress
         case 'review': return 2      // ✅ Ready to test
         case 'todo': return 1        // ✅ In progress (since it's being worked on)
         default: return 0            // ✅ Default to completed
