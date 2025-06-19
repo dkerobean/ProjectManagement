@@ -21,45 +21,45 @@
 ```typescript
 const handleConfirmDelete = async () => {
     setDeleteLoading(true)
-    
+
     try {
         // Delete each selected client from the database
         const deletePromises = selectedClient.map(async (client) => {
             const response = await fetch(`/api/clients/${client.id}`, {
                 method: 'DELETE',
             })
-            
+
             if (!response.ok) {
                 throw new Error(`Failed to delete client ${client.name}`)
             }
-            
+
             return response.json()
         })
-        
+
         await Promise.all(deletePromises)
-        
+
         // Update local state after successful database deletion
         const newClientList = clientList.filter((client) => {
             return !selectedClient.some(
                 (selected) => selected.id === client.id,
             )
         })
-        
+
         setSelectAllClient([])
         setClientList(newClientList)
         setDeleteConfirmationOpen(false)
-        
+
         // Show success notification
         toast.push(
             <Notification type="success">
-                {selectedClient.length > 1 
+                {selectedClient.length > 1
                     ? `${selectedClient.length} clients deleted successfully!`
                     : 'Client deleted successfully!'
                 }
             </Notification>,
             { placement: 'top-center' }
         )
-        
+
     } catch (error) {
         console.error('Error deleting clients:', error)
         toast.push(
@@ -93,36 +93,36 @@ const handleDelete = (client: Client) => {
 
 const handleConfirmDelete = async () => {
     if (!clientToDelete) return
-    
+
     try {
         const response = await fetch(`/api/clients/${clientToDelete.id}`, {
             method: 'DELETE',
         })
-        
+
         if (!response.ok) {
             throw new Error('Failed to delete client')
         }
-        
+
         // Update local state after successful database deletion
         const newClientList = clientList.filter((client) => client.id !== clientToDelete.id)
         setClientList(newClientList)
-        
+
         // Remove from selected if it was selected
         if (selectedClient.some(selected => selected.id === clientToDelete.id)) {
             const newSelectedClients = selectedClient.filter(selected => selected.id !== clientToDelete.id) as Client[]
             setSelectAllClient(newSelectedClients)
         }
-        
+
         setDeleteConfirmationOpen(false)
         setClientToDelete(null)
-        
+
         toast.push(
             <Notification type="success">
                 Client deleted successfully!
             </Notification>,
             { placement: 'top-center' }
         )
-        
+
     } catch (error) {
         console.error('Error deleting client:', error)
         toast.push(

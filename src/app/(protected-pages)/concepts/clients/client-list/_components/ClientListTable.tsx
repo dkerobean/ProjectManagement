@@ -130,36 +130,36 @@ const ClientListTable = ({
 
     const handleConfirmDelete = async () => {
         if (!clientToDelete) return
-        
+
         try {
             const response = await fetch(`/api/clients/${clientToDelete.id}`, {
                 method: 'DELETE',
             })
-            
+
             if (!response.ok) {
                 throw new Error('Failed to delete client')
             }
-            
+
             // Update local state after successful database deletion
             const newClientList = clientList.filter((client) => client.id !== clientToDelete.id)
             setClientList(newClientList)
-            
+
             // Remove from selected if it was selected
             if (selectedClient.some(selected => selected.id === clientToDelete.id)) {
                 const newSelectedClients = selectedClient.filter(selected => selected.id !== clientToDelete.id) as Client[]
                 setSelectAllClient(newSelectedClients)
             }
-            
+
             setDeleteConfirmationOpen(false)
             setClientToDelete(null)
-            
+
             toast.push(
                 <Notification type="success">
                     Client deleted successfully!
                 </Notification>,
                 { placement: 'top-center' }
             )
-            
+
         } catch (error) {
             console.error('Error deleting client:', error)
             toast.push(
@@ -282,7 +282,7 @@ const ClientListTable = ({
                 onCheckBoxChange={handleRowSelect}
                 onIndeterminateCheckBoxChange={handleAllRowSelect}
             />
-            
+
             <ConfirmDialog
                 isOpen={deleteConfirmationOpen}
                 type="danger"
@@ -293,7 +293,7 @@ const ClientListTable = ({
                 onConfirm={handleConfirmDelete}
             >
                 <p>
-                    Are you sure you want to delete <strong>{clientToDelete?.name}</strong>? 
+                    Are you sure you want to delete <strong>{clientToDelete?.name}</strong>?
                     This action cannot be undone.
                 </p>
             </ConfirmDialog>

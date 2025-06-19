@@ -22,11 +22,11 @@ const FilePreview = ({ file, onDownload }: FilePreviewProps) => {
         if (mimeType.startsWith('video/')) return 'video'
         if (mimeType.startsWith('audio/')) return 'audio'
         if (mimeType === 'application/pdf') return 'pdf'
-        if (mimeType.startsWith('text/') || 
+        if (mimeType.startsWith('text/') ||
             mimeType === 'application/json' ||
             mimeType === 'application/xml') return 'text'
-        if (mimeType.includes('zip') || 
-            mimeType.includes('rar') || 
+        if (mimeType.includes('zip') ||
+            mimeType.includes('rar') ||
             mimeType.includes('tar')) return 'archive'
         return 'other'
     }
@@ -246,7 +246,7 @@ const FilePreview = ({ file, onDownload }: FilePreviewProps) => {
                 </h6>
                 {renderPreview()}
             </div>
-            
+
             {/* File metadata */}
             <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="grid grid-cols-2 gap-2 text-xs">
@@ -260,7 +260,7 @@ const FilePreview = ({ file, onDownload }: FilePreviewProps) => {
                     </div>
                 </div>
             </div>
-            
+
             {/* File Viewer Modal */}
             <FileViewer
                 file={file}

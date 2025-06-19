@@ -24,7 +24,7 @@ const FileViewer = ({ file, isOpen, onClose, onDownload }: FileViewerProps) => {
         if (mimeType.startsWith('video/')) return 'video'
         if (mimeType.startsWith('audio/')) return 'audio'
         if (mimeType === 'application/pdf') return 'pdf'
-        if (mimeType.startsWith('text/') || 
+        if (mimeType.startsWith('text/') ||
             mimeType === 'application/json' ||
             mimeType === 'application/xml') return 'text'
         return 'other'
@@ -162,7 +162,7 @@ const FileViewer = ({ file, isOpen, onClose, onDownload }: FileViewerProps) => {
                             {file.fileType}
                         </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                         <Button
                             size="sm"

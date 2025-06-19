@@ -26,7 +26,7 @@ I've implemented a comprehensive file preview system that shows previews for dif
 - ✅ **Other Files**: Unknown/unsupported types
   - Generic file icon with open/download options
 
-### **2. FileViewer Component** 
+### **2. FileViewer Component**
 **Location**: `/src/app/(protected-pages)/concepts/file-manager/_components/FileViewer.tsx`
 
 **Full-Screen Modal Viewer:**
@@ -38,7 +38,7 @@ I've implemented a comprehensive file preview system that shows previews for dif
 **Full Viewer Support:**
 - ✅ **Images**: Large, high-quality image display with zoom
 - ✅ **Videos**: Full-size video player with controls
-- ✅ **Audio**: Dedicated audio player interface  
+- ✅ **Audio**: Dedicated audio player interface
 - ✅ **PDFs**: Embedded PDF viewer using iframe
 - ✅ **Text Files**: Embedded text viewer using iframe
 - ✅ **Other Files**: Fallback interface with open/download options

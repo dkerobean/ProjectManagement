@@ -26,7 +26,7 @@ CREATE POLICY "Allow service role access for projects" ON public.projects
     FOR ALL USING (true)
     WITH CHECK (true);
 
--- For project_members table  
+-- For project_members table
 CREATE POLICY "Allow project_members operations for superadmin" ON public.project_members
     FOR ALL USING (user_id = 'a8fa04b3-d73c-4048-980a-e94db5ebf70c'::uuid)
     WITH CHECK (user_id = 'a8fa04b3-d73c-4048-980a-e94db5ebf70c'::uuid);
@@ -69,7 +69,7 @@ Try creating a new project:
 
 ### **✅ Project Creation Should Work:**
 - ✅ Project saves to `projects` table
-- ✅ Team members save to `project_members` table  
+- ✅ Team members save to `project_members` table
 - ✅ Initial tasks save to `tasks` table
 - ✅ No RLS policy violations
 - ✅ Success notification appears

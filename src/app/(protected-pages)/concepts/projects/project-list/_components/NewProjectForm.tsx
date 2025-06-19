@@ -125,13 +125,13 @@ const NewProjectForm = ({ onClose }: { onClose: () => void }) => {
 
         try {
             const response = await apiCreateProject(payload)
-            
+
             if (response.success) {
                 // Optionally update the local store with the response
                 // updateProjectList(response.data)
                 setSubmiting(false)
                 onClose()
-                
+
                 // You can add a success notification here
                 console.log('Project created successfully:', response.data)
             } else {

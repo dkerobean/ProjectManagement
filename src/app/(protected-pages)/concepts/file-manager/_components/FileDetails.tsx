@@ -56,11 +56,11 @@ const FileDetails = ({ onShare }: FileDetailsProps) => {
                 <div>                    <div className="flex justify-end">
                         <CloseButton onClick={handleDrawerClose} />
                     </div>
-                    
+
                     {/* File Preview Section */}
                     <div className="mt-6">
-                        <FilePreview 
-                            file={file} 
+                        <FilePreview
+                            file={file}
                             onDownload={() => {
                                 // Create download link
                                 const link = document.createElement('a')
@@ -70,10 +70,10 @@ const FileDetails = ({ onShare }: FileDetailsProps) => {
                                 document.body.appendChild(link)
                                 link.click()
                                 document.body.removeChild(link)
-                            }} 
+                            }}
                         />
                     </div>
-                    
+
                     <div className="mt-6 text-center">
                         <h4 className="truncate" title={file.name}>{file.name}</h4>
                     </div>
