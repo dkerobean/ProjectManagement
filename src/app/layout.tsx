@@ -7,6 +7,7 @@ import NavigationProvider from '@/components/template/Navigation/NavigationProvi
 import { getNavigation } from '@/server/actions/navigation/getNavigation'
 import { getTheme } from '@/server/actions/theme'
 import { getLocale, getMessages } from 'next-intl/server'
+import checkEnvironmentVariables from '@/utils/env-checker'
 import type { ReactNode } from 'react'
 import '@/assets/styles/app.css'
 
@@ -19,6 +20,11 @@ export default async function RootLayout({
 }: Readonly<{
     children: ReactNode
 }>) {
+    // Check environment variables in development/debugging
+    if (process.env.NODE_ENV === 'development') {
+        checkEnvironmentVariables()
+    }
+
     const session = await auth()
 
     const locale = await getLocale()

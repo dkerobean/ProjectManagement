@@ -317,7 +317,7 @@ const CreateInvoice = () => {
                     </Notification>,
                     { placement: 'top-center' }
                 )
-                
+
                 // Redirect to invoice list after successful save
                 router.push('/concepts/invoicing/view-invoices')
             } else {
@@ -341,7 +341,7 @@ const CreateInvoice = () => {
         try {
             // First save the invoice
             await saveInvoice()
-            
+
             // Then trigger PDF generation (for now, just save)
             toast.push(
                 <Notification type="info">
@@ -417,9 +417,9 @@ const CreateInvoice = () => {
                         <div className="flex justify-between items-start mb-8">
                             <div>
                                 {userProfile?.logo_url && (
-                                    <img 
-                                        src={userProfile.logo_url} 
-                                        alt="Company Logo" 
+                                    <img
+                                        src={userProfile.logo_url}
+                                        alt="Company Logo"
                                         className="h-16 mb-4"
                                     />
                                 )}
@@ -667,15 +667,15 @@ const CreateInvoice = () => {
                     .print-hidden {
                         display: none !important;
                     }
-                    
+
                     body * {
                         visibility: hidden;
                     }
-                    
+
                     #invoice-content, #invoice-content * {
                         visibility: visible;
                     }
-                    
+
                     #invoice-content {
                         position: absolute;
                         left: 0;

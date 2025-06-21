@@ -167,7 +167,7 @@ activities (
 
 The dashboard now provides a completely database-driven experience with:
 - ✅ **Real calendar events** in "Schedule today"
-- ✅ **Real user activities** in "Recent activity" 
+- ✅ **Real user activities** in "Recent activity"
 - ✅ **No mock data dependencies**
 - ✅ **Proper error handling and security**
 - ✅ **Type-safe implementations**

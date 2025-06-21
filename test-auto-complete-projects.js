@@ -67,8 +67,8 @@ async function testAutoCompleteProjects() {
         console.log('\n📋 Test 4: Checking database functions...')
         const { data: functions, error: functionsError } = await supabase.rpc('sql', {
             query: `
-                SELECT routine_name, routine_type 
-                FROM information_schema.routines 
+                SELECT routine_name, routine_type
+                FROM information_schema.routines
                 WHERE routine_name IN ('check_project_completion', 'update_all_project_statuses')
                 AND routine_schema = 'public'
             `
@@ -89,7 +89,7 @@ async function testAutoCompleteProjects() {
         const { data: triggers, error: triggersError } = await supabase.rpc('sql', {
             query: `
                 SELECT trigger_name, event_manipulation, action_timing
-                FROM information_schema.triggers 
+                FROM information_schema.triggers
                 WHERE trigger_name = 'trigger_check_project_completion'
                 AND event_object_table = 'tasks'
             `

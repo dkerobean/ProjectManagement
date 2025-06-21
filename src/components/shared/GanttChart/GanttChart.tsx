@@ -35,6 +35,36 @@ const GanttChart = <T extends Record<string, unknown>>(
         ...rest
     } = props
 
+    // Guard against empty or undefined tasks
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+        return (
+            <>
+                <div className="flex items-center justify-center h-64 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="text-center">
+                        <div className="text-gray-400 dark:text-gray-500 mb-2">
+                            <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <p className="text-gray-500 dark:text-gray-400">No tasks to display</p>
+                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Add some tasks to see them in the Gantt chart</p>
+                    </div>
+                </div>
+                <svg className="h-0 w-0">
+                    <PatternLines
+                        id="horzLines"
+                        height={10}
+                        width={10}
+                        className="stroke-gray-200 dark:stroke-gray-700"
+                        strokeWidth={1.5}
+                        background="transparent"
+                        orientation={['diagonal']}
+                    />
+                </svg>
+            </>
+        )
+    }
+
     return (
         <>
             <Gantt

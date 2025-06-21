@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSafeSupabaseServerClient } from '@/lib/supabase-safe'
 import { auth } from '@/auth'
 import dayjs from 'dayjs'
 
@@ -9,7 +9,12 @@ export default async function getUpcomingCalendarEvents() {
             return []
         }
 
-        const supabase = await createSupabaseServerClient()
+        const supabase = await createSafeSupabaseServerClient()
+        if (!supabase) {
+            // Supabase not configured - return empty array for development
+            console.warn('⚠️ Supabase not configured - returning empty calendar events')
+            return []
+        }
 
         // Get events for the next 7 days
         const today = new Date()

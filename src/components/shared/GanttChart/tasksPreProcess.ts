@@ -64,6 +64,11 @@ export default function tasksPreProcess(
     tasks: ExtendedTask[],
     colorsMap: Record<string, string>,
 ) {
+    // Guard against undefined/null tasks or empty array
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+        return []
+    }
+
     const coloredTask = tasks.map((task) => {
         task.start = dayjs(task.start).toDate()
         task.end = dayjs(task.end).toDate()

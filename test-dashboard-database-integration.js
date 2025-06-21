@@ -15,7 +15,7 @@ async function testDashboardIntegration() {
         console.log('📅 Testing upcoming calendar events...')
         const upcomingEvents = await getUpcomingCalendarEvents()
         console.log(`✅ Found ${upcomingEvents.length} upcoming calendar events`)
-        
+
         if (upcomingEvents.length > 0) {
             console.log('📋 Sample calendar events:')
             upcomingEvents.slice(0, 3).forEach(event => {
@@ -30,7 +30,7 @@ async function testDashboardIntegration() {
         console.log('📝 Testing recent activities...')
         const recentActivities = await getRecentActivities()
         console.log(`✅ Found ${recentActivities.length} recent activities`)
-        
+
         if (recentActivities.length > 0) {
             console.log('📋 Sample activities:')
             recentActivities.slice(0, 3).forEach(activity => {
@@ -44,7 +44,7 @@ async function testDashboardIntegration() {
         // Test database connection directly
         console.log('🔍 Testing direct database queries...')
         const supabase = await createSupabaseServerClient()
-        
+
         // Check activities table
         const { data: activitiesData, error: activitiesError } = await supabase
             .from('activities')

@@ -6,7 +6,7 @@ import { auth } from '@/auth'
  * This is called from the API when project status changes to handle activity logging
  */
 export default async function createProjectStatusActivity(
-    projectId: string, 
+    projectId: string,
     activityType: 'PROJECT-COMPLETED' | 'PROJECT-REACTIVATED',
     metadata: Record<string, unknown> = {}
 ) {
@@ -38,7 +38,7 @@ export default async function createProjectStatusActivity(
         // Create activity title and description
         const isCompletion = activityType === 'PROJECT-COMPLETED'
         const title = isCompletion ? 'Project Completed' : 'Project Reactivated'
-        const description = isCompletion 
+        const description = isCompletion
             ? `Project "${project.name}" automatically marked as completed - all tasks finished`
             : `Project "${project.name}" automatically reactivated - not all tasks are completed`
 

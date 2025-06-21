@@ -2,6 +2,13 @@ import type { ExtendedTask } from './GanttChart'
 
 function getStartEndDateForProject(tasks: ExtendedTask[], projectId: string) {
     const projectTasks = tasks.filter((t) => t.project === projectId)
+
+    // Guard against empty project tasks
+    if (!projectTasks || projectTasks.length === 0) {
+        const now = new Date()
+        return [now, now]
+    }
+
     let start = projectTasks[0].start
     let end = projectTasks[0].end
 

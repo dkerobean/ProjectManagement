@@ -18,35 +18,43 @@ const colorsMap = {
 }
 
 const Schedule = ({ data = [] }: ScheduleProps) => {
-    const [tasks, setTasks] = useState<ExtendedTask[]>(data)
+    // Ensure data is always an array and has valid items
+    const validData = Array.isArray(data) ? data : []
+    const [tasks, setTasks] = useState<ExtendedTask[]>(validData)
 
     const handleTaskChange = (task: ExtendedTask) => {
+        if (!tasks || tasks.length === 0) return
+
         let newTasks = tasks.map((t) => (t.id === task.id ? task : t))
         if (task.project) {
             const [start, end] = getStartEndDateForProject(
                 newTasks,
                 task.project,
             )
-            const project =
-                newTasks[newTasks.findIndex((t) => t.id === task.project)]
-            if (
-                project.start.getTime() !== start.getTime() ||
-                project.end.getTime() !== end.getTime()
-            ) {
-                const changedProject = { ...project, start, end }
-                newTasks = newTasks.map((t) =>
-                    t.id === task.project ? changedProject : t,
-                )
+            const projectIndex = newTasks.findIndex((t) => t.id === task.project)
+            if (projectIndex >= 0) {
+                const project = newTasks[projectIndex]
+                if (
+                    project.start.getTime() !== start.getTime() ||
+                    project.end.getTime() !== end.getTime()
+                ) {
+                    const changedProject = { ...project, start, end }
+                    newTasks = newTasks.map((t) =>
+                        t.id === task.project ? changedProject : t,
+                    )
+                }
             }
         }
         setTasks(newTasks)
     }
 
     const handleProgressChange = async (task: ExtendedTask) => {
+        if (!tasks || tasks.length === 0) return
         setTasks(tasks.map((t) => (t.id === task.id ? task : t)))
     }
 
     const handleExpanderClick = (task: ExtendedTask) => {
+        if (!tasks || tasks.length === 0) return
         setTasks(tasks.map((t) => (t.id === task.id ? task : t)))
     }
 

@@ -37,7 +37,7 @@ type TasksByStatus = {
 
 const statusLabels = {
     todo: 'To Do',
-    in_progress: 'In Progress', 
+    in_progress: 'In Progress',
     review: 'To Review',
     done: 'Completed'
 }
@@ -117,7 +117,7 @@ function SortableTaskItem({ task, onStatusChange }: SortableTaskItemProps) {
                             {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} priority
                         </Tag>
                     )}
-                    
+
                     {/* Custom Tags */}
                     {task.tags?.map((tag, index) => (
                         <Tag key={index} className={`text-xs px-2 py-1 ${taskLabelColors[tag] || 'bg-gray-100 text-gray-700'}`}>
@@ -133,10 +133,10 @@ function SortableTaskItem({ task, onStatusChange }: SortableTaskItemProps) {
                             {dayjs(task.due_date).format('MMM DD')}
                         </span>
                     )}
-                    
+
                     {/* Assignees */}
                     {task.assignees && task.assignees.length > 0 && (
-                        <UsersAvatarGroup 
+                        <UsersAvatarGroup
                             users={task.assignees}
                             size={24}
                             maxDisplay={3}
@@ -165,7 +165,7 @@ function DroppableColumn({ status, tasks, onStatusChange }: DroppableColumnProps
                     {tasks.length}
                 </span>
             </div>
-            
+
             <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
                 <div className="space-y-3">
                     {tasks.map((task) => (
@@ -188,7 +188,7 @@ const ProjectDetailsTask = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [activeTask, setActiveTask] = useState<Task | null>(null)
-    
+
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -204,12 +204,12 @@ const ProjectDetailsTask = () => {
         try {
             setIsLoading(true)
             setError(null)
-            
+
             const response = await fetch(`/api/projects/${projectId}/tasks`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             })
-            
+
             if (response.ok) {
                 const result = await response.json()
                 console.log('✅ Tasks fetched:', result.data)
@@ -233,16 +233,16 @@ const ProjectDetailsTask = () => {
             const response = await fetch(`/api/tasks/${taskId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     status: newStatus,
                     completed_at: newStatus === 'done' ? new Date().toISOString() : null
                 }),
             })
-            
+
             if (!response.ok) {
                 throw new Error('Failed to update task status')
             }
-            
+
             console.log('✅ Task status updated:', taskId, newStatus)
         } catch (error) {
             console.error('❌ Failed to update task status:', error)
@@ -253,10 +253,10 @@ const ProjectDetailsTask = () => {
 
     const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
         // Update locally first for immediate feedback
-        setTasks(prev => prev.map(task => 
+        setTasks(prev => prev.map(task =>
             task.id === taskId ? { ...task, status: newStatus } : task
         ))
-        
+
         // Update in database
         updateTaskStatus(taskId, newStatus)
     }
@@ -270,12 +270,12 @@ const ProjectDetailsTask = () => {
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event
         setActiveTask(null)
-        
+
         if (!over) return
-        
+
         const taskId = active.id as string
         const newStatus = over.id as TaskStatus
-        
+
         const task = tasks.find(t => t.id === taskId)
         if (task && task.status !== newStatus) {
             handleStatusChange(taskId, newStatus)
@@ -307,8 +307,8 @@ const ProjectDetailsTask = () => {
             <div className="flex flex-col justify-center items-center py-12">
                 <p className="text-red-500 mb-2">Failed to load tasks</p>
                 <p className="text-sm text-gray-500">{error}</p>
-                <button 
-                    onClick={fetchTasks} 
+                <button
+                    onClick={fetchTasks}
                     className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     Retry
@@ -318,7 +318,7 @@ const ProjectDetailsTask = () => {
     }
 
     return (
-        <DndContext 
+        <DndContext
             sensors={sensors}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
@@ -334,7 +334,7 @@ const ProjectDetailsTask = () => {
                     </div>
                 ))}
             </div>
-            
+
             <DragOverlay>
                 {activeTask ? (
                     <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-lg rotate-3">

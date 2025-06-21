@@ -38,8 +38,8 @@ CREATE POLICY "Users can delete own activities" ON activities
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Insert some sample activities for testing
-INSERT INTO activities (user_id, type, title, description, entity_type, entity_id, metadata) 
-VALUES 
+INSERT INTO activities (user_id, type, title, description, entity_type, entity_id, metadata)
+VALUES
 (
     (SELECT id FROM users LIMIT 1),
     'UPDATE-TICKET',

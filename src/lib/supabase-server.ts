@@ -62,11 +62,11 @@ export function createSupabaseServiceClient() {
   }
 
   if (!key) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set. Get it from: https://supabase.com/dashboard/project/gafpwitcdoiviixlxnuz/settings/api')
   }
 
-  if (key === 'your_service_role_key_here') {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured properly - still using placeholder')
+  if (key === 'your_service_role_key_here' || key === 'REPLACE_WITH_ACTUAL_SERVICE_ROLE_KEY_FROM_DASHBOARD') {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not configured properly - still using placeholder value. Please set the actual service role key from Supabase dashboard: https://supabase.com/dashboard/project/gafpwitcdoiviixlxnuz/settings/api')
   }
 
   // Validate that it looks like a JWT

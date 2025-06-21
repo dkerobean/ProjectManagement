@@ -8,11 +8,11 @@ DO $$
 BEGIN
     -- Add check constraint for project status if it doesn't exist
     IF NOT EXISTS (
-        SELECT 1 FROM information_schema.table_constraints 
-        WHERE constraint_name = 'projects_status_check' 
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'projects_status_check'
         AND table_name = 'projects'
     ) THEN
-        ALTER TABLE projects ADD CONSTRAINT projects_status_check 
+        ALTER TABLE projects ADD CONSTRAINT projects_status_check
         CHECK (status IN ('active', 'completed', 'on_hold', 'cancelled', 'draft'));
     END IF;
 END $$;
@@ -41,8 +41,8 @@ BEGIN
     END IF;
 
     -- Get current project status
-    SELECT status INTO current_project_status 
-    FROM projects 
+    SELECT status INTO current_project_status
+    FROM projects
     WHERE id = project_uuid;
 
     -- Skip if project doesn't exist or is already completed/cancelled
@@ -52,8 +52,8 @@ BEGIN
 
     -- Count total tasks for this project (excluding subtasks - those without parent_task_id)
     SELECT COUNT(*) INTO total_tasks
-    FROM tasks 
-    WHERE project_id = project_uuid 
+    FROM tasks
+    WHERE project_id = project_uuid
     AND parent_task_id IS NULL;  -- Only count main tasks, not subtasks
 
     -- If no tasks exist, don't mark project as completed
@@ -63,19 +63,19 @@ BEGIN
 
     -- Count completed tasks (status = 'done')
     SELECT COUNT(*) INTO completed_tasks
-    FROM tasks 
-    WHERE project_id = project_uuid 
+    FROM tasks
+    WHERE project_id = project_uuid
     AND parent_task_id IS NULL  -- Only count main tasks, not subtasks
     AND status = 'done';
 
     -- Update project status based on task completion
     IF completed_tasks = total_tasks THEN
         -- All tasks are completed - mark project as completed
-        UPDATE projects 
-        SET 
+        UPDATE projects
+        SET
             status = 'completed',
             updated_at = NOW()
-        WHERE id = project_uuid 
+        WHERE id = project_uuid
         AND status != 'completed';  -- Only update if not already completed
 
         -- Create an activity record for project completion
@@ -96,8 +96,8 @@ BEGIN
 
     ELSIF completed_tasks < total_tasks AND current_project_status = 'completed' THEN
         -- Some tasks are not completed but project was marked as completed - revert to active
-        UPDATE projects 
-        SET 
+        UPDATE projects
+        SET
             status = 'active',
             updated_at = NOW()
         WHERE id = project_uuid;
@@ -141,24 +141,24 @@ DECLARE
     new_project_status VARCHAR;
 BEGIN
     -- Loop through all active projects
-    FOR project_record IN 
-        SELECT p.id, p.status, p.name 
-        FROM projects p 
+    FOR project_record IN
+        SELECT p.id, p.status, p.name
+        FROM projects p
         WHERE p.status IN ('active', 'completed')
     LOOP
         -- Count tasks for this project
         SELECT COUNT(*) INTO total_tasks
         FROM tasks t
-        WHERE t.project_id = project_record.id 
+        WHERE t.project_id = project_record.id
         AND t.parent_task_id IS NULL;  -- Only main tasks
-        
+
         -- Count completed tasks
         SELECT COUNT(*) INTO completed_tasks
         FROM tasks t
-        WHERE t.project_id = project_record.id 
+        WHERE t.project_id = project_record.id
         AND t.parent_task_id IS NULL  -- Only main tasks
         AND t.status = 'done';
-        
+
         -- Determine new status
         IF total_tasks > 0 AND completed_tasks = total_tasks THEN
             new_project_status := 'completed';
@@ -167,13 +167,13 @@ BEGIN
         ELSE
             new_project_status := project_record.status; -- Keep current status if no tasks
         END IF;
-        
+
         -- Update if status changed
         IF new_project_status != project_record.status THEN
-            UPDATE projects 
+            UPDATE projects
             SET status = new_project_status, updated_at = NOW()
             WHERE id = project_record.id;
-            
+
             -- Return the change
             project_id := project_record.id;
             old_status := project_record.status;
@@ -183,7 +183,7 @@ BEGIN
             RETURN NEXT;
         END IF;
     END LOOP;
-    
+
     RETURN;
 END;
 $$ LANGUAGE plpgsql;

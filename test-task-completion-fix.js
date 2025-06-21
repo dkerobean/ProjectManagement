@@ -74,7 +74,7 @@ async function runTest() {
         console.log('\n3️⃣ Completing first task...')
         const { data: firstTaskUpdate, error: firstTaskError } = await supabase
             .from('tasks')
-            .update({ 
+            .update({
                 status: 'done',
                 completed_at: new Date().toISOString()
             })
@@ -100,7 +100,7 @@ async function runTest() {
         console.log('\n4️⃣ Completing second task (should trigger project completion)...')
         const { data: secondTaskUpdate, error: secondTaskError } = await supabase
             .from('tasks')
-            .update({ 
+            .update({
                 status: 'done',
                 completed_at: new Date().toISOString()
             })
@@ -144,7 +144,7 @@ async function runTest() {
         console.log('\n6️⃣ Testing project reactivation...')
         const { data: reactivateTask, error: reactivateError } = await supabase
             .from('tasks')
-            .update({ 
+            .update({
                 status: 'todo',
                 completed_at: null
             })

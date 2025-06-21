@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSafeSupabaseServerClient } from '@/lib/supabase-safe'
 import { auth } from '@/auth'
 
 export default async function getRecentActivities() {
@@ -9,7 +9,12 @@ export default async function getRecentActivities() {
             return []
         }
 
-        const supabase = await createSupabaseServerClient()
+        const supabase = await createSafeSupabaseServerClient()
+        if (!supabase) {
+            // Supabase not configured - return empty array for development
+            console.warn('⚠️ Supabase not configured - returning empty activities')
+            return []
+        }
 
         // Fetch recent activities from the activities table
         const { data: activities, error } = await supabase
@@ -54,7 +59,7 @@ export default async function getRecentActivities() {
         // Transform activities to match the expected format
         const transformedActivities = (activities || []).map(activity => {
             const metadata = (activity.metadata as Record<string, unknown>) || {}
-            
+
             return {
                 type: activity.type,
                 dateTime: new Date(activity.created_at).getTime(),
