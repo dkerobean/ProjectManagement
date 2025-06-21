@@ -27,6 +27,14 @@ export default auth((req) => {
 
     /** Skip auth middleware for api routes */
     if (isApiAuthRoute) return
+    
+    /** Skip auth middleware for all API routes except specific protected ones */
+    if (nextUrl.pathname.startsWith('/api/')) {
+        // Only these API routes require authentication
+        const protectedApiRoutes = ['/api/user', '/api/profile', '/api/admin']
+        const requiresAuth = protectedApiRoutes.some(route => nextUrl.pathname.startsWith(route))
+        if (!requiresAuth) return
+    }
 
     if (isAuthRoute) {
         if (isSignedIn) {
@@ -51,7 +59,9 @@ export default auth((req) => {
                 nextUrl,
             ),
         )
-    }    /** Enhanced role-based access control */
+    }
+
+    /** Enhanced role-based access control */
     if (isSignedIn && nextUrl.pathname !== '/access-denied') {
         const userRole = req.auth?.user?.role as UserRole
         const userAuthority = req.auth?.user?.authority || []
