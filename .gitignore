@@ -106,6 +106,39 @@ tasks/
 .cursor/
 .roo/
 
+# Development and debugging files
+debug-*.js
+test-*.js
+test-*.ts
+demo-*.js
+verify-*.js
+final-*.js
+fix-*.js
+quick-*.js
+*.fixed.js
+*.new.js
+
+# Documentation and markdown files (temporary/development)
+*_COMPLETE.md
+*_FIX*.md
+*_SUMMARY.md
+*_GUIDE.md
+*_IMPLEMENTATION*.md
+*_ERROR*.md
+*_DEBUG*.md
+*_TESTING.md
+URGENT_FIX.md
+MANUAL_SQL_FIX.md
+icon-*.md
+task-*.md
+project-*.md
+
+# Migration files (if they contain sensitive data)
+migrations/
+
+# Environment template files
+.env.example.template
+
 # Local development
 *.local
 
@@ -145,4 +178,49 @@ temp/
 
 # Added by Task Master AI
 # OS specific
+.DS_Store
+.DS_Store?
+
 # Task files
+tasks.json
+tasks/
+
+# Development and testing files
+test-*.js
+test-*.ts
+debug-*.js
+demo-*.js
+verify-*.js
+final-*.js
+fix-*.js
+quick-*.js
+*.fixed.js
+*.new.js
+
+# Documentation files (project-specific)
+*_COMPLETE.md
+*_FIX*.md
+*_SUMMARY.md
+*_GUIDE.md
+*_IMPLEMENTATION*.md
+*_ERROR*.md
+*_DEBUG*.md
+URGENT_FIX.md
+MANUAL_SQL_FIX.md
+icon-*.md
+task-*.md
+project-*.md
+
+# Script files
+*.sh
+fix-policies-manual.js
+
+# Jest configuration variants
+jest.config.fixed.js
+jest.config.new.js
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# Package manager lock files
+package-lock.json
