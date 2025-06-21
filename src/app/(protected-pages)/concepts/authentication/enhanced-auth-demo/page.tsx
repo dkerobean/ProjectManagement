@@ -111,7 +111,7 @@ const EnhancedAuthDemo = () => {
                             <div className="text-sm">
                                 {mode === 'signin' ? (
                                     <>
-                                        Don't have an account?{' '}
+                                        Don&apos;t have an account?{' '}
                                         <Button
                                             variant="plain"
                                             size="sm"

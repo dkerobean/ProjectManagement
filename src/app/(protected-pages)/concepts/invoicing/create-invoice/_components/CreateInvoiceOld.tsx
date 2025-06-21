@@ -1132,12 +1132,13 @@ const CreateInvoice = () => {
                             value={{ label: invoice.paymentTerms, value: invoice.paymentTerms }}
                             onChange={(option) => updateInvoiceField('paymentTerms', option?.value || '')}
                             className="print:hidden"
-                        >
-                            <Option value="Net 15">Net 15</Option>
-                            <Option value="Net 30">Net 30</Option>
-                            <Option value="Net 60">Net 60</Option>
-                            <Option value="Due on Receipt">Due on Receipt</Option>
-                        </Select>
+                            options={[
+                                { label: 'Net 15', value: 'Net 15' },
+                                { label: 'Net 30', value: 'Net 30' },
+                                { label: 'Net 60', value: 'Net 60' },
+                                { label: 'Due on Receipt', value: 'Due on Receipt' }
+                            ]}
+                        />
                         <div className="hidden print:block text-gray-700 dark:text-gray-300">
                             {invoice.paymentTerms}
                         </div>

@@ -95,7 +95,7 @@ export function withRoleAuth<P extends object>(
                             </div>
                             <h3 className="text-lg font-semibold mb-2">Access Denied</h3>
                             <p className="text-gray-600 mb-6">
-                                You don't have permission to access this page.
+                                You don&apos;t have permission to access this page.
                                 Contact your administrator if you believe this is an error.
                             </p>
                             <Button

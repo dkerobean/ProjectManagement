@@ -35,7 +35,7 @@ const SignInClient = () => {
             )
 
             if (supabaseError) {
-                const errorMessage = (supabaseError as any)?.message || 'Authentication failed'
+                const errorMessage = (supabaseError as { message?: string })?.message || 'Authentication failed'
                 setMessage(errorMessage)
                 setSubmitting(false)
                 return
