@@ -1,9 +1,8 @@
 import { Metadata } from 'next'
 
-const pageMeta: Metadata = {
-    title: 'Ecme - The Ultimate Next & TypeScript Web Template',
+const pageMeta: Metadata = {    title: 'zeno - Modern Project Management Platform',
     description:
-        'Admin Template and Starter Kit with React, Tailwind Components and Next.js',
+        'Professional Project Management System with React, Next.js, and Supabase',
     icons: {
         icon: '/favicon.ico',
     },

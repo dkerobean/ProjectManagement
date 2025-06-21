@@ -15,7 +15,7 @@ const HeroContent = ({ mode }: { mode: Mode }) => {
 
     const handleGetTemplate = () => {
         window.open(
-            'https://themeforest.net/item/ecme-nextjs-tailwind-admin-template-app-router/56475600',
+            '/dashboards/project',
             '_blank',
         )
     }
@@ -26,9 +26,8 @@ const HeroContent = ({ mode }: { mode: Mode }) => {
                 <div>
                     <TextGenerateEffect 
                         wordClassName="text-2xl md:text-4xl lg:text-8xl font-bold max-w-7xl mx-auto text-center mt-6 relative z-10"
-                        words="Unlock Ultimate Control with the Perfect Template"
-                        wordsCallbackClass={({word}) => {
-                            if(word === 'Perfect') {
+                        words="Transform Your Projects with zeno"                        wordsCallbackClass={({word}) => {
+                            if(word === 'zeno') {
                                 return 'bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] bg-clip-text text-transparent'
                             }
 
@@ -55,34 +54,30 @@ const HeroContent = ({ mode }: { mode: Mode }) => {
                         animate={{ opacity: 1, translateY: 0 }}
                         transition={{ duration: 0.3, delay: 0.6 }}
                         className="flex items-center gap-4 justify-center mt-10 relative z-10"
-                    >
-                        <Button variant="solid" onClick={handlePreview}>
-                            Preview
-                        </Button>
-                        <Button onClick={handleGetTemplate}>
-                            Get this template
+                    >                        <Button variant="solid" onClick={handlePreview}>
+                            Get Started
+                        </Button>                        <Button onClick={handleGetTemplate}>
+                            View Dashboard
                         </Button>
                     </motion.div>
                 </div>
                 <div className="p-2 lg:p-4 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-2xl lg:rounded-[32px] mt-20 relative">
                     <div className="absolute inset-x-0 bottom-0 h-40 w-full bg-gradient-to-b from-transparent via-white to-white dark:via-black/50 dark:to-black scale-[1.1] pointer-events-none" />
                     <div className="bg-white dark:bg-black dark:border-gray-700 border border-gray-200 rounded-[24px]">
-                        {mode === MODE_LIGHT && (
-                            <Image
+                        {mode === MODE_LIGHT && (                            <Image
                                 className="rounded-2xl lg:rounded-[24px]"
                                 src="/img/landing/hero/hero.webp"
                                 width={1920}
                                 height={1040}
-                                alt="Ecme homepage"
+                                alt="zeno homepage"
                             />
                         )}
-                        {mode === MODE_DARK && (
-                            <Image
+                        {mode === MODE_DARK && (                            <Image
                                 className="rounded-2xl lg:rounded-[24px]"
                                 src="/img/landing/hero/hero-dark.webp"
                                 width={1920}
                                 height={1040}
-                                alt="Ecme homepage"
+                                alt="zeno homepage"
                             />
                         )}
                     </div>

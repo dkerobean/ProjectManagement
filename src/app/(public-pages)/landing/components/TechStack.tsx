@@ -59,7 +59,7 @@ const TechStack = () => {
                 viewport={{ once: true }}
             >
                 <motion.h2 className="my-6 text-5xl">Core Technologies Powering</motion.h2>
-                <motion.p className="mx-auto max-w-[600px]">Ecme built using cutting-edge technologies to ensure streamlined, scalability, and a seamless developer experience.</motion.p>
+                <motion.p className="mx-auto max-w-[600px]">zeno built using cutting-edge technologies to ensure streamlined development, scalability, and a seamless user experience.</motion.p>
             </motion.div>
             <Container>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">

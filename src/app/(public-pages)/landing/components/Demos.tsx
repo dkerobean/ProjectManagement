@@ -135,7 +135,7 @@ const Demos = ({ mode }: DemoProps) => {
                 viewport={{ once: true }}
             >
                 <motion.h2 className="my-6 text-5xl">Built for Any Project, Big or Small</motion.h2>
-                <motion.p className="mx-auto max-w-[600px]">Whether you need an admin panel, an interactive dashboard, or a full-featured application, Ecme is the ultimate solution</motion.p>
+                <motion.p className="mx-auto max-w-[600px]">Whether you need an admin panel, an interactive dashboard, or a full-featured application, zeno is the ultimate project management solution</motion.p>
             </motion.div>
             <Container>
                 <div className="flex gap-12">

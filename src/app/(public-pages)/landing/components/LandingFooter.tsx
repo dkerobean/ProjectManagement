@@ -33,7 +33,7 @@ const LandingFooter = ({mode}: {mode: Mode}) => {
                             className="relative flex flex-col gap-4 items-center justify-center py-20 px-8 text-center"
                         >
                             <h2 className="text-5xl">Ready to Get Started?</h2>
-                            <p className="mt-4 max-w-[400px] mx-auto">Build modern, scalable applications effortlessly with Ecme. Take your project to the next level today!</p>
+                            <p className="mt-4 max-w-[400px] mx-auto">Build modern, scalable project management applications effortlessly with zeno. Take your project to the next level today!</p>
                             <div className="mt-6">
                                 <Button variant="solid" onClick={handlePreview}>Get Started Now</Button>
                             </div>

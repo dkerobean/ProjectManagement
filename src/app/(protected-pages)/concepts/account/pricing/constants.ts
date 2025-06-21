@@ -137,7 +137,7 @@ export const questionList: Record<
         {
             title: 'How do I contact customer support?',
             content:
-                'Our customer support team is here to help with any questions or issues you may have. You can reach us by emailing support@ecme.com, calling our support line at 1-800-123-4567, or using the live chat feature on our website. We are committed to providing you with prompt and effective assistance.',
+                'Our customer support team is here to help with any questions or issues you may have. You can reach us by emailing support@zeno.com, calling our support line at 1-800-123-4567, or using the live chat feature on our website. We are committed to providing you with prompt and effective assistance.',
             defaultExpand: true,
         },
         {

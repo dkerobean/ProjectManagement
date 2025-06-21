@@ -180,7 +180,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
     }) => {
         return (
             <a
-                href={`https://ecme-next.themenate.net/ui-components/${item.link}`}
+                href={`/ui-components/${item.link}`}
                 target="_blank"
                 rel="noreferrer"
                 className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 h-20 w-20 flex items-center justify-center rounded-2xl"
@@ -203,7 +203,7 @@ const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
                     viewport={{ once: true }}
                 >
                     <motion.h2 className="my-6 text-5xl">
-                        Discover the Power of Ecme
+                        Discover the Power of zeno
                     </motion.h2>
                     <motion.p className="mx-auto max-w-[600px]">
                         Crafted for performance, scalability, and ease of
@@ -300,27 +300,25 @@ const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
                                             transformOrigin:
                                                 'bottom right 10px',
                                         }}
-                                        href="https://ecme-next.themenate.net/guide/documentation/introduction"
+                                        href="/guide/documentation/introduction"
                                         target="_blank"
                                         className="absolute max-w-[330px] top-7 -right-12"
                                     >
                                         <div className="p-2 border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-700 rounded-lg relative shadow-2xl dark:shadow-white/40">
-                                            {mode === 'light' && (
-                                                <Image
+                                            {mode === 'light' && (                                                <Image
                                                     className="rounded-lg"
                                                     src="/img/landing/layouts/documentation.png"
                                                     width={630}
                                                     height={562}
-                                                    alt="Ecme documentaion"
+                                                    alt="zeno documentation"
                                                 />
                                             )}
-                                            {mode === 'dark' && (
-                                                <Image
+                                            {mode === 'dark' && (                                                <Image
                                                     className="rounded-lg"
                                                     src="/img/landing/layouts/documentation-dark.png"
                                                     width={630}
                                                     height={562}
-                                                    alt="Ecme documentaion"
+                                                    alt="zeno documentation"
                                                 />
                                             )}
                                         </div>
