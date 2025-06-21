@@ -31,8 +31,8 @@ const ScheduledEvent = (props: ScheduledEventProps) => {
     return (
         <div className={classNames(
             "flex items-center justify-between gap-4 py-3 px-3 rounded-lg transition-all",
-            isCurrentEvent 
-                ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 shadow-sm" 
+            isCurrentEvent
+                ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 shadow-sm"
                 : "hover:bg-gray-50 dark:hover:bg-gray-800"
         )}>
             <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ const ScheduledEvent = (props: ScheduledEventProps) => {
                 </span>
                 <small className="block">{time && dayjs(time).format('A')}</small>
                 {eventColor && (
-                    <div 
+                    <div
                         className="w-3 h-3 rounded-full mt-1 ml-auto"
                         style={{ backgroundColor: eventColor }}
                     />
@@ -111,12 +111,12 @@ const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {
             const eventDate = event.date
             const eventStart = dayjs(event.time)
             const selectedDay = dayjs(date)
-            
+
             // Include events that:
             // 1. Are scheduled for the selected date
             // 2. Are current events (if today is selected)
             // 3. Span across the selected date
-            return eventDate === dateString || 
+            return eventDate === dateString ||
                    (event.isCurrentEvent && dateString === today) ||
                    (eventStart.isSame(selectedDay, 'day'))
         })
@@ -126,7 +126,7 @@ const UpcomingSchedule = ({ upcomingEvents = [] }: UpcomingScheduleProps) => {
             // Current events first
             if (a.isCurrentEvent && !b.isCurrentEvent) return -1
             if (!a.isCurrentEvent && b.isCurrentEvent) return 1
-            
+
             // Then sort by time
             if (!a.time && !b.time) return 0
             if (!a.time) return 1

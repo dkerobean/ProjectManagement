@@ -43,9 +43,9 @@ export default async function getUpcomingCalendarEvents() {
             const endDate = new Date(event.end_date)
             const eventDate = dayjs(startDate).format('YYYY-MM-DD')
             const today = dayjs(new Date()).format('YYYY-MM-DD')
-            
+
             // Determine if this is a current event (happening today)
-            const isCurrentEvent = eventDate === today || 
+            const isCurrentEvent = eventDate === today ||
                 (dayjs(startDate).isBefore(dayjs(), 'day') && dayjs(endDate).isAfter(dayjs(), 'day'))
 
             return {
