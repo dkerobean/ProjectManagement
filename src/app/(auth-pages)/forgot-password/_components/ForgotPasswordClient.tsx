@@ -2,6 +2,7 @@
 
 import { apiForgotPassword } from '@/services/AuthService'
 import ForgotPassword from '@/components/auth/ForgotPassword'
+import ZenoSplit from '@/components/layouts/AuthLayout/ZenoSplit'
 import { toast } from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import type { OnForgotPasswordSubmitPayload } from '@/components/auth/ForgotPassword'
@@ -27,10 +28,10 @@ const ForgotPasswordClient = () => {
         } finally {
             setSubmitting(false)
         }
-    }
-
-    return (
-        <ForgotPassword onForgotPasswordSubmit={handleForgotPasswordSubmit} />
+    }    return (
+        <ZenoSplit>
+            <ForgotPassword onForgotPasswordSubmit={handleForgotPasswordSubmit} />
+        </ZenoSplit>
     )
 }
 

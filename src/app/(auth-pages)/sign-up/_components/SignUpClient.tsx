@@ -46,8 +46,7 @@ const SignUpClient = () => {
             )
 
             // Redirect to sign-in page
-            router.push(appConfig.unAuthenticatedEntryPath)
-        } catch (error) {
+            router.push(appConfig.unAuthenticatedEntryPath)        } catch (error) {
             console.error('Sign up error:', error)
             setMessage('An unexpected error occurred. Please try again.')
         } finally {

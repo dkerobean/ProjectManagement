@@ -1,6 +1,7 @@
 'use client'
 
 import ResetPassword from '@/components/auth/ResetPassword'
+import ZenoSplit from '@/components/layouts/AuthLayout/ZenoSplit'
 import { apiResetPassword } from '@/services/AuthService'
 import { useSearchParams } from 'next/navigation'
 import type { OnResetPasswordSubmitPayload } from '@/components/auth/ResetPassword'
@@ -29,7 +30,11 @@ const ResetPasswordClient = () => {
         }
     }
 
-    return <ResetPassword onResetPasswordSubmit={handleResetPassword} />
+    return (
+        <ZenoSplit>
+            <ResetPassword onResetPasswordSubmit={handleResetPassword} />
+        </ZenoSplit>
+    )
 }
 
 export default ResetPasswordClient

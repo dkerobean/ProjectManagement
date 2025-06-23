@@ -1,5 +1,4 @@
 import { createSupabaseClient } from '@/lib/supabase'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 
@@ -301,4 +300,5 @@ class SupabaseAuthService {
   }
 }
 
-export default new SupabaseAuthService()
+const supabaseAuthService = new SupabaseAuthService()
+export default supabaseAuthService
