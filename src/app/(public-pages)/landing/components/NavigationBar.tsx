@@ -26,11 +26,6 @@ const navMenu = [
         href: '/dashboards/project'
     },
     {
-        title: 'Projects',
-        value: 'projects',
-        href: '/app/projects'
-    },
-    {
         title: 'Scrum Board',
         value: 'scrum',
         href: '/app/scrum-board'
@@ -99,8 +94,17 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                     <NavList tabs={
                         navMenu
                     } />
-                </div>
-                <div className="flex items-center gap-2">
+                </div>                <div className="flex items-center gap-2">
+                    <Link href="/sign-in">
+                        <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 text-sm font-medium transition-colors">
+                            Sign In
+                        </button>
+                    </Link>
+                    <Link href="/sign-up">
+                        <button className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200">
+                            Get Started
+                        </button>
+                    </Link>
                     <button className="relative flex cursor-pointer items-center justify-center rounded-xl p-2 text-neutral-500 hover:shadow-input dark:text-neutral-500" onClick={toggleMode}>
                         <svg
                             className="lucide lucide-sun rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
