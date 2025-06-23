@@ -9,7 +9,7 @@ export type AppConfig = {
 const appConfig: AppConfig = {
     apiPrefix: '/api',
     authenticatedEntryPath: '/dashboards/project',
-    unAuthenticatedEntryPath: '/landing',
+    unAuthenticatedEntryPath: '/sign-in',
     locale: 'en',
     activeNavTranslation: true,
 }
