@@ -1,13 +1,10 @@
-import Switcher from '@/components/ui/Switcher'
 import Container from './LandingContainer'
 import CardStack from './CardStack'
 import InfiniteMovingCards from './InfinteMovingCard'
-import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import classNames from '@/utils/classNames'
 import componentsIcons from '../utils/components-icons.config'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { TbCheck } from 'react-icons/tb'
 import type { HTMLMotionProps } from 'framer-motion'
 import type { Mode } from '@/@types/theme'
 
@@ -15,9 +12,6 @@ type CardProps = HTMLMotionProps<'div'>
 
 type FeaturesProps = {
     mode: Mode
-    onModeChange: (value: boolean) => void
-    schema: string
-    setSchema: (value: string) => void
 }
 
 const getCardBgStyles = (mode: Mode = 'light') => {
@@ -102,7 +96,7 @@ const componentItems2 = [
     { id: 'uiFormsInput', name: 'Forms Input', link: 'input' },
 ]
 
-const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
+const Features = ({ mode }: FeaturesProps) => {
     const cardStyles = getCardBgStyles(mode)
 
     const CARDS = [
@@ -201,14 +195,12 @@ const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
-                >
-                    <motion.h2 className="my-6 text-5xl">
-                        Discover the Power of zeno
+                >                    <motion.h2 className="my-6 text-5xl">
+                        Everything You Need for Project Success
                     </motion.h2>
                     <motion.p className="mx-auto max-w-[600px]">
-                        Crafted for performance, scalability, and ease of
-                        use—experience a template built to meet all your project
-                        needs
+                        From Scrum boards to project dashboards, task management to calendar integration—
+                        experience comprehensive project management tools built for modern teams
                     </motion.p>
                 </motion.div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -224,58 +216,30 @@ const Features = ({ mode, onModeChange, schema, setSchema }: FeaturesProps) => {
                                     bounce: 0.1,
                                 }}
                                 viewport={{ once: true }}
-                            >
-                                <div
+                            >                                <div
                                     className="rounded-2xl bg-white dark:bg-gray-900 p-4"
                                     style={cardStyles}
                                 >
                                     <div className="p-4 flex justify-center items-center rounded-xl gap-2 border border-gray-200 dark:border-white/[0.2] bg-white dark:bg-gray-800">
-                                        <Switcher
-                                            checked={mode === 'dark'}
-                                            onChange={onModeChange}
-                                        />
-                                        <span>
-                                            {mode === 'dark' ? 'Dark' : 'Light'}
-                                        </span>
+                                        <div className="text-3xl">📋</div>
+                                        <span className="font-semibold">Projects</span>
                                     </div>
                                     <div className="p-4 flex justify-center items-center rounded-xl gap-2 border border-gray-200 dark:border-white/[0.2] bg-white dark:bg-gray-800 mt-4">
-                                        <div className="inline-flex items-center gap-2">
-                                            {Object.entries(
-                                                presetThemeSchemaConfig,
-                                            ).map(([key, value]) => (
-                                                <button
-                                                    key={key}
-                                                    className={classNames(
-                                                        'h-8 w-8 rounded-full flex items-center justify-center border-2 border-white',
-                                                        schema === key &&
-                                                            'ring-2 ring-primary',
-                                                    )}
-                                                    style={{
-                                                        backgroundColor:
-                                                            value[mode]
-                                                                .primary || '',
-                                                    }}
-                                                    onClick={() =>
-                                                        setSchema(key)
-                                                    }
-                                                >
-                                                    {schema === key ? (
-                                                        <TbCheck className="text-neutral text-lg" />
-                                                    ) : (
-                                                        <></>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
+                                        <div className="text-3xl">📊</div>
+                                        <span className="font-semibold">Dashboard</span>
+                                    </div>
+                                    <div className="p-4 flex justify-center items-center rounded-xl gap-2 border border-gray-200 dark:border-white/[0.2] bg-white dark:bg-gray-800 mt-4">
+                                        <div className="text-3xl">✅</div>
+                                        <span className="font-semibold">Tasks</span>
                                     </div>
                                 </div>
                                 <div className="mt-6">
                                     <h4 className="font-bold">
-                                        Customizable Themes
+                                        Comprehensive Project Tools
                                     </h4>
                                     <p className="mt-2">
-                                        Effortlessly switch between light and
-                                        dark modes or create your custom theme.
+                                        Manage projects, track progress with dashboards, 
+                                        and organize tasks efficiently with our integrated suite of tools.
                                     </p>
                                 </div>
                             </Card>

@@ -21,19 +21,19 @@ const navMenu = [
         to: 'features'
     },
     {
-        title: 'Demos',
-        value: 'demos',
-        to: 'demos'
+        title: 'Dashboard',
+        value: 'dashboard',
+        href: '/dashboards/project'
     },
     {
-        title: 'Components',
-        value: 'components',
-        to: 'components'
+        title: 'Projects',
+        value: 'projects',
+        href: '/app/projects'
     },
     {
-        title: 'Documentations',
-        value: 'documentations',
-        href: '/guide/documentation/introduction'
+        title: 'Scrum Board',
+        value: 'scrum',
+        href: '/app/scrum-board'
     }
 ]
 
@@ -139,10 +139,11 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
                         </svg>
                         <span className="sr-only">Toggle theme</span>
-                    </button>
-                    <div className="border border-gray-200 dark:border-gray-700 rounded-full inline-flex items-center justify-center gap-2 py-1 px-2 bg-white dark:bg-gray-800">
-                        <img src="/img/landing/tech/nextjs.png" alt="nextjs" className="w-6 h-6" />
-                        <span className="heading-text">Next</span>
+                    </button>                    <div className="border border-gray-200 dark:border-gray-700 rounded-full inline-flex items-center justify-center gap-2 py-1 px-2 bg-white dark:bg-gray-800">
+                        <div className="w-6 h-6 bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">Z</span>
+                        </div>
+                        <span className="heading-text">Zeno</span>
                     </div>
                 </div>
             </div>

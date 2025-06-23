@@ -57,13 +57,12 @@ const OtherFeatures = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, type: 'spring', bounce: 0.1 }}
                     viewport={{ once: true }}
-                >
-                    <motion.h2 className="my-6 text-5xl">
-                        Tailored for Every Need
+                >                    <motion.h2 className="my-6 text-5xl">
+                        Built for Project Success
                     </motion.h2>
                     <motion.p className="mx-auto max-w-[600px]">
-                        Built to adapt to any user or region, delivering
-                        seamless performance across all devices and languages.
+                        From team collaboration to project tracking, our platform 
+                        provides everything you need to deliver projects on time and within budget.
                     </motion.p>
                 </motion.div>
                 <div className="mt-20">
@@ -78,28 +77,25 @@ const OtherFeatures = () => {
                         }}
                         viewport={{ once: true }}
                     >
-                        <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">
-                            <div>
-                                <h3 className="text-4xl">Responsive Design</h3>
+                        <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">                            <div>
+                                <h3 className="text-4xl">Team Collaboration</h3>
                                 <p className="mt-6 max-w-[550px] text-lg">
-                                    Your app will look stunning on all devices,
-                                    from desktops to tablets to mobile phones.
-                                    No need to worry about scaling—it&apos;s
-                                    built to work flawlessly on every screen
-                                    size.
+                                    Work together seamlessly with role-based access control, 
+                                    real-time updates, and integrated communication tools. 
+                                    Keep your team aligned and productive throughout the project lifecycle.
                                 </p>
                                 <div className="mt-12 flex flex-col gap-4">
                                     <PointList>
-                                        Automatically adjusts layouts for
-                                        different screen resolutions.
+                                        Real-time collaboration with instant updates
+                                        across all team members.
                                     </PointList>
                                     <PointList>
-                                        Optimized media queries for performance
-                                        on smaller devices.
+                                        Role-based permissions to control access
+                                        to sensitive project information.
                                     </PointList>
                                     <PointList>
-                                        Smooth transitions and fluid design for
-                                        touch interactions.
+                                        Integrated messaging and notification system
+                                        for seamless communication.
                                     </PointList>
                                 </div>
                             </div>
@@ -175,55 +171,50 @@ const OtherFeatures = () => {
                                         )}
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <h3 className="text-4xl">Multilanguage Support</h3>
+                            </div>                            <div>
+                                <h3 className="text-4xl">Project Analytics</h3>
                                 <p className="mt-6 max-w-[550px] text-lg">
-                                    Expand your reach with built-in multilingual
-                                    support. Easily switch between languages and
-                                    ensure a smooth experience for users around
-                                    the globe.
+                                    Gain valuable insights into your project performance with 
+                                    comprehensive analytics and reporting. Track progress, 
+                                    identify bottlenecks, and make data-driven decisions.
                                 </p>
                                 <div className="mt-12 flex flex-col gap-4">
                                     <PointList>
-                                        Quick and easy language switching from a
-                                        dropdown.
+                                        Real-time project progress tracking with 
+                                        visual charts and graphs.
                                     </PointList>
                                     <PointList>
-                                        Supports all major languages and easily
-                                        extensible to new ones.
+                                        Team productivity metrics and performance 
+                                        analysis across all projects.
                                     </PointList>
                                     <PointList>
-                                        Integrated with{' '}
-                                        <code>react-i18next</code> for seamless
-                                        translations.
+                                        Automated reporting with customizable 
+                                        dashboards and export options.
                                     </PointList>
                                 </div>
                             </div>
                         </div>
                     </motion.div>
                     <motion.div className="bg-gray-100 dark:bg-gray-800 rounded-3xl py-12 px-10 lg:py-24 lg:px-16 overflow-hidden mb-10">
-                        <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">
-                            <div>
-                                <h3 className="text-4xl">RTL Layout Ready</h3>
+                        <div className="grid lg:grid-cols-2 gap-8 lg:gap-4">                            <div>
+                                <h3 className="text-4xl">Advanced Task Management</h3>
                                 <p className="mt-6 max-w-[550px] text-lg">
-                                    Whether your users are in right-to-left
-                                    regions or left-to-right, our layout options
-                                    have you covered. Effortlessly switch to RTL
-                                    for languages like Arabic or Hebrew.
+                                    Organize and prioritize tasks with our intuitive task management system. 
+                                    From simple to-do lists to complex project workflows, 
+                                    manage everything with ease.
                                 </p>
                                 <div className="mt-12 flex flex-col gap-4">
                                     <PointList>
-                                        Instant RTL conversion with a single
-                                        setting change.
+                                        Drag-and-drop task organization with 
+                                        customizable workflows and priorities.
                                     </PointList>
                                     <PointList>
-                                        Fully tested for visual consistency and
-                                        readability.
+                                        Automated task assignments and deadline 
+                                        notifications to keep projects on track.
                                     </PointList>
                                     <PointList>
-                                        Works across all components, ensuring
-                                        uniform user experience.
+                                        Advanced filtering and search capabilities 
+                                        for quick task discovery and management.
                                     </PointList>
                                 </div>
                             </div>
