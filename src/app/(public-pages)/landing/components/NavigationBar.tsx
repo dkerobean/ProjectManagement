@@ -53,8 +53,7 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
             }>
                 <button onClick={openDrawer} className="flex lg:hidden items-center gap-4">
                     <TbMenu2 size={24} />
-                </button>
-                <Drawer
+                </button>                <Drawer
                     title="Navigation"
                     isOpen={isOpen}
                     onClose={onDrawerClose}
@@ -66,6 +65,22 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                         <NavList onTabClick={onDrawerClose} tabs={
                             navMenu
                         } />
+                        <div className="border-t border-gray-200 dark:border-gray-700 pt-4 flex flex-col gap-2">
+                            <Link 
+                                href="/sign-in"
+                                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 text-sm font-medium transition-colors text-center"
+                                onClick={onDrawerClose}
+                            >
+                                Sign In
+                            </Link>
+                            <Link 
+                                href="/sign-up"
+                                className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 text-center"
+                                onClick={onDrawerClose}
+                            >
+                                Get Started
+                            </Link>
+                        </div>
                     </div>
                 </Drawer>
                 <Link href="/">
@@ -95,15 +110,17 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                         navMenu
                     } />
                 </div>                <div className="flex items-center gap-2">
-                    <Link href="/sign-in">
-                        <button className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 text-sm font-medium transition-colors">
-                            Sign In
-                        </button>
+                    <Link 
+                        href="/sign-in"
+                        className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+                    >
+                        Sign In
                     </Link>
-                    <Link href="/sign-up">
-                        <button className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200">
-                            Get Started
-                        </button>
+                    <Link 
+                        href="/sign-up"
+                        className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200"
+                    >
+                        Get Started
                     </Link>
                     <button className="relative flex cursor-pointer items-center justify-center rounded-xl p-2 text-neutral-500 hover:shadow-input dark:text-neutral-500" onClick={toggleMode}>
                         <svg
