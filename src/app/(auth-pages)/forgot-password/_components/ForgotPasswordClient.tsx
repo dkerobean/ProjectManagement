@@ -2,7 +2,6 @@
 
 import { apiForgotPassword } from '@/services/AuthService'
 import ForgotPassword from '@/components/auth/ForgotPassword'
-import ZenoSplit from '@/components/layouts/AuthLayout/ZenoSplit'
 import { toast } from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import type { OnForgotPasswordSubmitPayload } from '@/components/auth/ForgotPassword'
@@ -22,17 +21,14 @@ const ForgotPasswordClient = () => {
                     We have sent you an email to reset your password
                 </Notification>,
             )
-            setEmailSent(true)
-        } catch (error) {
+            setEmailSent(true)        } catch (error) {
             setMessage(error as string)
         } finally {
             setSubmitting(false)
         }
-    }    return (
-        <ZenoSplit>
-            <ForgotPassword onForgotPasswordSubmit={handleForgotPasswordSubmit} />
-        </ZenoSplit>
-    )
+    }
+
+    return <ForgotPassword onForgotPasswordSubmit={handleForgotPasswordSubmit} />
 }
 
 export default ForgotPasswordClient
