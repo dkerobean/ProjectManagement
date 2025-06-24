@@ -45,7 +45,7 @@ export default async function getRecentActivities() {
         // Get user data for the activities
         const { data: userData, error: userError } = await supabase
             .from('users')
-            .select('id, first_name, last_name, avatar_url')
+            .select('id, name, avatar_url')
             .eq('id', session.user.id)
             .single()
 
@@ -65,7 +65,7 @@ export default async function getRecentActivities() {
                 dateTime: new Date(activity.created_at).getTime(),
                 ticket: (metadata.ticket as string) || `${activity.entity_type?.toUpperCase()}-${activity.entity_id?.substring(0, 6)}`,
                 status: mapActivityTypeToStatus(activity.type),
-                userName: userData ? `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User' : 'User',
+                userName: userData?.name || 'User',
                 userImg: userData?.avatar_url || '/img/avatars/thumb-1.jpg',
                 comment: activity.description || activity.title,
                 tags: (metadata.tags as string[]) || [],

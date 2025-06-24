@@ -43,7 +43,8 @@ export default async function RootLayout({
                 lang={locale}
                 dir={theme.direction}
                 suppressHydrationWarning
-            >                <body suppressHydrationWarning>
+            >
+                <body suppressHydrationWarning>
                     <LocaleProvider locale={locale} messages={messages}>
                         <ThemeProvider locale={locale} theme={theme}>
                             <NavigationProvider navigationTree={navigationTree}>

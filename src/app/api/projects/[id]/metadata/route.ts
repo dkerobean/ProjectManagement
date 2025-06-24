@@ -11,12 +11,6 @@ const milestoneSchema = z.object({
     description: z.string().optional()
 })
 
-const budgetSchema = z.object({
-    allocated: z.number().min(0, 'Allocated budget must be non-negative'),
-    spent: z.number().min(0, 'Spent amount must be non-negative').default(0),
-    currency: z.enum(['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'JPY']).default('USD')
-})
-
 const clientSchema = z.object({
     name: z.string().min(1, 'Client name is required'),
     contact: z.string().optional(),
@@ -36,7 +30,6 @@ const customFieldSchema = z.object({
 
 const projectMetadataSchema = z.object({
     template: z.enum(['software', 'marketing', 'research', 'construction', 'event', 'consulting', 'other']).optional(),
-    budget: budgetSchema.optional(),
     client: clientSchema.optional(),
     milestones: z.array(milestoneSchema).default([]),
     customFields: z.array(customFieldSchema).default([]),

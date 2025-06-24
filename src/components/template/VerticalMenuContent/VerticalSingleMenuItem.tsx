@@ -50,7 +50,12 @@ const CollapsedItem = ({
     const handleClick = (e: React.MouseEvent) => {
         if (nav.path && !nav.isExternalLink) {
             e.preventDefault()
-            navigate(nav.path)
+            // Use immediate loading for menu navigation - no delay, wait until page ready
+            navigate(nav.path, { 
+                showLoading: true, 
+                loadingDelay: 0, 
+                maxLoadingTime: 3000 
+            })
             onLinkClick?.({
                 key: nav.key,
                 title: nav.title,
@@ -94,17 +99,20 @@ const DefaultItem = (props: DefaultItemProps) => {
         onLinkClick,
         showTitle,
         indent,
-        showIcon = true,
-        userAuthority,
-        t,
-    } = props
+        showIcon = true,        userAuthority,
+        t,    } = props
 
     const { navigate } = useNavigateWithLoading()
 
     const handleClick = (e: React.MouseEvent) => {
         if (nav.path && !nav.isExternalLink) {
             e.preventDefault()
-            navigate(nav.path)
+            // Use immediate loading for menu navigation - no delay, wait until page ready
+            navigate(nav.path, { 
+                showLoading: true, 
+                loadingDelay: 0, 
+                maxLoadingTime: 3000 
+            })
             onLinkClick?.({
                 key: nav.key,
                 title: nav.title,

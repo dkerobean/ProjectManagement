@@ -7,6 +7,7 @@ import { useCallback } from 'react'
 interface NavigateOptions {
     showLoading?: boolean
     loadingDelay?: number
+    maxLoadingTime?: number
 }
 
 export const useNavigateWithLoading = () => {
@@ -15,40 +16,39 @@ export const useNavigateWithLoading = () => {
 
     const navigate = useCallback((
         path: string, 
-        options: NavigateOptions = { showLoading: true, loadingDelay: 100 }
+        options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
         if (options.showLoading) {
-            // Small delay to prevent flash for very fast navigations
-            setTimeout(() => {
-                setIsLoading(true)
-            }, options.loadingDelay || 100)
+            // Show loading immediately for better responsiveness
+            setIsLoading(true)
         }
         
+        // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.push(path)
     }, [router, setIsLoading])
 
     const replace = useCallback((
         path: string, 
-        options: NavigateOptions = { showLoading: true, loadingDelay: 100 }
+        options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
         if (options.showLoading) {
-            setTimeout(() => {
-                setIsLoading(true)
-            }, options.loadingDelay || 100)
+            // Show loading immediately for better responsiveness
+            setIsLoading(true)
         }
         
+        // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.replace(path)
     }, [router, setIsLoading])
 
     const back = useCallback((
-        options: NavigateOptions = { showLoading: true, loadingDelay: 100 }
+        options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
         if (options.showLoading) {
-            setTimeout(() => {
-                setIsLoading(true)
-            }, options.loadingDelay || 100)
+            // Show loading immediately for better responsiveness
+            setIsLoading(true)
         }
         
+        // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.back()
     }, [router, setIsLoading])
 

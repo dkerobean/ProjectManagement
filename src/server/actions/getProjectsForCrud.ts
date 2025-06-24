@@ -24,7 +24,7 @@ const getProjectsForCrud = async () => {
                 owner_id,
                 start_date,
                 end_date,
-                budget,
+                color,
                 metadata,
                 created_at,
                 updated_at
@@ -131,7 +131,7 @@ const getProjectsForCrud = async () => {
                     description: project.description,
                     start_date: project.start_date,
                     end_date: project.end_date,
-                    budget: project.budget,
+                    color: project.color,
                     metadata: project.metadata,
                     owner_id: project.owner_id,
                     project_members: projectMembers,

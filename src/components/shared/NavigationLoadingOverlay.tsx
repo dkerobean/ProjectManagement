@@ -17,18 +17,18 @@ const NavigationLoadingOverlay = ({ className }: NavigationLoadingOverlayProps) 
         <div
             className={classNames(
                 'fixed inset-0 z-50 flex items-center justify-center',
-                'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm',
-                'transition-opacity duration-300',
+                'bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm',
+                'transition-opacity duration-150',
                 className
             )}
         >
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-3">
                 <Spinner 
-                    size={40} 
+                    size={32}
                     className="text-primary" 
                     isSpining={true}
                 />
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-300">
                     Loading...
                 </p>
             </div>

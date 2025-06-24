@@ -26,20 +26,20 @@ const NavigationProgressBar = ({
             setIsVisible(true)
             setProgress(0)
             
-            // Simulate progress
+            // Faster progress simulation
             interval = setInterval(() => {
                 setProgress(prev => {
-                    if (prev >= 90) return prev
-                    return prev + Math.random() * 10
+                    if (prev >= 85) return prev
+                    return prev + Math.random() * 15 // Faster increments
                 })
-            }, 200)
+            }, 150) // Faster interval
         } else {
-            // Complete the progress bar
+            // Complete the progress bar quickly
             setProgress(100)
             setTimeout(() => {
                 setIsVisible(false)
                 setProgress(0)
-            }, 300)
+            }, 200) // Faster completion
         }
 
         return () => {
@@ -61,7 +61,7 @@ const NavigationProgressBar = ({
         >
             <div 
                 className={classNames(
-                    'h-full transition-all duration-300 ease-out',
+                    'h-full transition-all duration-200 ease-out', // Faster transition
                     color
                 )}
                 style={{ 
