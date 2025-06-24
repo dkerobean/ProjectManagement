@@ -6,10 +6,9 @@ import {
 import { ADMIN, USER } from '@/constants/roles.constant'
 import type { NavigationTree } from '@/@types/navigation'
 
-const dashboardsNavigationConfig: NavigationTree[] = [
-    {
+const dashboardsNavigationConfig: NavigationTree[] = [    {
         key: 'dashboard',
-        path: '',
+        path: '/dashboard',
         title: 'Dashboard',
         translateKey: 'nav.dashboard.dashboard',
         icon: 'dashboard',

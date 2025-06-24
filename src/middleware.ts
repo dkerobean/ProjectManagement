@@ -8,8 +8,14 @@ import {
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import appConfig from '@/configs/app.config'
 import { hasRole, type UserRole } from '@/utils/roleBasedAccess'
+// import createIntlMiddleware from 'next-intl/middleware'
+// import { routing } from './i18n/routing'
+// import type { NextRequest } from 'next/server'
 
 const { auth } = NextAuth(authConfig)
+
+// Create the next-intl middleware (disabled for now)
+// const handleI18nRouting = createIntlMiddleware(routing)
 
 const publicRoutes = Object.entries(_publicRoutes).map(([key]) => key)
 const authRoutes = Object.entries(_authRoutes).map(([key]) => key)
@@ -20,20 +26,63 @@ export default auth((req) => {
     const { nextUrl } = req
     const isSignedIn = !!req.auth
 
+    // Enhanced guard against undefined routes and prevent infinite loops
+    if (nextUrl.pathname === '/undefined' || 
+        nextUrl.pathname.includes('/undefined/') || 
+        nextUrl.pathname.includes('undefined') ||
+        nextUrl.pathname === '/null' ||
+        nextUrl.pathname.includes('/null/')) {
+        console.warn('⚠️ Detected invalid route, redirecting:', nextUrl.pathname)
+        // Always redirect to home to prevent loops
+        return Response.redirect(new URL('/', nextUrl))
+    }
+
+    // Prevent redirect loops - if we've already redirected multiple times, just serve the page
+    const redirectCount = parseInt(nextUrl.searchParams.get('_redirects') || '0')
+    if (redirectCount > 2) {
+        console.error('❌ Too many redirects detected, serving home page')
+        return Response.redirect(new URL('/', nextUrl))
+    }
+
+    // Don't apply intl middleware to API routes, static files, or Next.js internals
+    if (nextUrl.pathname.startsWith('/api/') || 
+        nextUrl.pathname.startsWith('/_next/') || 
+        nextUrl.pathname.startsWith('/_vercel/') || 
+        nextUrl.pathname.includes('.')) {
+        
+        // Only these API routes require authentication
+        if (nextUrl.pathname.startsWith('/api/')) {
+            const protectedApiRoutes = ['/api/user', '/api/profile', '/api/admin']
+            const requiresAuth = protectedApiRoutes.some(route => nextUrl.pathname.startsWith(route))
+            if (!requiresAuth) return
+        } else {
+            return
+        }
+    }
+
+    // Handle i18n routing for non-API routes with error handling (disabled for debugging)
+    // if (!nextUrl.pathname.startsWith('/api/') && 
+    //     !nextUrl.pathname.startsWith('/_next/') && 
+    //     !nextUrl.pathname.startsWith('/_vercel/') && 
+    //     !nextUrl.pathname.includes('.')) {
+    //     try {
+    //         const response = handleI18nRouting(req as NextRequest)
+    //         // If i18n middleware returns a redirect/rewrite, use it
+    //         if (response && response.status !== 200) {
+    //             return response
+    //         }
+    //     } catch (error) {
+    //         console.warn('⚠️ i18n middleware error, continuing with auth:', error)
+    //         // Continue with auth logic even if i18n fails
+    //     }
+    // }
+
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname)
     const isAuthRoute = authRoutes.includes(nextUrl.pathname)
 
     /** Skip auth middleware for api routes */
     if (isApiAuthRoute) return
-
-    // Don't apply intl middleware to API routes
-    if (nextUrl.pathname.startsWith('/api/')) {
-        // Only these API routes require authentication
-        const protectedApiRoutes = ['/api/user', '/api/profile', '/api/admin']
-        const requiresAuth = protectedApiRoutes.some(route => nextUrl.pathname.startsWith(route))
-        if (!requiresAuth) return
-    }
 
     if (isAuthRoute) {
         if (isSignedIn) {
@@ -62,14 +111,20 @@ export default auth((req) => {
 
     /** Enhanced role-based access control */
     if (isSignedIn && nextUrl.pathname !== '/access-denied') {
-        const userRole = req.auth?.user?.role as UserRole
-        const userAuthority = req.auth?.user?.authority || []
+        // Add null checks for auth object to prevent production errors
+        if (!req.auth || !req.auth.user) {
+            console.error('❌ Middleware - auth or auth.user is undefined despite isSignedIn being true')
+            return Response.redirect(new URL(appConfig.unAuthenticatedEntryPath, nextUrl))
+        }
+        
+        const userRole = req.auth.user.role as UserRole
+        const userAuthority = req.auth.user.authority || []
 
         // Debug logging
         console.log('🔍 Middleware check for:', nextUrl.pathname)
         console.log('👤 User role:', userRole)
         console.log('🔑 User authority:', userAuthority)
-        console.log('📧 User email:', req.auth?.user?.email)
+        console.log('📧 User email:', req.auth.user.email)
 
         const routeMeta = protectedRoutes[nextUrl.pathname]
 
@@ -114,7 +169,14 @@ export default auth((req) => {
 
         if (currentRoute) {
             const requiredRoles = roleBasedRoutes[currentRoute]
-            const userRole = req.auth?.user?.role as UserRole
+            
+            // Additional null check for safety
+            if (!req.auth || !req.auth.user) {
+                console.error('❌ Middleware - auth.user undefined during role check')
+                return Response.redirect(new URL(appConfig.unAuthenticatedEntryPath, nextUrl))
+            }
+            
+            const userRole = req.auth.user.role as UserRole
 
             const hasAccess = requiredRoles.some(role => hasRole(userRole, role))
 
@@ -131,5 +193,11 @@ export default auth((req) => {
 })
 
 export const config = {
-    matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api)(.*)'],
+    matcher: [
+        // Match all pathnames except for
+        // - API routes that don't need auth or i18n
+        // - Static files (those with a dot in the path)
+        // - _next and _vercel internals
+        '/((?!api/_next|_vercel|.*\\..*).*)' 
+    ],
 }

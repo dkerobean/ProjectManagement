@@ -1,8 +1,10 @@
 import { auth } from '@/auth'
 import AuthProvider from '@/components/auth/AuthProvider'
+import AuthErrorBoundary from '@/components/auth/AuthErrorBoundary'
+import SessionRefresher from '@/components/auth/SessionRefresher'
 import ThemeProvider from '@/components/template/Theme/ThemeProvider'
 import pageMetaConfig from '@/configs/page-meta.config'
-import LocaleProvider from '@/components/template/LocaleProvider'
+import { NextIntlClientProvider } from 'next-intl'
 import NavigationProvider from '@/components/template/Navigation/NavigationProvider'
 import { NavigationLoadingProvider } from '@/contexts/NavigationLoadingContext'
 import { getNavigation } from '@/server/actions/navigation/getNavigation'
@@ -29,7 +31,6 @@ export default async function RootLayout({
     const session = await auth()
 
     const locale = await getLocale()
-
     const messages = await getMessages()
 
     const navigationTree = await getNavigation()
@@ -45,15 +46,18 @@ export default async function RootLayout({
                 suppressHydrationWarning
             >
                 <body suppressHydrationWarning>
-                    <LocaleProvider locale={locale} messages={messages}>
-                        <ThemeProvider locale={locale} theme={theme}>
-                            <NavigationProvider navigationTree={navigationTree}>
-                                <NavigationLoadingProvider>
-                                    {children}
-                                </NavigationLoadingProvider>
-                            </NavigationProvider>
-                        </ThemeProvider>
-                    </LocaleProvider>
+                    <AuthErrorBoundary>
+                        <NextIntlClientProvider locale={locale} messages={messages}>
+                            <ThemeProvider locale={locale} theme={theme}>
+                                <NavigationProvider navigationTree={navigationTree}>
+                                    <NavigationLoadingProvider>
+                                        <SessionRefresher />
+                                        {children}
+                                    </NavigationLoadingProvider>
+                                </NavigationProvider>
+                            </ThemeProvider>
+                        </NextIntlClientProvider>
+                    </AuthErrorBoundary>
                 </body>
             </html>
         </AuthProvider>

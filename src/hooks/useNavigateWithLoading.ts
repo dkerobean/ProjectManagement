@@ -18,6 +18,12 @@ export const useNavigateWithLoading = () => {
         path: string,
         options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
+        // Guard against undefined or empty paths
+        if (!path || path === '' || path === 'undefined') {
+            console.error('❌ Navigation attempted with invalid path:', path)
+            return
+        }
+
         if (options.showLoading) {
             // Show loading immediately for better responsiveness
             setIsLoading(true)
@@ -31,6 +37,12 @@ export const useNavigateWithLoading = () => {
         path: string,
         options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
+        // Guard against undefined or empty paths
+        if (!path || path === '' || path === 'undefined') {
+            console.error('❌ Navigation replace attempted with invalid path:', path)
+            return
+        }
+
         if (options.showLoading) {
             // Show loading immediately for better responsiveness
             setIsLoading(true)

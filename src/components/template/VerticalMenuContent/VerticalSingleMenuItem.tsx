@@ -48,7 +48,8 @@ const CollapsedItem = ({
     const { navigate } = useNavigateWithLoading()
 
     const handleClick = (e: React.MouseEvent) => {
-        if (nav.path && !nav.isExternalLink) {
+        // Enhanced path validation to prevent /undefined routes
+        if (nav.path && nav.path !== '' && nav.path !== 'undefined' && !nav.isExternalLink) {
             e.preventDefault()
             // Use immediate loading for menu navigation - no delay, wait until page ready
             navigate(nav.path, {
@@ -61,6 +62,9 @@ const CollapsedItem = ({
                 title: nav.title,
                 path: nav.path,
             })
+        } else if (!nav.path || nav.path === '' || nav.path === 'undefined') {
+            console.warn('⚠️ CollapsedItem has invalid path:', nav.key, nav.path)
+            e.preventDefault()
         }
     }
 
@@ -75,7 +79,7 @@ const CollapsedItem = ({
                 </Tooltip>
             ) : (
                 <Dropdown.Item active={currentKey === nav.key}>
-                    {nav.path ? (
+                    {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (
                         <Link
                             className="h-full w-full flex items-center outline-hidden"
                             href={nav.path}
@@ -105,7 +109,8 @@ const DefaultItem = (props: DefaultItemProps) => {
     const { navigate } = useNavigateWithLoading()
 
     const handleClick = (e: React.MouseEvent) => {
-        if (nav.path && !nav.isExternalLink) {
+        // Enhanced path validation to prevent /undefined routes
+        if (nav.path && nav.path !== '' && nav.path !== 'undefined' && !nav.isExternalLink) {
             e.preventDefault()
             // Use immediate loading for menu navigation - no delay, wait until page ready
             navigate(nav.path, {
@@ -118,21 +123,31 @@ const DefaultItem = (props: DefaultItemProps) => {
                 title: nav.title,
                 path: nav.path,
             })
+        } else if (!nav.path || nav.path === '' || nav.path === 'undefined') {
+            console.warn('⚠️ DefaultItem has invalid path:', nav.key, nav.path)
+            e.preventDefault()
         }
     }
 
     return (
         <AuthorityCheck userAuthority={userAuthority} authority={nav.authority}>
             <MenuItem key={nav.key} eventKey={nav.key} dotIndent={indent}>
-                <Link
-                    href={nav.path}
-                    className="flex items-center gap-2 h-full w-full"
-                    target={nav.isExternalLink ? '_blank' : ''}
-                    onClick={handleClick}
-                >
-                    {showIcon && <VerticalMenuIcon icon={nav.icon} />}
-                    {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}
-                </Link>
+                {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (
+                    <Link
+                        href={nav.path}
+                        className="flex items-center gap-2 h-full w-full"
+                        target={nav.isExternalLink ? '_blank' : ''}
+                        onClick={handleClick}
+                    >
+                        {showIcon && <VerticalMenuIcon icon={nav.icon} />}
+                        {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}
+                    </Link>
+                ) : (
+                    <div className="flex items-center gap-2 h-full w-full">
+                        {showIcon && <VerticalMenuIcon icon={nav.icon} />}
+                        {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}
+                    </div>
+                )}
             </MenuItem>
         </AuthorityCheck>
     )
