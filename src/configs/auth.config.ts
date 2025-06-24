@@ -41,7 +41,14 @@ export default {
         }),
     ],    callbacks: {        async jwt({ token, user, account, trigger, session }) {
             // Following Context7 best practices for JWT callbacks
-            
+            console.log('🔍 JWT Callback:', { 
+                trigger, 
+                hasUser: !!user, 
+                hasAccount: !!account, 
+                tokenSub: token.sub,
+                userEmail: user?.email 
+            })
+
             // Handle session updates (avatar upload, etc.)
             if (trigger === "update" && session) {
                 if (session.avatar_url) token.avatar_url = session.avatar_url
@@ -51,6 +58,7 @@ export default {
 
             // Handle initial sign in - keep this minimal and fast
             if (account && user) {
+                console.log('🔍 JWT - Processing initial sign-in for:', user.email)
                 // Use data from authorize function if available
                 if (user.role) {
                     token.role = user.role
@@ -59,6 +67,7 @@ export default {
                     token.avatar_url = user.avatar_url || user.image
                     token.name = user.name
                     token.authority = user.authority || [user.role]
+                    console.log('✅ JWT - User data from authorize:', { role: user.role, email: user.email })
                 } else {
                     // Minimal fallback - avoid database calls in JWT callback
                     const adminEmails = ['admin@projectmgt.com', 'superadmin@projectmgt.com', 'frogman@gmail.com']
@@ -68,12 +77,22 @@ export default {
                     token.avatar_url = user.image
                     token.name = user.name
                     token.authority = [token.role]
+                    console.log('✅ JWT - Using fallback data for:', user.email)
                 }
             }
             
+            console.log('🔍 JWT - Final token:', { sub: token.sub, role: token.role, email: token.email })
             return token
         },        async session({ session, token }) {
             // CRITICAL: Keep session callback minimal and fast (Context7 best practice)
+            console.log('🔍 Session Callback:', { 
+                hasSession: !!session, 
+                hasUser: !!session?.user, 
+                hasToken: !!token,
+                tokenSub: token?.sub,
+                sessionEmail: session?.user?.email 
+            })
+            
             // Enhanced error handling - return session as-is if any issues
             if (!session?.user || !token) {
                 console.error('❌ Session callback - missing session or token')
@@ -82,7 +101,7 @@ export default {
 
             try {
                 // Simple, fast session construction - exactly like Context7 examples
-                return {
+                const enhancedSession = {
                     ...session,
                     user: {
                         ...session.user,
@@ -94,6 +113,8 @@ export default {
                         authority: token.authority || [token.role || 'member'],
                     },
                 }
+                console.log('✅ Session enhanced for:', session.user.email, 'Role:', token.role)
+                return enhancedSession
             } catch (error) {
                 console.error('❌ Session callback error:', error)
                 // Return original session on any error

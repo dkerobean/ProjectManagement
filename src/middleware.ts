@@ -26,6 +26,14 @@ export default auth((req) => {
     const { nextUrl } = req
     const isSignedIn = !!req.auth
 
+    console.log('🔍 Middleware check:', {
+        pathname: nextUrl.pathname,
+        search: nextUrl.search,
+        isSignedIn,
+        hasUser: !!req.auth?.user,
+        userEmail: req.auth?.user?.email
+    })
+
     // Enhanced guard against undefined routes and prevent infinite loops
     if (nextUrl.pathname === '/undefined' || 
         nextUrl.pathname.includes('/undefined/') || 

@@ -2,11 +2,12 @@
 
 import SignIn from '@/components/auth/SignIn'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
+import { signIn, useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 import appConfig from '@/configs/app.config'
+import { useEffect } from 'react'
 import type {
     OnSignInPayload,
     OnOauthSignInPayload,
@@ -18,8 +19,33 @@ interface SignInClientProps {
 
 const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
     const searchParams = useSearchParams()
-    const router = useRouter()
+    const { data: session, status } = useSession()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY) || appConfig.authenticatedEntryPath
+
+    // Monitor session changes and redirect when authenticated
+    useEffect(() => {
+        console.log('🔍 Session Status Change:', { 
+            status, 
+            hasSession: !!session, 
+            hasUser: !!session?.user,
+            userEmail: session?.user?.email,
+            callbackUrl 
+        })
+        
+        if (status === 'authenticated' && session?.user) {
+            console.log('✅ Session authenticated, redirecting to:', callbackUrl)
+            toast.push(
+                <Notification type="success" title="Welcome Back!">
+                    You have been successfully signed in.
+                </Notification>,
+                { placement: 'top-end' }
+            )
+            
+            setTimeout(() => {
+                window.location.href = callbackUrl
+            }, 500)
+        }
+    }, [status, session, callbackUrl])
 
     const handleSignIn = async ({
         values,
@@ -30,41 +56,22 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
         setMessage('')
 
         try {
-            // Use NextAuth with credentials provider (which handles Supabase internally)
-            const result = await signIn('credentials', {
+            console.log('🔄 Attempting sign-in with redirect to:', callbackUrl)
+            
+            // Use NextAuth with built-in redirect - this should work now with the fixed auth config
+            await signIn('credentials', {
                 email: values.email,
                 password: values.password,
-                redirect: false,
+                callbackUrl: callbackUrl,
+                redirect: true, // Let NextAuth handle everything
             })
-
-            if (result?.error) {
-                // Show error toast
-                toast.push(
-                    <Notification type="danger" title="Sign In Failed">
-                        Please check your email and password, and ensure your email is verified.
-                    </Notification>,
-                    { placement: 'top-end' }
-                )
-                setMessage('Authentication failed. Please check your credentials.')
-                setSubmitting(false)
-                return
-            }
-
-            // Success - show toast and redirect
-            toast.push(
-                <Notification type="success" title="Welcome Back!">
-                    You have been successfully signed in.
-                </Notification>,
-                { placement: 'top-end' }
-            )
-
-            // Small delay to show the success toast before redirect
-            setTimeout(() => {
-                router.push(callbackUrl)
-            }, 1000)
-
+            
+            // If we reach this point, something went wrong (should have redirected)
+            console.log('⚠️ Sign-in completed but no redirect occurred')
+            setSubmitting(false)
+            
         } catch (error) {
-            console.error('Sign in error:', error)
+            console.error('❌ Sign in error:', error)
             toast.push(
                 <Notification type="danger" title="Sign In Error">
                     An unexpected error occurred. Please try again.
@@ -78,11 +85,12 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
 
     const handleOAuthSignIn = async ({ type }: OnOauthSignInPayload) => {
         try {
+            console.log('🔄 OAuth sign-in initiated for:', type, 'with callback:', callbackUrl)
             if (type === 'google') {
-                await handleOauthSignIn('google')
+                await handleOauthSignIn('google', callbackUrl)
             }
             if (type === 'github') {
-                await handleOauthSignIn('github')
+                await handleOauthSignIn('github', callbackUrl)
             }
         } catch (error) {
             console.error('OAuth sign in error:', error)
