@@ -22,11 +22,12 @@ const getProjects = async () => {
             console.warn('No session found in getProjects, returning empty array')
             return []
         }
-        
-        console.log(`[getProjects] Starting fetch for user: ${session.user.email} (${session.user.id})`)
+          console.log(`[getProjects] Starting fetch for user: ${session.user.email} (${session.user.id})`)
         const startTime = Date.now()
 
-        const supabase = await createSupabaseServerClient()        // Fetch projects with related member data
+        const supabase = await createSupabaseServerClient()
+        
+        // Fetch projects with related member data
         const { data: projects, error } = await supabase
             .from('projects')
             .select(`
@@ -38,7 +39,6 @@ const getProjects = async () => {
                 start_date,
                 end_date,
                 due_date,
-                color,
                 metadata,
                 created_at,
                 updated_at,
@@ -126,13 +126,12 @@ const getProjects = async () => {
                 desc: project.description || '',
                 attachmentCount: 0,
                 totalTask: totalTask,
-                completedTask: completedTask,
-                progression: progression,
+                completedTask: completedTask,                progression: progression,
                 dayleft: project.due_date ?
                     Math.max(0, Math.ceil((new Date(project.due_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) : undefined,
                 status: project.status,
                 member: allMembers, // Now populated with real members
-                cover: project.color || '#3B82F6',
+                cover: project.metadata?.color || '#3B82F6',
                 priority: project.priority || 'medium',
                 createdAt: project.created_at,
                 updatedAt: project.updated_at,
@@ -144,7 +143,7 @@ const getProjects = async () => {
         console.log(`[getProjects] Successfully transformed ${transformedProjects.length} projects in ${totalTime}ms`)
         
         // Log project IDs for debugging
-        console.log('[getProjects] Project IDs:', transformedProjects.map((p: any) => p.id).join(', '))
+        console.log('[getProjects] Project IDs:', transformedProjects.map((p) => p.id).join(', '))
         
         return transformedProjects
     } catch (error) {
