@@ -32,7 +32,7 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
     // Auto-clear loading state when route changes and page is ready
     useEffect(() => {
         const newPath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '')
-        
+
         if (isLoading && currentPath !== newPath) {
             // Path has changed, wait for the new page to be fully ready
             const checkPageReady = () => {
@@ -43,11 +43,11 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
                         // 1. Document to be ready
                         // 2. All images to be loaded (if any)
                         // 3. A reasonable delay for React components to mount
-                        
+
                         const isDocumentReady = document.readyState === 'complete'
                         const elapsedTime = loadingStartTime ? Date.now() - loadingStartTime : 0
                         const minimumLoadingTime = 500 // Show loading for at least 500ms for better UX
-                        
+
                         if (isDocumentReady && elapsedTime >= minimumLoadingTime) {
                             // Additional delay to ensure React components are mounted
                             setTimeout(() => {
@@ -68,7 +68,7 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
                             }, remainingTime)
                         }
                     }
-                    
+
                     // Use multiple requestAnimationFrame calls to ensure everything is rendered
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
@@ -77,7 +77,7 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
                     })
                 }
             }
-            
+
             // Small delay before checking to ensure navigation has started
             setTimeout(checkPageReady, 50)
         } else if (!isLoading) {

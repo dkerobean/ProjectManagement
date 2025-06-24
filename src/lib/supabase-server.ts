@@ -3,50 +3,98 @@ import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import type { Database } from '@/@types/database'
 
-export async function createSupabaseServerClient() {
-  const cookieStore = await cookies()
+// Helper function to validate environment variables
+function getSupabaseConfig() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables. Please check your .env.local file.')
+  }
+  
+  return { supabaseUrl, supabaseAnonKey }
+}
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
+export async function createSupabaseServerClient() {
+  try {
+    const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig()
+    const cookieStore = cookies()
+
+    return createServerClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (error) {
+              // Handle error if needed
+              console.error('Error setting cookie:', error)
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options, maxAge: 0 })
+            } catch (error) {
+              console.error('Error removing cookie:', error)
+            }
+          },
         },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
-    }
-  )
+      }
+    )
+  } catch (error) {
+    console.error('Failed to create Supabase server client:', error)
+    throw error
+  }
 }
 
 export async function createSupabaseServerComponentClient() {
-  const cookieStore = await cookies()
+  try {
+    const { supabaseUrl, supabaseAnonKey } = getSupabaseConfig()
+    const cookieStore = cookies()
 
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
+    return createServerClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set() {
+            // No-op for server components
+          },
+          remove() {
+            // No-op for server components
+          },
         },
-        setAll() {
-          // Server Component - no-op
-        },
-      },
-    }
-  )
+      }
+    )
+  } catch (error) {
+    console.error('Failed to create Supabase server component client:', error)
+    throw error
+  }
+}
+
+export async function createSupabaseServiceClient() {
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  
+  if (!serviceRoleKey) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
+  }
+  
+  const { supabaseUrl } = getSupabaseConfig()
+  
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
 }
 
 export function createSupabaseServiceClient() {

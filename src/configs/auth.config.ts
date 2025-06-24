@@ -3,7 +3,7 @@ import validateCredential from '../server/actions/user/validateCredential'
 import Credentials from 'next-auth/providers/credentials'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 import type { SignInCredential } from '@/@types/auth'
 

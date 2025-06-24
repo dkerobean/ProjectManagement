@@ -1,7 +1,6 @@
 'use client'
 
 import SignIn from '@/components/auth/SignIn'
-import handleOauthSignIn from '@/server/actions/auth/handleOauthSignIn'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
@@ -13,7 +12,11 @@ import type {
     OnOauthSignInPayload,
 } from '@/components/auth/SignIn'
 
-const SignInClient = () => {
+interface SignInClientProps {
+    handleOauthSignIn: (signInMethod: string, callbackUrl?: string) => Promise<void>
+}
+
+const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
     const searchParams = useSearchParams()
     const router = useRouter()
     const callbackUrl = searchParams.get(REDIRECT_URL_KEY) || appConfig.authenticatedEntryPath

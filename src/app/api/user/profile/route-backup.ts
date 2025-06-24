@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { createSupabaseServiceClient } from '@/lib/supabase-server'
+import { createSupabaseServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
@@ -45,7 +45,7 @@ export async function GET() {
         } catch (error) {
             console.warn('⚠️ Service role not available, using authenticated server client:', error)
             // Use the regular server client which handles authentication properly
-            const { createSupabaseServerClient } = await import('@/lib/supabase-server')
+            const { createSupabaseServerClient } = await import('@/lib/supabase/server')
             supabase = await createSupabaseServerClient()
             console.log('✅ Using authenticated server client as fallback')
         }
@@ -197,7 +197,7 @@ export async function PUT(request: NextRequest) {
         } catch (error) {
             console.warn('⚠️ Service role not available, using authenticated server client:', error)
             // Use the regular server client which handles authentication properly
-            const { createSupabaseServerClient } = await import('@/lib/supabase-server')
+            const { createSupabaseServerClient } = await import('@/lib/supabase/server')
             supabase = await createSupabaseServerClient()
             isUsingServiceRole = false
             console.log('✅ Using authenticated server client as fallback')

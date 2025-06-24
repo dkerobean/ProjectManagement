@@ -9,17 +9,17 @@ interface NavigationLoadingIndicatorProps {
     size?: number
 }
 
-const NavigationLoadingIndicator = ({ 
-    className, 
-    size = 16 
+const NavigationLoadingIndicator = ({
+    className,
+    size = 16
 }: NavigationLoadingIndicatorProps) => {
     const { isLoading } = useNavigationLoading()
 
     if (!isLoading) return null
 
     return (
-        <Spinner 
-            size={size} 
+        <Spinner
+            size={size}
             className={classNames(
                 'text-primary animate-spin',
                 className

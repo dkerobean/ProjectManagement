@@ -6,7 +6,6 @@ import Dropdown from '@/components/ui/Dropdown'
 import classNames from 'classnames'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import { HiCheck } from 'react-icons/hi'
-import { setLocale } from '@/server/actions/locale'
 import { useLocale } from 'next-intl'
 import type { CommonProps } from '@/@types/common'
 
@@ -25,6 +24,8 @@ const _LanguageSelector = ({ className }: CommonProps) => {
     }, [locale])
 
     const handleUpdateLocale = async (locale: string) => {
+        // Dynamically import the server action to avoid client-side import issues
+        const { setLocale } = await import('@/server/actions/locale')
         await setLocale(locale)
     }
 

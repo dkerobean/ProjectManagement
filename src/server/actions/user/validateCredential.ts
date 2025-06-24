@@ -1,6 +1,6 @@
 'use server'
 import type { SignInCredential } from '@/@types/auth'
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { createClient } from '@supabase/supabase-js'
 
 const validateCredential = async (values: SignInCredential) => {

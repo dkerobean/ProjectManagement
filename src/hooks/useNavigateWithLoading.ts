@@ -15,27 +15,27 @@ export const useNavigateWithLoading = () => {
     const { setIsLoading } = useNavigationLoading()
 
     const navigate = useCallback((
-        path: string, 
+        path: string,
         options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
         if (options.showLoading) {
             // Show loading immediately for better responsiveness
             setIsLoading(true)
         }
-        
+
         // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.push(path)
     }, [router, setIsLoading])
 
     const replace = useCallback((
-        path: string, 
+        path: string,
         options: NavigateOptions = { showLoading: true, loadingDelay: 0, maxLoadingTime: 5000 }
     ) => {
         if (options.showLoading) {
             // Show loading immediately for better responsiveness
             setIsLoading(true)
         }
-        
+
         // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.replace(path)
     }, [router, setIsLoading])
@@ -47,7 +47,7 @@ export const useNavigateWithLoading = () => {
             // Show loading immediately for better responsiveness
             setIsLoading(true)
         }
-        
+
         // Perform the navigation - loading will be cleared by NavigationLoadingContext when page is ready
         router.back()
     }, [router, setIsLoading])

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { createSupabaseServiceClient } from '@/lib/supabase-server'
+import { createSupabaseServiceClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
@@ -56,7 +56,7 @@ export async function PUT(request: NextRequest) {
             console.warn('⚠️ Service role client failed:', serviceError)
             console.log('🔄 Falling back to authenticated server client...')
 
-            const { createSupabaseServerClient } = await import('@/lib/supabase-server')
+            const { createSupabaseServerClient } = await import('@/lib/supabase/server')
             supabase = await createSupabaseServerClient()
             clientType = 'authenticated'
             console.log('✅ Using authenticated server client')
@@ -129,7 +129,7 @@ export async function GET() {
             console.log('✅ GET: Service role client created')
         } catch {
             console.warn('⚠️ GET: Service role failed, using authenticated client')
-            const { createSupabaseServerClient } = await import('@/lib/supabase-server')
+            const { createSupabaseServerClient } = await import('@/lib/supabase/server')
             supabase = await createSupabaseServerClient()
             clientType = 'authenticated'
         }

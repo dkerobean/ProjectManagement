@@ -23,9 +23,9 @@ const NavigationLoadingOverlay = ({ className }: NavigationLoadingOverlayProps) 
             )}
         >
             <div className="flex flex-col items-center gap-3">
-                <Spinner 
+                <Spinner
                     size={32}
-                    className="text-primary" 
+                    className="text-primary"
                     isSpining={true}
                 />
                 <p className="text-xs font-medium text-gray-600 dark:text-gray-300">

@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase-server'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { auth } from '@/auth'
 
 type ProjectUser = {
@@ -26,7 +26,7 @@ const getProjects = async () => {
         const startTime = Date.now()
 
         const supabase = await createSupabaseServerClient()
-        
+
         // Fetch projects with related member data
         const { data: projects, error } = await supabase
             .from('projects')
@@ -59,7 +59,7 @@ const getProjects = async () => {
 
         const fetchTime = Date.now() - startTime
         console.log(`[getProjects] Fetched ${projects?.length || 0} projects in ${fetchTime}ms`)
-        
+
         if (!projects || projects.length === 0) {
             console.log('[getProjects] No projects found, returning empty array')
             return []
@@ -141,10 +141,10 @@ const getProjects = async () => {
 
         const totalTime = Date.now() - startTime
         console.log(`[getProjects] Successfully transformed ${transformedProjects.length} projects in ${totalTime}ms`)
-        
+
         // Log project IDs for debugging
         console.log('[getProjects] Project IDs:', transformedProjects.map((p) => p.id).join(', '))
-        
+
         return transformedProjects
     } catch (error) {
         console.error('Error in getProjects:', error)

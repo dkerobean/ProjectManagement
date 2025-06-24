@@ -51,10 +51,10 @@ const CollapsedItem = ({
         if (nav.path && !nav.isExternalLink) {
             e.preventDefault()
             // Use immediate loading for menu navigation - no delay, wait until page ready
-            navigate(nav.path, { 
-                showLoading: true, 
-                loadingDelay: 0, 
-                maxLoadingTime: 3000 
+            navigate(nav.path, {
+                showLoading: true,
+                loadingDelay: 0,
+                maxLoadingTime: 3000
             })
             onLinkClick?.({
                 key: nav.key,
@@ -108,10 +108,10 @@ const DefaultItem = (props: DefaultItemProps) => {
         if (nav.path && !nav.isExternalLink) {
             e.preventDefault()
             // Use immediate loading for menu navigation - no delay, wait until page ready
-            navigate(nav.path, { 
-                showLoading: true, 
-                loadingDelay: 0, 
-                maxLoadingTime: 3000 
+            navigate(nav.path, {
+                showLoading: true,
+                loadingDelay: 0,
+                maxLoadingTime: 3000
             })
             onLinkClick?.({
                 key: nav.key,

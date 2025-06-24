@@ -4,7 +4,6 @@ import ThemeContext from './ThemeContext'
 import ConfigProvider from '@/components/ui/ConfigProvider'
 import appConfig from '@/configs/app.config'
 import applyTheme from '@/utils/applyThemeSchema'
-import { setTheme as setThemeCookies } from '@/server/actions/theme'
 import presetThemeSchemaConfig from '@/configs/preset-theme-schema.config'
 import type { Theme } from '@/@types/theme'
 import type { CommonProps } from '@/@types/common'
@@ -20,6 +19,8 @@ const ThemeProvider = ({ children, theme, locale }: ThemeProviderProps) => {
     const handleSetTheme = async (payload: (param: Theme) => Theme | Theme) => {
         const setTheme = async (theme: Theme) => {
             setThemeState(theme)
+            // Dynamically import the server action to avoid client-side import issues
+            const { setTheme: setThemeCookies } = await import('@/server/actions/theme')
             await setThemeCookies(JSON.stringify({ state: theme }))
         }
 

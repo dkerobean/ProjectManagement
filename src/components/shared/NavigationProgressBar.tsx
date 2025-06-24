@@ -10,7 +10,7 @@ interface NavigationProgressBarProps {
     color?: string
 }
 
-const NavigationProgressBar = ({ 
+const NavigationProgressBar = ({
     className,
     height = 3,
     color = 'bg-primary'
@@ -25,7 +25,7 @@ const NavigationProgressBar = ({
         if (isLoading) {
             setIsVisible(true)
             setProgress(0)
-            
+
             // Faster progress simulation
             interval = setInterval(() => {
                 setProgress(prev => {
@@ -50,7 +50,7 @@ const NavigationProgressBar = ({
     if (!isVisible) return null
 
     return (
-        <div 
+        <div
             className={classNames(
                 'fixed top-0 left-0 right-0 z-50',
                 'transition-opacity duration-300',
@@ -59,12 +59,12 @@ const NavigationProgressBar = ({
             )}
             style={{ height }}
         >
-            <div 
+            <div
                 className={classNames(
                     'h-full transition-all duration-200 ease-out', // Faster transition
                     color
                 )}
-                style={{ 
+                style={{
                     width: `${progress}%`,
                     boxShadow: progress > 0 ? '0 0 10px rgba(59, 130, 246, 0.5)' : 'none'
                 }}

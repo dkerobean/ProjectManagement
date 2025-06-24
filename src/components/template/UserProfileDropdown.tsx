@@ -4,7 +4,6 @@ import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Link from 'next/link'
-import signOut from '@/server/actions/auth/handleSignOut'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import useUserProfile from '@/hooks/useUserProfile'
 import { getUserDisplayName, getUserAvatarUrl } from '@/utils/userProfile'
@@ -49,7 +48,11 @@ const dropdownItemList: DropdownList[] = [
     },
 ]
 
-const _UserDropdown = () => {
+interface UserDropdownProps {
+    signOutAction: () => Promise<void>
+}
+
+const _UserDropdown = ({ signOutAction }: UserDropdownProps) => {
     const { session } = useCurrentSession()
     const { user, profile, isLoading, refreshProfile, hasProfile } = useUserProfile()
     const [avatarKey, setAvatarKey] = useState(0) // Force re-render of avatar
@@ -67,9 +70,7 @@ const _UserDropdown = () => {
         const handleProfileUpdate = () => {
             console.log('🔔 Profile update event received, refreshing...')
             handleRefreshProfile()
-        }
-
-        // Listen for custom event from settings page
+        }        // Listen for custom event from settings page
         console.log('👂 Setting up profile update event listener')
         window.addEventListener('profileUpdated', handleProfileUpdate)
 
@@ -80,8 +81,10 @@ const _UserDropdown = () => {
     }, [handleRefreshProfile])
 
     const handleSignOut = async () => {
-        await signOut()
-    }    // Use enhanced user data from session (includes cached profile)
+        await signOutAction()
+    }
+
+    // Use enhanced user data from session (includes cached profile)
     const currentUser = user || session?.user as ExtendedUser
     const displayName = getUserDisplayName(currentUser)
     const sessionUser = session?.user as ExtendedUser & { image?: string }
@@ -164,6 +167,19 @@ const _UserDropdown = () => {
     )
 }
 
-const UserDropdown = withHeaderItem(_UserDropdown)
+// Wrapper component to work with withHeaderItem HOC
+const UserDropdownWrapper = () => {
+    // This wrapper will receive the signOut action from its parent
+    // For now, let's import it here to fix immediate issues
+    // This should be refactored to receive it as a prop from the parent layout
+    const handleSignOut = async () => {
+        const { default: signOutAction } = await import('@/server/actions/auth/handleSignOut')
+        await signOutAction()
+    }
+
+    return <_UserDropdown signOutAction={handleSignOut} />
+}
+
+const UserDropdown = withHeaderItem(UserDropdownWrapper)
 
 export default UserDropdown
