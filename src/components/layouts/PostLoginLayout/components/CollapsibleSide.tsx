@@ -8,6 +8,8 @@ import ThemeToggle from '@/components/template/ThemeToggle'
 import Notification from '@/components/template/Notification'
 import UserProfileDropdown from '@/components//template/UserProfileDropdown'
 import LayoutBase from '@/components//template/LayoutBase'
+import NavigationLoadingOverlay from '@/components/shared/NavigationLoadingOverlay'
+import NavigationProgressBar from '@/components/shared/NavigationProgressBar'
 import { LAYOUT_COLLAPSIBLE_SIDE } from '@/constants/theme.constant'
 import type { CommonProps } from '@/@types/common'
 
@@ -17,6 +19,8 @@ const CollapsibleSide = ({ children }: CommonProps) => {
             type={LAYOUT_COLLAPSIBLE_SIDE}
             className="app-layout-collapsible-side flex flex-auto flex-col"
         >
+            <NavigationProgressBar />
+            <NavigationLoadingOverlay />
             <div className="flex flex-auto min-w-0">
                 <SideNav />
                 <div className="flex flex-col flex-auto min-h-screen min-w-0 relative w-full">

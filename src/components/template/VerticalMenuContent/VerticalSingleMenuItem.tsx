@@ -4,6 +4,7 @@ import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import VerticalMenuIcon from './VerticalMenuIcon'
 import Link from 'next/link'
 import Dropdown from '@/components/ui/Dropdown'
+import { useNavigateWithLoading } from '@/hooks/useNavigateWithLoading'
 import type { CommonProps } from '@/@types/common'
 import type { Direction } from '@/@types/theme'
 import type { NavigationTree, TranslationFn } from '@/@types/navigation'
@@ -44,6 +45,20 @@ const CollapsedItem = ({
     t,
     currentKey
 }: CollapsedItemProps) => {
+    const { navigate } = useNavigateWithLoading()
+
+    const handleClick = (e: React.MouseEvent) => {
+        if (nav.path && !nav.isExternalLink) {
+            e.preventDefault()
+            navigate(nav.path)
+            onLinkClick?.({
+                key: nav.key,
+                title: nav.title,
+                path: nav.path,
+            })
+        }
+    }
+
     return (
         <AuthorityCheck userAuthority={userAuthority} authority={nav.authority}>
             {renderAsIcon ? (
@@ -60,13 +75,7 @@ const CollapsedItem = ({
                             className="h-full w-full flex items-center outline-hidden"
                             href={nav.path}
                             target={nav.isExternalLink ? '_blank' : ''}
-                            onClick={() =>
-                                onLinkClick?.({
-                                    key: nav.key,
-                                    title: nav.title,
-                                    path: nav.path,
-                                })
-                            }
+                            onClick={handleClick}
                         >
                             <span>{t(nav.translateKey, nav.title)}</span>
                         </Link>
@@ -90,6 +99,20 @@ const DefaultItem = (props: DefaultItemProps) => {
         t,
     } = props
 
+    const { navigate } = useNavigateWithLoading()
+
+    const handleClick = (e: React.MouseEvent) => {
+        if (nav.path && !nav.isExternalLink) {
+            e.preventDefault()
+            navigate(nav.path)
+            onLinkClick?.({
+                key: nav.key,
+                title: nav.title,
+                path: nav.path,
+            })
+        }
+    }
+
     return (
         <AuthorityCheck userAuthority={userAuthority} authority={nav.authority}>
             <MenuItem key={nav.key} eventKey={nav.key} dotIndent={indent}>
@@ -97,13 +120,7 @@ const DefaultItem = (props: DefaultItemProps) => {
                     href={nav.path}
                     className="flex items-center gap-2 h-full w-full"
                     target={nav.isExternalLink ? '_blank' : ''}
-                    onClick={() =>
-                        onLinkClick?.({
-                            key: nav.key,
-                            title: nav.title,
-                            path: nav.path,
-                        })
-                    }
+                    onClick={handleClick}
                 >
                     {showIcon && <VerticalMenuIcon icon={nav.icon} />}
                     {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}

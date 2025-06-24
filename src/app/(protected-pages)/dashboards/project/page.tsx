@@ -18,8 +18,8 @@ export default async function Page() {
             <div className="flex flex-col xl:flex-row gap-4">
                 <div className="flex flex-col gap-4 flex-1 xl:max-w-[calc(100%-350px)]">
                     <ProjectOverview data={data.projectOverview} />
-                    <Schedule data={data.schedule} />
-                </div>                <div>
+                    <Schedule data={data.schedule} />                </div>
+                <div>
                     <UpcomingSchedule upcomingEvents={upcomingEvents} />
                 </div>
             </div>

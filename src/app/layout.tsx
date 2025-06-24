@@ -4,6 +4,7 @@ import ThemeProvider from '@/components/template/Theme/ThemeProvider'
 import pageMetaConfig from '@/configs/page-meta.config'
 import LocaleProvider from '@/components/template/LocaleProvider'
 import NavigationProvider from '@/components/template/Navigation/NavigationProvider'
+import { NavigationLoadingProvider } from '@/contexts/NavigationLoadingContext'
 import { getNavigation } from '@/server/actions/navigation/getNavigation'
 import { getTheme } from '@/server/actions/theme'
 import { getLocale, getMessages } from 'next-intl/server'
@@ -42,12 +43,13 @@ export default async function RootLayout({
                 lang={locale}
                 dir={theme.direction}
                 suppressHydrationWarning
-            >
-                <body suppressHydrationWarning>
+            >                <body suppressHydrationWarning>
                     <LocaleProvider locale={locale} messages={messages}>
                         <ThemeProvider locale={locale} theme={theme}>
                             <NavigationProvider navigationTree={navigationTree}>
-                                {children}
+                                <NavigationLoadingProvider>
+                                    {children}
+                                </NavigationLoadingProvider>
                             </NavigationProvider>
                         </ThemeProvider>
                     </LocaleProvider>

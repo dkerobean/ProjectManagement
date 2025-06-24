@@ -4,6 +4,7 @@ import classNames from '@/utils/classNames'
 import ScrollBar from '@/components/ui/ScrollBar'
 import Logo from '@/components/template/Logo'
 import VerticalMenuContent from '@/components/template/VerticalMenuContent'
+import NavigationLoadingIndicator from '@/components/shared/NavigationLoadingIndicator'
 import useTheme from '@/utils/hooks/useTheme'
 import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import useNavigation from '@/utils/hooks/useNavigation'
@@ -69,10 +70,9 @@ const SideNav = ({
                 !sideNavCollapse && 'side-nav-expand',
                 className,
             )}
-        >
-            <Link
+        >            <Link
                 href={appConfig.authenticatedEntryPath}
-                className="side-nav-header flex flex-col justify-center"
+                className="side-nav-header flex flex-col justify-center relative"
                 style={{ height: HEADER_HEIGHT }}
             >
                 <Logo
@@ -86,8 +86,12 @@ const SideNav = ({
                             : LOGO_X_GUTTER,
                     )}
                 />
-            </Link>
-            <div className={classNames('side-nav-content', contentClass)}>
+                {!sideNavCollapse && (
+                    <div className="absolute top-4 right-4">
+                        <NavigationLoadingIndicator size={20} />
+                    </div>
+                )}
+            </Link>            <div className={classNames('side-nav-content', contentClass)}>
                 <ScrollBar style={{ height: '100%' }} direction={direction}>
                     <VerticalMenuContent
                         collapsed={sideNavCollapse}
@@ -95,7 +99,7 @@ const SideNav = ({
                         routeKey={currentRouteKey}
                         direction={direction}
                         translationSetup={translationSetup}
-                        userAuthority={session?.user?.authroity || []}
+                        userAuthority={session?.user && 'authority' in session.user ? session.user.authority as string[] : []}
                     />
                 </ScrollBar>
             </div>
