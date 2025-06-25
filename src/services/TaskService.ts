@@ -2,12 +2,15 @@
 
 export interface CreateTaskPayload {
     title: string
-    description?: string
-    priority: 'low' | 'medium' | 'high'
+    priority: 'low' | 'medium' | 'high' | 'critical'
     status: 'todo' | 'in_progress' | 'completed' | 'blocked'
-    due_date?: string
+    start_date?: string
     project_id: string
     assigned_to?: string
+    parent_task_id?: string
+    estimated_hours?: number
+    tags?: string[]
+    metadata?: Record<string, unknown>
 }
 
 export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {
@@ -17,15 +20,21 @@ export interface UpdateTaskPayload extends Partial<CreateTaskPayload> {
 export interface Task {
     id: string
     title: string
-    description?: string
-    priority: 'low' | 'medium' | 'high'
+    priority: 'low' | 'medium' | 'high' | 'critical'
     status: 'todo' | 'in_progress' | 'completed' | 'blocked'
-    due_date?: string
+    start_date?: string
     project_id: string
     assigned_to?: string
     created_by: string
     created_at: string
     updated_at: string
+    completed_at?: string
+    parent_task_id?: string
+    estimated_hours?: number
+    actual_hours?: number
+    position?: number
+    tags?: string[]
+    metadata?: Record<string, unknown>
     assignee?: {
         id: string
         name: string
