@@ -100,7 +100,7 @@ export function withRoleAuth<P extends object>(
                             </p>
                             <Button
                                 variant="solid"
-                                onClick={() => router.push('/dashboard/overview')}
+                                onClick={() => router.push('/dashboards/project')}
                             >
                                 Go to Dashboard
                             </Button>

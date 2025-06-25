@@ -1,7 +1,7 @@
 'use client'
 
 import HorizontalMenuContent from './HorizontalMenuContent'
-import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { useSession } from 'next-auth/react'
 import useNavigation from '@/utils/hooks/useNavigation'
 import queryRoute from '@/utils/queryRoute'
 import appConfig from '@/configs/app.config'
@@ -18,7 +18,7 @@ const HorizontalNav = ({
 
     const currentRouteKey = route?.key || ''
 
-    const { session } = useCurrentSession()
+    const { data: session } = useSession()
 
     const { navigationTree } = useNavigation()
 

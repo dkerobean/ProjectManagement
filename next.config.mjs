@@ -3,7 +3,8 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {  experimental: {
+const nextConfig = {  
+  experimental: {
     serverActions: {
       bodySizeLimit: '2mb',
     },
@@ -11,7 +12,7 @@ const nextConfig = {  experimental: {
   env: {
     _next_intl_trailing_slash: "false",
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Handle missing optional dependencies
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -22,6 +23,26 @@ const nextConfig = {  experimental: {
     // Ignore specific warnings for server-side builds
     if (isServer) {
       config.externals = [...(config.externals || []), 'bufferutil', 'utf-8-validate'];
+    }
+
+    // Fix for dynamic imports and chunking issues in production
+    if (!dev && !isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            // Separate auth-related components into their own chunk
+            auth: {
+              test: /[\\/]components[\\/]auth[\\/]/,
+              name: 'auth',
+              chunks: 'all',
+              priority: 10,
+            },
+          },
+        },
+      };
     }
 
     return config;

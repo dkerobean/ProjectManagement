@@ -3,7 +3,7 @@
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import classNames from '@/utils/classNames'
-import Link from 'next/link'
+import LoadingLink from '@/components/shared/LoadingLink'
 import { TbProgressBolt, TbCopyCheck, TbArrowDownToArc } from 'react-icons/tb'
 import { Project } from '../types'
 import type { ReactNode } from 'react'
@@ -53,12 +53,11 @@ const ProjectOverview = ({ data }: ProjectOverview) => {
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <h4>Overview</h4>
-                <Link href="/concepts/projects/project-list">
+                <h4>Overview</h4>                <LoadingLink href="/concepts/projects/project-list">
                     <Button asElement="div" size="sm">
                         All projects
                     </Button>
-                </Link>
+                </LoadingLink>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 rounded-2xl mt-4">
                 <StatisticCard

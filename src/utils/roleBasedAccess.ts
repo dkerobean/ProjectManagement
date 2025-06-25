@@ -107,7 +107,7 @@ export function getAllowedRoutes(userRole: UserRole | undefined): string[] {
   if (!userRole) return []
 
   const baseRoutes = [
-    '/dashboard',
+    '/dashboards/project',
     '/profile',
     '/settings',
   ]

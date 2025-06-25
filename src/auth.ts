@@ -15,26 +15,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ...authConfig,
     callbacks: {
         ...authConfig.callbacks,
-        async redirect({ url, baseUrl }) {
-            console.log('🔄 Auth redirect callback triggered:', { url, baseUrl })
+        redirect({ url, baseUrl }) {
+            console.log('🔄 NextAuth redirect callback:', { url, baseUrl })
             
-            // If url is a relative path, prepend baseUrl
-            if (url.startsWith("/")) {
-                const finalUrl = `${baseUrl}${url}`
-                console.log('✅ Redirecting to relative URL:', finalUrl)
-                return finalUrl
+            // If url is relative, make it absolute
+            if (url.startsWith('/')) {
+                const targetUrl = `${baseUrl}${url}`
+                console.log('📍 Redirecting to relative URL:', targetUrl)
+                return targetUrl
             }
             
-            // If url is on the same origin, allow it
-            if (new URL(url).origin === baseUrl) {
-                console.log('✅ Redirecting to same origin URL:', url)
+            // If url is absolute and same origin, allow it
+            if (url.startsWith(baseUrl)) {
+                console.log('📍 Redirecting to same origin URL:', url)
                 return url
             }
             
-            // Fallback to authenticated entry path
-            const fallbackUrl = `${baseUrl}${appConfig.authenticatedEntryPath}`
-            console.log('⚠️ Using fallback redirect:', fallbackUrl)
-            return fallbackUrl
-        },
+            // Default to project dashboard for successful auth
+            const defaultUrl = `${baseUrl}/dashboards/project`
+            console.log('📍 Using default redirect URL:', defaultUrl)
+            return defaultUrl
+        }
     },
 })

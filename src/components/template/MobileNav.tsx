@@ -6,7 +6,7 @@ import { DIR_RTL } from '@/constants/theme.constant'
 import withHeaderItem, { WithHeaderItemProps } from '@/utils/hoc/withHeaderItem'
 import useNavigation from '@/utils/hooks/useNavigation'
 import useTheme from '@/utils/hooks/useTheme'
-import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { useSession } from 'next-auth/react'
 import queryRoute from '@/utils/queryRoute'
 import appConfig from '@/configs/app.config'
 import { usePathname } from 'next/navigation'
@@ -48,7 +48,7 @@ const MobileNav = ({
 
     const direction = useTheme((state) => state.direction)
 
-    const { session } = useCurrentSession()
+    const { data: session } = useSession()
 
     const { navigationTree } = useNavigation()
 

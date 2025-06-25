@@ -8,7 +8,7 @@ import classNames from '@/utils/classNames'
 import isLastChild from '@/utils/isLastChild'
 import { TbCircleCheck, TbCircleCheckFilled, TbCalendar } from 'react-icons/tb'
 import dayjs from 'dayjs'
-import Link from 'next/link'
+import LoadingLink from '@/components/shared/LoadingLink'
 import type { Task } from '../types'
 
 type CurrentTasksProps = {
@@ -46,12 +46,11 @@ const CurrentTasks = ({ data }: CurrentTasksProps) => {
     return (
         <Card>
             <div className="flex items-center justify-between">
-                <h4>Current tasks</h4>
-                <Link href="/concepts/projects/tasks">
+                <h4>Current tasks</h4>                <LoadingLink href="/concepts/projects/tasks">
                     <Button asElement="div" size="sm">
                         All tasks
                     </Button>
-                </Link>
+                </LoadingLink>
             </div>
             <div className="mt-4 lg:min-h-[394px]">
                 {tasks.map((task, index) => (

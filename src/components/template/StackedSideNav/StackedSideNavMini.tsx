@@ -12,7 +12,7 @@ import appConfig from '@/configs/app.config'
 import navigationIcon from '@/configs/navigation-icon.config'
 import useMenuActive from '@/utils/hooks/useMenuActive'
 import isEmpty from 'lodash/isEmpty'
-import Link from 'next/link'
+import Link from '@/components/ui/DebugLink'
 import type { NavigationTree } from '@/@types/navigation'
 import type { Direction, Mode } from '@/@types/theme'
 import type { CommonProps } from '@/@types/common'
@@ -99,9 +99,8 @@ const StackedSideNavMini = (props: StackedSideNavMiniProps) => {
               : [includedRouteTree.key]
 
     return (
-        <div {...rest}>
-            <Link
-                href={appConfig.authenticatedEntryPath}
+        <div {...rest}>            <Link
+                href={appConfig.authenticatedEntryPath || '/dashboards/project'}
                 className="stacked-mini-nav-header flex items-center justify-center"
                 style={{ height: HEADER_HEIGHT }}
             >

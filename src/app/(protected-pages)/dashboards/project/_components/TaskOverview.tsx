@@ -4,10 +4,9 @@ import { useState } from 'react'
 import Card from '@/components/ui/Card'
 import Segment from '@/components/ui/Segment'
 import Badge from '@/components/ui/Badge'
-import Loading from '@/components/shared/Loading'
+import Chart from '@/components/shared/Chart'
 import { COLORS } from '@/constants/chart.constant'
 import isEmpty from 'lodash/isEmpty'
-import dynamic from 'next/dynamic'
 import type { TaskOverviewChart } from '../types'
 
 type TaskOverviewProps = {
@@ -20,17 +19,6 @@ type ChartLegendProps = {
     color?: string
     showBadge?: boolean
 }
-
-const Chart = dynamic(() => import('@/components/shared/Chart'), {
-    ssr: false,
-    loading: () => {
-        return (
-            <div className="h-[300px] flex items-center justify-center">
-                <Loading loading />
-            </div>
-        )
-    },
-})
 
 const ChartLegend = ({
     label,

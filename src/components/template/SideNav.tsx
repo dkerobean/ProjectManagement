@@ -6,12 +6,12 @@ import Logo from '@/components/template/Logo'
 import VerticalMenuContent from '@/components/template/VerticalMenuContent'
 import NavigationLoadingIndicator from '@/components/shared/NavigationLoadingIndicator'
 import useTheme from '@/utils/hooks/useTheme'
-import useCurrentSession from '@/utils/hooks/useCurrentSession'
 import useNavigation from '@/utils/hooks/useNavigation'
 import queryRoute from '@/utils/queryRoute'
 import appConfig from '@/configs/app.config'
 import { usePathname } from 'next/navigation'
-import Link from 'next/link'
+import LoadingLink from '@/components/shared/LoadingLink'
+import { useSession } from 'next-auth/react'
 
 import {
     SIDE_NAV_WIDTH,
@@ -53,13 +53,13 @@ const SideNav = ({
     const route = queryRoute(pathname)
 
     const { navigationTree } = useNavigation()
-
+    
     const defaultMode = useTheme((state) => state.mode)
     const direction = useTheme((state) => state.direction)
     const sideNavCollapse = useTheme((state) => state.layout.sideNavCollapse)
-
+    
     const currentRouteKey = route?.key || ''
-    const { session } = useCurrentSession()
+    const { data: session } = useSession()
 
     return (
         <div
@@ -70,8 +70,8 @@ const SideNav = ({
                 !sideNavCollapse && 'side-nav-expand',
                 className,
             )}
-        >            <Link
-                href={appConfig.authenticatedEntryPath}
+        >            <LoadingLink
+                href={appConfig.authenticatedEntryPath || '/dashboards/project'}
                 className="side-nav-header flex flex-col justify-center relative"
                 style={{ height: HEADER_HEIGHT }}
             >
@@ -91,7 +91,8 @@ const SideNav = ({
                         <NavigationLoadingIndicator size={20} />
                     </div>
                 )}
-            </Link>            <div className={classNames('side-nav-content', contentClass)}>
+            </LoadingLink>
+            <div className={classNames('side-nav-content', contentClass)}>
                 <ScrollBar style={{ height: '100%' }} direction={direction}>
                     <VerticalMenuContent
                         collapsed={sideNavCollapse}

@@ -1,15 +1,12 @@
-import { useContext } from 'react'
-import SessionContext from '@/components/auth/AuthProvider/SessionContext'
+import { useSession } from 'next-auth/react'
 
 const useCurrentSession = () => {
-    const context = useContext(SessionContext)
+    const { data: session, status } = useSession()
     
-    // Return the session with proper fallback
+    // Return the session with proper structure expected by components
     return {
-        session: context || {
-            expires: '',
-            user: {},
-        },
+        session: session || null,
+        status
     }
 }
 

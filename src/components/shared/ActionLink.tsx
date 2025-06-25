@@ -1,5 +1,5 @@
 import classNames from '@/utils/classNames'
-import Link from 'next/link'
+import Link from '@/components/ui/DebugLink'
 import type { CommonProps } from '@/@types/common'
 import type { ComponentPropsWithoutRef } from 'react'
 
@@ -9,8 +9,7 @@ interface ActionLink extends CommonProps, ComponentPropsWithoutRef<'a'> {
     reloadDocument?: boolean
 }
 
-const ActionLink = (props: ActionLink) => {
-    const {
+const ActionLink = (props: ActionLink) => {    const {
         children,
         className,
         themeColor = true,
@@ -24,6 +23,15 @@ const ActionLink = (props: ActionLink) => {
             'hover:underline',
             className,
         ),
+    }
+
+    // Only render Link if href is valid
+    if (!href || href === '' || href === 'undefined') {
+        return (
+            <span {...classNameProps}>
+                {children}
+            </span>
+        )
     }
 
     return (

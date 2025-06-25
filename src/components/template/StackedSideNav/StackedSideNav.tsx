@@ -8,7 +8,7 @@ import {
 import StackedSideNavMini, { SelectedMenuItem } from './StackedSideNavMini'
 import StackedSideNavSecondary from './StackedSideNavSecondary'
 import useTheme from '@/utils/hooks/useTheme'
-import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { useSession } from 'next-auth/react'
 import appConfig from '@/configs/app.config'
 import useNavigation from '@/utils/hooks/useNavigation'
 import queryRoute from '@/utils/queryRoute'
@@ -38,7 +38,7 @@ const StackedSideNav = ({
 
     const currentRouteKey = route?.key || ''
 
-    const { session } = useCurrentSession()
+    const { data: session } = useSession()
 
     const { navigationTree } = useNavigation()
 

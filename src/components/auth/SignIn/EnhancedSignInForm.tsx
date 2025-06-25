@@ -59,7 +59,7 @@ const EnhancedSignInForm = (props: EnhancedSignInFormProps) => {
         setMessage,
         onSignIn,
         passwordHint,
-        callbackUrl = '/dashboard/overview',
+        callbackUrl = '/dashboards/project',
         useSupabaseAuth = true
     } = props
 

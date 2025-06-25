@@ -4,7 +4,7 @@ import Avatar from '@/components/ui/Avatar'
 import Dropdown from '@/components/ui/Dropdown'
 import withHeaderItem from '@/utils/hoc/withHeaderItem'
 import Link from 'next/link'
-import useCurrentSession from '@/utils/hooks/useCurrentSession'
+import { useSession } from 'next-auth/react'
 import useUserProfile from '@/hooks/useUserProfile'
 import { getUserDisplayName, getUserAvatarUrl } from '@/utils/userProfile'
 import {
@@ -53,7 +53,7 @@ interface UserDropdownProps {
 }
 
 const _UserDropdown = ({ signOutAction }: UserDropdownProps) => {
-    const { session } = useCurrentSession()
+    const { data: session } = useSession()
     const { user, profile, isLoading, refreshProfile, hasProfile } = useUserProfile()
     const [avatarKey, setAvatarKey] = useState(0) // Force re-render of avatar
 

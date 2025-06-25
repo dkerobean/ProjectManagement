@@ -8,7 +8,7 @@ import type { NavigationTree } from '@/@types/navigation'
 
 const dashboardsNavigationConfig: NavigationTree[] = [    {
         key: 'dashboard',
-        path: '/dashboard',
+        path: '/dashboards/project',
         title: 'Dashboard',
         translateKey: 'nav.dashboard.dashboard',
         icon: 'dashboard',

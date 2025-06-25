@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
-import appConfig from '@/configs/app.config'
 import { useEffect } from 'react'
 import type {
     OnSignInPayload,
@@ -20,9 +19,20 @@ interface SignInClientProps {
 const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
     const searchParams = useSearchParams()
     const { data: session, status } = useSession()
-    const callbackUrl = searchParams.get(REDIRECT_URL_KEY) || appConfig.authenticatedEntryPath
+    
+    // Debug the callbackUrl to see what's happening
+    const configuredPath = '/dashboards/project' // Hardcode temporarily
+    const searchParamUrl = searchParams.get(REDIRECT_URL_KEY)
+    const callbackUrl = searchParamUrl || configuredPath
+    
+    console.log('🔍 SignInClient Debug:', {
+        searchParamUrl,
+        configuredPath,
+        callbackUrl,
+        searchParams: Object.fromEntries(searchParams.entries())
+    })
 
-    // Monitor session changes and redirect when authenticated
+    // Monitor session changes for success notification and show loading until dashboard is ready
     useEffect(() => {
         console.log('🔍 Session Status Change:', { 
             status, 
@@ -33,17 +43,14 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
         })
         
         if (status === 'authenticated' && session?.user) {
-            console.log('✅ Session authenticated, redirecting to:', callbackUrl)
+            console.log('✅ Session authenticated - showing success notification')
             toast.push(
                 <Notification type="success" title="Welcome Back!">
-                    You have been successfully signed in.
+                    You have been successfully signed in. Redirecting to dashboard...
                 </Notification>,
                 { placement: 'top-end' }
             )
-            
-            setTimeout(() => {
-                window.location.href = callbackUrl
-            }, 500)
+            // Note: NextAuth will handle the redirect automatically
         }
     }, [status, session, callbackUrl])
 

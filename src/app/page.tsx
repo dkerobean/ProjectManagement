@@ -1,7 +1,12 @@
 import { auth } from '@/auth'
-import appConfig from '@/configs/app.config'
 import { redirect } from 'next/navigation'
 import Landing from './(public-pages)/landing/components/Landing'
+
+// Import config inline to debug import issues
+const appConfig = {
+    authenticatedEntryPath: '/dashboards/project',
+    unAuthenticatedEntryPath: '/sign-in',
+}
 
 const Page = async () => {
     let session = null
@@ -11,19 +16,18 @@ const Page = async () => {
     } catch (error) {
         console.error('❌ Auth function failed in main page:', error)
         // Continue without session - show landing page
-    }
-
-    // Enhanced redirect handling with validation
+    }    // Enhanced redirect handling with validation
     if (session?.user) {
         const redirectPath = appConfig.authenticatedEntryPath
+        console.log('🔍 Debug appConfig:', JSON.stringify(appConfig, null, 2))
+        console.log('✅ Authenticated user, redirecting to:', redirectPath)
         
-        // Validate redirect path to prevent undefined routes
-        if (redirectPath && redirectPath !== '' && redirectPath !== 'undefined') {
-            console.log('✅ Authenticated user, redirecting to:', redirectPath)
-            redirect(redirectPath)
+        // Ensure we have a valid redirect path
+        if (!redirectPath || redirectPath === 'undefined') {
+            console.error('❌ Invalid redirect path, using fallback')
+            redirect('/dashboards/project')
         } else {
-            console.warn('⚠️ Invalid authenticated entry path, using fallback')
-            redirect('/dashboard')
+            redirect(redirectPath)
         }
     }
     

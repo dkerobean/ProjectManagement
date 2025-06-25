@@ -96,7 +96,7 @@ export default auth((req) => {
         if (isSignedIn) {
             /** Redirect to authenticated entry path if signed in & path is auth route */
             return Response.redirect(
-                new URL(appConfig.authenticatedEntryPath, nextUrl),
+                new URL('/dashboards/project', nextUrl),
             )
         }
         return
@@ -111,7 +111,7 @@ export default auth((req) => {
 
         return Response.redirect(
             new URL(
-                `${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callbackUrl}`,
+                `/sign-in?${REDIRECT_URL_KEY}=${callbackUrl}`,
                 nextUrl,
             ),
         )
@@ -122,7 +122,7 @@ export default auth((req) => {
         // Add null checks for auth object to prevent production errors
         if (!req.auth || !req.auth.user) {
             console.error('❌ Middleware - auth or auth.user is undefined despite isSignedIn being true')
-            return Response.redirect(new URL(appConfig.unAuthenticatedEntryPath, nextUrl))
+            return Response.redirect(new URL('/sign-in', nextUrl))
         }
         
         const userRole = req.auth.user.role as UserRole
@@ -181,7 +181,7 @@ export default auth((req) => {
             // Additional null check for safety
             if (!req.auth || !req.auth.user) {
                 console.error('❌ Middleware - auth.user undefined during role check')
-                return Response.redirect(new URL(appConfig.unAuthenticatedEntryPath, nextUrl))
+                return Response.redirect(new URL('/sign-in', nextUrl))
             }
             
             const userRole = req.auth.user.role as UserRole

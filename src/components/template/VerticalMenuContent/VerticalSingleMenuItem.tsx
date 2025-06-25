@@ -2,7 +2,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import Menu from '@/components/ui/Menu'
 import AuthorityCheck from '@/components/shared/AuthorityCheck'
 import VerticalMenuIcon from './VerticalMenuIcon'
-import Link from 'next/link'
+import LoadingLink from '@/components/shared/LoadingLink'
 import Dropdown from '@/components/ui/Dropdown'
 import { useNavigateWithLoading } from '@/hooks/useNavigateWithLoading'
 import type { CommonProps } from '@/@types/common'
@@ -79,15 +79,14 @@ const CollapsedItem = ({
                 </Tooltip>
             ) : (
                 <Dropdown.Item active={currentKey === nav.key}>
-                    {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (
-                        <Link
+                    {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (                        <LoadingLink
                             className="h-full w-full flex items-center outline-hidden"
                             href={nav.path}
                             target={nav.isExternalLink ? '_blank' : ''}
                             onClick={handleClick}
                         >
                             <span>{t(nav.translateKey, nav.title)}</span>
-                        </Link>
+                        </LoadingLink>
                     ) : (
                         <span>{t(nav.translateKey, nav.title)}</span>
                     )}
@@ -132,8 +131,7 @@ const DefaultItem = (props: DefaultItemProps) => {
     return (
         <AuthorityCheck userAuthority={userAuthority} authority={nav.authority}>
             <MenuItem key={nav.key} eventKey={nav.key} dotIndent={indent}>
-                {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (
-                    <Link
+                {nav.path && nav.path !== '' && nav.path !== 'undefined' ? (                    <LoadingLink
                         href={nav.path}
                         className="flex items-center gap-2 h-full w-full"
                         target={nav.isExternalLink ? '_blank' : ''}
@@ -141,7 +139,7 @@ const DefaultItem = (props: DefaultItemProps) => {
                     >
                         {showIcon && <VerticalMenuIcon icon={nav.icon} />}
                         {showTitle && <span>{t(nav.translateKey, nav.title)}</span>}
-                    </Link>
+                    </LoadingLink>
                 ) : (
                     <div className="flex items-center gap-2 h-full w-full">
                         {showIcon && <VerticalMenuIcon icon={nav.icon} />}
