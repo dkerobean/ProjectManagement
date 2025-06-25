@@ -53,11 +53,11 @@ const SideNav = ({
     const route = queryRoute(pathname)
 
     const { navigationTree } = useNavigation()
-    
+
     const defaultMode = useTheme((state) => state.mode)
     const direction = useTheme((state) => state.direction)
     const sideNavCollapse = useTheme((state) => state.layout.sideNavCollapse)
-    
+
     const currentRouteKey = route?.key || ''
     const { data: session } = useSession()
 

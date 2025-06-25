@@ -19,12 +19,12 @@ interface SignInClientProps {
 const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
     const searchParams = useSearchParams()
     const { data: session, status } = useSession()
-    
+
     // Debug the callbackUrl to see what's happening
     const configuredPath = '/dashboards/project' // Hardcode temporarily
     const searchParamUrl = searchParams.get(REDIRECT_URL_KEY)
     const callbackUrl = searchParamUrl || configuredPath
-    
+
     console.log('🔍 SignInClient Debug:', {
         searchParamUrl,
         configuredPath,
@@ -34,14 +34,14 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
 
     // Monitor session changes for success notification and show loading until dashboard is ready
     useEffect(() => {
-        console.log('🔍 Session Status Change:', { 
-            status, 
-            hasSession: !!session, 
+        console.log('🔍 Session Status Change:', {
+            status,
+            hasSession: !!session,
             hasUser: !!session?.user,
             userEmail: session?.user?.email,
-            callbackUrl 
+            callbackUrl
         })
-        
+
         if (status === 'authenticated' && session?.user) {
             console.log('✅ Session authenticated - showing success notification')
             toast.push(
@@ -64,7 +64,7 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
 
         try {
             console.log('🔄 Attempting sign-in with redirect to:', callbackUrl)
-            
+
             // Use NextAuth with built-in redirect - this should work now with the fixed auth config
             await signIn('credentials', {
                 email: values.email,
@@ -72,11 +72,11 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
                 callbackUrl: callbackUrl,
                 redirect: true, // Let NextAuth handle everything
             })
-            
+
             // If we reach this point, something went wrong (should have redirected)
             console.log('⚠️ Sign-in completed but no redirect occurred')
             setSubmitting(false)
-            
+
         } catch (error) {
             console.error('❌ Sign in error:', error)
             toast.push(

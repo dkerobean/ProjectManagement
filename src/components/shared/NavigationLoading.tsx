@@ -31,7 +31,7 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
                 setIsLoading(false)
                 console.log('✅ Navigation loading cleared for:', pathname)
             }, 100)
-            
+
             return () => clearTimeout(timer)
         }
     }, [pathname, isLoading])

@@ -8,12 +8,12 @@ interface LoadingLinkProps extends ComponentProps<typeof Link> {
     showLoading?: boolean
 }
 
-const LoadingLink = ({ 
-    showLoading = true, 
-    onClick, 
+const LoadingLink = ({
+    showLoading = true,
+    onClick,
     href,
-    children, 
-    ...props 
+    children,
+    ...props
 }: LoadingLinkProps) => {
     const { setLoading } = useNavigationLoading()
 
@@ -21,15 +21,15 @@ const LoadingLink = ({
         if (showLoading && href) {
             setLoading(true)
         }
-        
+
         // Call original onClick if provided
         onClick?.(e)
     }
 
     return (
-        <Link 
-            href={href} 
-            onClick={handleClick} 
+        <Link
+            href={href}
+            onClick={handleClick}
             {...props}
         >
             {children}
