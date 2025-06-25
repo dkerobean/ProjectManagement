@@ -121,7 +121,7 @@ interface ProjectFormData {
 interface TaskData {
     id?: string
     title: string
-    due_date?: string
+    start_date?: string // Changed from due_date to match database schema
     priority: 'low' | 'medium' | 'high' | 'critical'
     status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
 }
@@ -409,7 +409,7 @@ const ProjectFormModal = () => {
                     project_id: projectId,
                     status: task.status || 'todo',
                     priority: task.priority || 'medium',
-                    due_date: task.due_date || null,
+                    start_date: task.start_date || null, // Use start_date to match schema
                 }
 
                 const response = await fetch('/api/tasks', {
@@ -616,11 +616,11 @@ const ProjectFormModal = () => {
                                 </div>
                                 <Input
                                     type="date"
-                                    placeholder="Due date"
-                                    value={task.due_date || ''}
+                                    placeholder="Start date"
+                                    value={task.start_date || ''}
                                     onChange={(e) => {
                                         const updatedTasks = [...formData.tasks]
-                                        updatedTasks[index].due_date = e.target.value
+                                        updatedTasks[index].start_date = e.target.value
                                         setFormData({ ...formData, tasks: updatedTasks })
                                     }}
                                     className="mt-2"
