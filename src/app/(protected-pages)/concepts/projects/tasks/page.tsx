@@ -2,9 +2,20 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import Select from '@/components/ui/Select'
+import Dialog from '@/components/ui/Dialog'
+import { Card } from '@/components/ui'
 
 // Note: Since this is now a client component, we'll handle metadata differently
 // You might want to use a separate server component wrapper for SEO
+
+interface Project {
+    id: string
+    name: string
+    color?: string
+}
 
 interface Task {
     id: string
@@ -35,6 +46,22 @@ interface TasksResponse {
     message: string
 }
 
+interface ProjectsResponse {
+    success: boolean
+    data: Project[]
+    message: string
+}
+
+interface CreateTaskData {
+    title: string
+    description?: string
+    status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
+    priority: 'critical' | 'high' | 'medium' | 'low'
+    project_id: string
+    due_date?: string
+    assigned_to?: string
+}
+
 const getStatusColor = (status: string) => {
     switch (status) {
         case 'todo': return 'bg-gray-100 text-gray-800'
@@ -58,12 +85,24 @@ const getPriorityColor = (priority: string) => {
 
 const ProjectTasksPage = () => {
     const [tasks, setTasks] = useState<Task[]>([])
+    const [projects, setProjects] = useState<Project[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [showCreateModal, setShowCreateModal] = useState(false)
+    const [createLoading, setCreateLoading] = useState(false)
     const [filter, setFilter] = useState({
         status: '',
         priority: '',
         project_id: ''
+    })
+    const [newTask, setNewTask] = useState<CreateTaskData>({
+        title: '',
+        description: '',
+        status: 'todo',
+        priority: 'medium',
+        project_id: '',
+        due_date: '',
+        assigned_to: ''
     })
 
     const fetchTasks = useCallback(async () => {
@@ -96,9 +135,66 @@ const ProjectTasksPage = () => {
         }
     }, [filter])
 
+    const fetchProjects = useCallback(async () => {
+        try {
+            const response = await fetch('/api/projects')
+            const data: ProjectsResponse = await response.json()
+            
+            if (response.ok && data.success) {
+                setProjects(data.data)
+            }
+        } catch (err) {
+            console.error('Error fetching projects:', err)
+        }
+    }, [])
+
+    const createTask = async () => {
+        if (!newTask.title.trim() || !newTask.project_id) {
+            alert('Please provide a title and select a project')
+            return
+        }
+
+        try {
+            setCreateLoading(true)
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTask),
+            })
+
+            const data = await response.json()
+
+            if (response.ok && data.success) {
+                // Reset form
+                setNewTask({
+                    title: '',
+                    description: '',
+                    status: 'todo',
+                    priority: 'medium',
+                    project_id: '',
+                    due_date: '',
+                    assigned_to: ''
+                })
+                setShowCreateModal(false)
+                // Refresh tasks
+                fetchTasks()
+            } else {
+                alert(data.error || 'Failed to create task')
+            }
+        } catch (err) {
+            console.error('Error creating task:', err)
+            alert('An error occurred while creating the task')
+        } finally {
+            setCreateLoading(false)
+        }
+    }
+
     useEffect(() => {
         fetchTasks()
-    }, [fetchTasks])
+        fetchProjects()
+    }, [fetchTasks, fetchProjects])
 
     const TaskCard = ({ task }: { task: Task }) => (
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-shadow">
@@ -155,54 +251,88 @@ const ProjectTasksPage = () => {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-medium mb-2">
+                            Project
+                        </label>
+                        <Select
+                            value={projects.find(p => p.id === filter.project_id) || null}
+                            onChange={(selectedOption: any) => 
+                                setFilter(prev => ({ ...prev, project_id: selectedOption?.value || '' }))
+                            }
+                            options={[
+                                { value: '', label: 'All Projects' },
+                                ...projects.map(project => ({
+                                    value: project.id,
+                                    label: project.name
+                                }))
+                            ]}
+                            placeholder="All Projects"
+                            isClearable
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium mb-2">
                             Status
                         </label>
-                        <select
-                            value={filter.status}
-                            onChange={(e) => setFilter(prev => ({ ...prev, status: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        >
-                            <option value="">All Statuses</option>
-                            <option value="todo">To Do</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="review">Review</option>
-                            <option value="done">Done</option>
-                            <option value="blocked">Blocked</option>
-                        </select>
+                        <Select
+                            value={filter.status ? { value: filter.status, label: filter.status.replace('_', ' ') } : null}
+                            onChange={(selectedOption: any) => 
+                                setFilter(prev => ({ ...prev, status: selectedOption?.value || '' }))
+                            }
+                            options={[
+                                { value: '', label: 'All Statuses' },
+                                { value: 'todo', label: 'To Do' },
+                                { value: 'in_progress', label: 'In Progress' },
+                                { value: 'review', label: 'Review' },
+                                { value: 'done', label: 'Done' },
+                                { value: 'blocked', label: 'Blocked' }
+                            ]}
+                            placeholder="All Statuses"
+                            isClearable
+                        />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-sm font-medium mb-2">
                             Priority
                         </label>
-                        <select
-                            value={filter.priority}
-                            onChange={(e) => setFilter(prev => ({ ...prev, priority: e.target.value }))}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        >
-                            <option value="">All Priorities</option>
-                            <option value="critical">Critical</option>
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
-                            <option value="low">Low</option>
-                        </select>
+                        <Select
+                            value={filter.priority ? { value: filter.priority, label: filter.priority } : null}
+                            onChange={(selectedOption: any) => 
+                                setFilter(prev => ({ ...prev, priority: selectedOption?.value || '' }))
+                            }
+                            options={[
+                                { value: '', label: 'All Priorities' },
+                                { value: 'critical', label: 'Critical' },
+                                { value: 'high', label: 'High' },
+                                { value: 'medium', label: 'Medium' },
+                                { value: 'low', label: 'Low' }
+                            ]}
+                            placeholder="All Priorities"
+                            isClearable
+                        />
                     </div>
-                    <div className="flex items-end">
-                        <button
+                    <div className="flex items-end gap-2">
+                        <Button
+                            variant="default"
                             onClick={fetchTasks}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             Refresh
-                        </button>
+                        </Button>
+                        <Button
+                            variant="solid"
+                            onClick={() => setShowCreateModal(true)}
+                        >
+                            Add Task
+                        </Button>
                     </div>
                 </div>
-            </div>
+            </Card>
 
             {/* Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <Card>
                 {loading ? (
                     <div className="p-8 text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -212,12 +342,12 @@ const ProjectTasksPage = () => {
                     <div className="p-8 text-center">
                         <div className="text-red-500 text-lg mb-4">⚠️</div>
                         <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
-                        <button
+                        <Button
+                            variant="solid"
                             onClick={fetchTasks}
-                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                         >
                             Try Again
-                        </button>
+                        </Button>
                     </div>
                 ) : tasks.length === 0 ? (
                     <div className="p-8 text-center">
@@ -229,18 +359,20 @@ const ProjectTasksPage = () => {
                             You don&apos;t have any tasks yet, or none match your current filters.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link
+                            <Button 
+                                variant="solid"
+                                asElement={Link}
                                 href="/concepts/projects/project-list"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                             >
                                 View Projects
-                            </Link>
-                            <Link
+                            </Button>
+                            <Button 
+                                variant="default"
+                                asElement={Link}
                                 href="/concepts/projects/dashboard"
-                                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
                             >
                                 Project Dashboard
-                            </Link>
+                            </Button>
                         </div>
                     </div>
                 ) : (
@@ -257,7 +389,133 @@ const ProjectTasksPage = () => {
                         </div>
                     </div>
                 )}
-            </div>
+            </Card>
+
+            {/* Create Task Modal */}
+            <Dialog
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                width={600}
+            >
+                <div className="p-6">
+                    <h3 className="text-lg font-semibold mb-4">
+                        Create New Task
+                    </h3>
+                    
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                Title *
+                            </label>
+                            <Input
+                                type="text"
+                                value={newTask.title}
+                                onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                                placeholder="Enter task title"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                Description
+                            </label>
+                            <Input
+                                textArea
+                                value={newTask.description}
+                                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                                rows={3}
+                                placeholder="Enter task description"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                Project *
+                            </label>
+                            <Select
+                                value={projects.find(p => p.id === newTask.project_id) ? 
+                                    { value: newTask.project_id, label: projects.find(p => p.id === newTask.project_id)?.name } : null}
+                                onChange={(selectedOption: any) => 
+                                    setNewTask(prev => ({ ...prev, project_id: selectedOption?.value || '' }))
+                                }
+                                options={projects.map(project => ({
+                                    value: project.id,
+                                    label: project.name
+                                }))}
+                                placeholder="Select a project"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-2">
+                                    Priority
+                                </label>
+                                <Select
+                                    value={{ value: newTask.priority, label: newTask.priority }}
+                                    onChange={(selectedOption: any) => 
+                                        setNewTask(prev => ({ ...prev, priority: selectedOption?.value }))
+                                    }
+                                    options={[
+                                        { value: 'low', label: 'Low' },
+                                        { value: 'medium', label: 'Medium' },
+                                        { value: 'high', label: 'High' },
+                                        { value: 'critical', label: 'Critical' }
+                                    ]}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium mb-2">
+                                    Status
+                                </label>
+                                <Select
+                                    value={{ value: newTask.status, label: newTask.status.replace('_', ' ') }}
+                                    onChange={(selectedOption: any) => 
+                                        setNewTask(prev => ({ ...prev, status: selectedOption?.value }))
+                                    }
+                                    options={[
+                                        { value: 'todo', label: 'To Do' },
+                                        { value: 'in_progress', label: 'In Progress' },
+                                        { value: 'review', label: 'Review' },
+                                        { value: 'done', label: 'Done' },
+                                        { value: 'blocked', label: 'Blocked' }
+                                    ]}
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-2">
+                                Due Date
+                            </label>
+                            <Input
+                                type="date"
+                                value={newTask.due_date}
+                                onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 mt-6">
+                        <Button
+                            variant="default"
+                            onClick={() => setShowCreateModal(false)}
+                            disabled={createLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="solid"
+                            onClick={createTask}
+                            disabled={createLoading || !newTask.title.trim() || !newTask.project_id}
+                            loading={createLoading}
+                        >
+                            {createLoading ? 'Creating...' : 'Create Task'}
+                        </Button>
+                    </div>
+                </div>
+            </Dialog>
         </div>
     )
 }
