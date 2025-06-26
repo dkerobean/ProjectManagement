@@ -96,7 +96,6 @@ coverage/
 
 # Task Master files (sensitive project data)
 tasks.json
-tasks/
 .taskmaster/
 .roomodes
 .windsurfrules
@@ -183,7 +182,6 @@ temp/
 
 # Task files
 tasks.json
-tasks/
 
 # Development and testing files
 test-*.js
