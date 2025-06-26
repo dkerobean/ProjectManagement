@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
 
         const supabase = await createSupabaseServerClient()
 
-        // Build the query
-        let query = supabase
+        // Get projects the user owns
+        const { data: ownedProjects } = await supabase
             .from('projects')
             .select(`
                 *,
@@ -58,29 +58,80 @@ export async function GET(request: NextRequest) {
                     priority
                 )
             `)
+            .eq('owner_id', session.user.id)
 
-        // Apply filters
+        // Get projects where user is a member
+        const { data: memberProjectIds } = await supabase
+            .from('project_members')
+            .select('project_id')
+            .eq('user_id', session.user.id)
+
+        let memberProjects: any[] = []
+        if (memberProjectIds && memberProjectIds.length > 0) {
+            const projectIds = memberProjectIds.map(m => m.project_id)
+            const { data } = await supabase
+                .from('projects')
+                .select(`
+                    *,
+                    owner:users!projects_owner_id_fkey(id, name, email, avatar_url),
+                    project_members(
+                        id,
+                        role,
+                        user:users!project_members_user_id_fkey(id, name, email, avatar_url)
+                    ),
+                    tasks(
+                        id,
+                        status,
+                        priority
+                    )
+                `)
+                .in('id', projectIds)
+                .neq('owner_id', session.user.id) // Avoid duplicates
+
+            memberProjects = data || []
+        }
+
+        // Combine owned and member projects
+        let allProjects = [...(ownedProjects || []), ...memberProjects]
+
+        // Apply filters to the combined results
         if (status) {
-            query = query.eq('status', status)
+            allProjects = allProjects.filter(p => p.status === status)
         }
 
         if (priority) {
-            query = query.eq('priority', priority)
+            allProjects = allProjects.filter(p => p.priority === priority)
         }
 
         if (search) {
-            query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`)
+            const searchLower = search.toLowerCase()
+            allProjects = allProjects.filter(p => 
+                p.name?.toLowerCase().includes(searchLower) || 
+                p.description?.toLowerCase().includes(searchLower)
+            )
         }
 
         // Apply sorting
-        query = query.order(sortBy, { ascending: sortOrder === 'asc' })
+        allProjects.sort((a, b) => {
+            const aValue = a[sortBy] || ''
+            const bValue = b[sortBy] || ''
+            
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : aValue < bValue ? -1 : 0
+            } else {
+                return aValue < bValue ? 1 : aValue > bValue ? -1 : 0
+            }
+        })
 
         // Apply pagination
+        const totalCount = allProjects.length
         const from = (page - 1) * limit
-        const to = from + limit - 1
-        query = query.range(from, to)
+        const to = from + limit
+        const paginatedProjects = allProjects.slice(from, to)
 
-        const { data: projects, error, count } = await query
+        const projects = paginatedProjects
+        const error = null
+        const count = totalCount
 
         if (error) {
             console.error('❌ Database error:', error)
@@ -107,7 +158,9 @@ export async function GET(request: NextRequest) {
         console.log(`✅ Successfully fetched ${projectsWithMetrics?.length || 0} projects`)
 
         return NextResponse.json({
+            success: true,
             data: projectsWithMetrics,
+            message: 'Projects fetched successfully',
             pagination: {
                 page,
                 limit,

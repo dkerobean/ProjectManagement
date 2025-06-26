@@ -54,7 +54,6 @@ interface ProjectsResponse {
 
 interface CreateTaskData {
     title: string
-    description?: string
     status: 'todo' | 'in_progress' | 'review' | 'done' | 'blocked'
     priority: 'critical' | 'high' | 'medium' | 'low'
     project_id: string
@@ -97,7 +96,6 @@ const ProjectTasksPage = () => {
     })
     const [newTask, setNewTask] = useState<CreateTaskData>({
         title: '',
-        description: '',
         status: 'todo',
         priority: 'medium',
         project_id: '',
@@ -170,7 +168,6 @@ const ProjectTasksPage = () => {
                 // Reset form
                 setNewTask({
                     title: '',
-                    description: '',
                     status: 'todo',
                     priority: 'medium',
                     project_id: '',
@@ -415,18 +412,6 @@ const ProjectTasksPage = () => {
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium mb-2">
-                                Description
-                            </label>
-                            <Input
-                                textArea
-                                value={newTask.description}
-                                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                                rows={3}
-                                placeholder="Enter task description"
-                            />
-                        </div>
 
                         <div>
                             <label className="block text-sm font-medium mb-2">
