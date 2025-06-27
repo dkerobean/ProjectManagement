@@ -25,7 +25,6 @@ const validationSchema: ZodType<ClientFormSchema> = z.object({
     company: z.string().optional(),
     address: z.string().optional(),
     country: z.string().optional(),
-    image_url: z.string().optional(),
     status: z.enum(['active', 'inactive']).optional(),
 })
 
@@ -37,7 +36,7 @@ const statusOptions = [
 const ClientCreate = () => {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [previewAvatar, setPreviewAvatar] = useState('/img/avatars/thumb-1.jpg')
+    const [previewAvatar, setPreviewAvatar] = useState('https://gafpwitcdoiviixlxnuz.supabase.co/storage/v1/object/public/client-images/default-client-avatar.png')
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {
@@ -52,7 +51,6 @@ const ClientCreate = () => {
             company: '',
             address: '',
             country: '',
-            image_url: '/img/avatars/thumb-1.jpg',
             status: 'active',
         },
         resolver: zodResolver(validationSchema),
@@ -70,7 +68,9 @@ const ClientCreate = () => {
             }
 
             console.log('✅ Validation passed, calling API...')
-            const result = await apiCreateClient(values)
+            // Remove image_url from values since we're not using it
+            const { ...clientData } = values
+            const result = await apiCreateClient(clientData)
             console.log('📡 API call completed:', result)
 
             toast.push(
@@ -291,30 +291,6 @@ const ClientCreate = () => {
                                 />
                             </FormItem>
 
-                            <FormItem
-                                label="Profile Image URL (Optional)"
-                                className="md:col-span-2"
-                                invalid={Boolean(errors.image_url)}
-                                errorMessage={errors.image_url?.message}
-                            >
-                                <Controller
-                                    name="image_url"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Input
-                                            type="url"
-                                            placeholder="Enter image URL or upload above"
-                                            {...field}
-                                            onChange={(e) => {
-                                                field.onChange(e)
-                                                if (e.target.value) {
-                                                    setPreviewAvatar(e.target.value)
-                                                }
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </FormItem>
                         </div>
 
                         <div className="flex justify-end gap-3 mt-6">

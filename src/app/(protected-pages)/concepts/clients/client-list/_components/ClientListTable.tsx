@@ -27,10 +27,16 @@ const statusColor: Record<string, string> = {
     inactive: 'bg-red-200 dark:bg-red-200 text-gray-900 dark:text-gray-900',
 }
 
+// Helper function to get default image for clients
+const getDefaultClientImage = () => {
+    // Use default image from Supabase storage
+    return 'https://gafpwitcdoiviixlxnuz.supabase.co/storage/v1/object/public/client-images/default-client-avatar.png'
+}
+
 const NameColumn = ({ row }: { row: Client }) => {
     return (
         <div className="flex items-center">
-            <Avatar size={40} shape="circle" src={row.image_url} />
+            <Avatar size={40} shape="circle" src={row.image_url || getDefaultClientImage()} />
             <Link
                 className={`hover:text-primary ml-2 rtl:mr-2 font-semibold text-gray-900 dark:text-gray-100`}
                 href={`/concepts/clients/client-details/${row.id}`}

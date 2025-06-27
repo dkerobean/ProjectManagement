@@ -46,7 +46,7 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [client, setClient] = useState<Client | null>(null)
-    const [previewAvatar, setPreviewAvatar] = useState('/img/avatars/thumb-1.jpg')
+    const [previewAvatar, setPreviewAvatar] = useState('https://gafpwitcdoiviixlxnuz.supabase.co/storage/v1/object/public/client-images/default-client-avatar.png')
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const {
@@ -76,7 +76,7 @@ const ClientEdit = ({ clientId }: ClientEditProps) => {
                     setClient(clientData)
 
                     // Set preview avatar to client's image or default
-                    const avatarUrl = clientData.image_url || '/img/avatars/thumb-1.jpg'
+                    const avatarUrl = clientData.image_url || 'https://gafpwitcdoiviixlxnuz.supabase.co/storage/v1/object/public/client-images/default-client-avatar.png'
                     setPreviewAvatar(avatarUrl)
 
                     reset({

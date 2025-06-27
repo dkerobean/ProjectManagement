@@ -13,6 +13,12 @@ import ConfirmDialog from '@/components/shared/ConfirmDialog'
 import { useClientListStore } from '../_store/clientListStore'
 import { TbChecks } from 'react-icons/tb'
 
+// Helper function to get default image for clients
+const getDefaultClientImage = () => {
+    // Use default image from Supabase storage
+    return 'https://gafpwitcdoiviixlxnuz.supabase.co/storage/v1/object/public/client-images/default-client-avatar.png'
+}
+
 const ClientListSelected = () => {
     const clientList = useClientListStore((state) => state.clientList)
     const setClientList = useClientListStore(
@@ -190,7 +196,7 @@ const ClientListSelected = () => {
                 >
                     {selectedClient.map((client) => (
                         <Tooltip key={client.id} title={client.name}>
-                            <Avatar size={30} src={client.image_url} alt="" />
+                            <Avatar size={30} src={client.image_url || getDefaultClientImage()} alt="" />
                         </Tooltip>
                     ))}
                 </Avatar.Group>

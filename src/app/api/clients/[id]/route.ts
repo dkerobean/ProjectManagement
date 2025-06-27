@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { auth } from '@/auth'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 // Helper function to get default image for clients
 const getDefaultClientImage = () => {
@@ -13,32 +14,59 @@ export async function GET(
 ) {
     try {
         const { id } = await params
+        console.log('🔍 GET /api/clients/[id] - Starting request for client:', id)
 
-        // Use Supabase client to fetch data directly from the database
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        // Get the current session
+        const session = await auth()
+        if (!session?.user?.id) {
+            console.log('❌ No session or user ID found')
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized - No valid session' },
+                { status: 401 }
+            )
+        }
 
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        const supabase = await createSupabaseServerClient()
 
-        // Fetch the client from the database
-        const { data: client, error } = await supabase
+        // Fetch the client from the database with user access control
+        // First try to get user-owned client
+        let { data: client, error } = await supabase
             .from('clients')
             .select('*')
             .eq('id', id)
+            .eq('created_by', session.user.id)
             .single()
 
+        // If not found, try to get legacy client (created_by is null)
+        if (error && error.code === 'PGRST116') {
+            const { data: legacyClient, error: legacyError } = await supabase
+                .from('clients')
+                .select('*')
+                .eq('id', id)
+                .is('created_by', null)
+                .single()
+            
+            client = legacyClient
+            error = legacyError
+        }
+
         if (error) {
-            console.error('Supabase error:', error)
+            console.error('❌ Supabase error:', error)
             if (error.code === 'PGRST116') {
+                console.log('❌ Client not found:', id)
                 return NextResponse.json(
                     { success: false, error: 'Client not found' },
                     { status: 404 }
                 )
             }
-            throw error
+            return NextResponse.json(
+                { success: false, error: 'Failed to fetch client' },
+                { status: 500 }
+            )
         }
 
         if (!client) {
+            console.log('❌ Client not found or no access:', id)
             return NextResponse.json(
                 { success: false, error: 'Client not found' },
                 { status: 404 }
@@ -51,9 +79,11 @@ export async function GET(
             image_url: client.image_url || getDefaultClientImage()
         }
 
+        console.log('✅ Successfully fetched client:', id)
         return NextResponse.json({
             success: true,
-            data: clientWithImage
+            data: clientWithImage,
+            message: 'Client fetched successfully'
         })
 
     } catch (error) {
@@ -71,6 +101,18 @@ export async function PUT(
 ) {
     try {
         const { id } = await params
+        console.log('🔍 PUT /api/clients/[id] - Starting request for client:', id)
+
+        // Get the current session
+        const session = await auth()
+        if (!session?.user?.id) {
+            console.log('❌ No session or user ID found')
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized - No valid session' },
+                { status: 401 }
+            )
+        }
+
         const body = await request.json()
 
         const {
@@ -90,46 +132,74 @@ export async function PUT(
         // Validate required fields
         if (!name || !email) {
             return NextResponse.json(
-                { error: 'Name and email are required' },
+                { success: false, error: 'Name and email are required' },
                 { status: 400 }
             )
         }
 
-        // Use Supabase client to update data in the database
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        const supabase = await createSupabaseServerClient()
 
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        // Update the client in the database with user access control
+        const updateData = {
+            name,
+            email,
+            phone,
+            company,
+            address,
+            city,
+            state,
+            country,
+            postal_code,
+            image_url: image_url || getDefaultClientImage(),
+            status,
+            updated_at: new Date().toISOString()
+        }
 
-        // Update the client in the database
-        const { data: updatedClient, error } = await supabase
+        // First try to update user-owned client
+        let { data: updatedClient, error } = await supabase
             .from('clients')
-            .update({
-                name,
-                email,
-                phone,
-                company,
-                address,
-                city,
-                state,
-                country,
-                postal_code,
-                image_url: image_url || getDefaultClientImage(),
-                status,
-                updated_at: new Date().toISOString()
-            })
+            .update(updateData)
             .eq('id', id)
+            .eq('created_by', session.user.id)
             .select()
             .single()
 
-        if (error) {
-            console.error('Supabase error:', error)
-            throw error
+        // If not found, try to update legacy client and link to current user
+        if (error && error.code === 'PGRST116') {
+            const { data: legacyUpdate, error: legacyError } = await supabase
+                .from('clients')
+                .update({
+                    ...updateData,
+                    created_by: session.user.id // Link to current user
+                })
+                .eq('id', id)
+                .is('created_by', null)
+                .select()
+                .single()
+            
+            updatedClient = legacyUpdate
+            error = legacyError
         }
 
+        if (error) {
+            console.error('❌ Supabase error:', error)
+            if (error.code === 'PGRST116') {
+                return NextResponse.json(
+                    { success: false, error: 'Client not found or access denied' },
+                    { status: 404 }
+                )
+            }
+            return NextResponse.json(
+                { success: false, error: 'Failed to update client' },
+                { status: 500 }
+            )
+        }
+
+        console.log('✅ Successfully updated client:', id)
         return NextResponse.json({
             success: true,
-            data: updatedClient
+            data: updatedClient,
+            message: 'Client updated successfully'
         })
 
     } catch (error) {
@@ -147,24 +217,54 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params
+        console.log('🔍 DELETE /api/clients/[id] - Starting request for client:', id)
 
-        // Use Supabase client to delete data from the database
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gafpwitcdoiviixlxnuz.supabase.co'
-        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhZnB3aXRjZG9pdmlpeGx4bnV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk0NjQxNTksImV4cCI6MjA2NTA0MDE1OX0.RNdmc2PkTYA6oQ-4HRPoRp-z-iinT8v5d6pWx9YRPhk'
+        // Get the current session
+        const session = await auth()
+        if (!session?.user?.id) {
+            console.log('❌ No session or user ID found')
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized - No valid session' },
+                { status: 401 }
+            )
+        }
 
-        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+        const supabase = await createSupabaseServerClient()
 
-        // Delete the client from the database
-        const { error } = await supabase
+        // Delete the client from the database with user access control
+        // First try to delete user-owned client
+        let { error } = await supabase
             .from('clients')
             .delete()
             .eq('id', id)
+            .eq('created_by', session.user.id)
 
-        if (error) {
-            console.error('Supabase error:', error)
-            throw error
+        // If not found, try to delete legacy client
+        if (error && error.code === 'PGRST116') {
+            const { error: legacyError } = await supabase
+                .from('clients')
+                .delete()
+                .eq('id', id)
+                .is('created_by', null)
+            
+            error = legacyError
         }
 
+        if (error) {
+            console.error('❌ Supabase error:', error)
+            if (error.code === 'PGRST116') {
+                return NextResponse.json(
+                    { success: false, error: 'Client not found or access denied' },
+                    { status: 404 }
+                )
+            }
+            return NextResponse.json(
+                { success: false, error: 'Failed to delete client' },
+                { status: 500 }
+            )
+        }
+
+        console.log('✅ Successfully deleted client:', id)
         return NextResponse.json({
             success: true,
             message: 'Client deleted successfully'

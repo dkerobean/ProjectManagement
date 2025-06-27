@@ -423,9 +423,9 @@ const CreateInvoice = () => {
                         return new Promise((resolve) => {
                             img.onload = () => {
                                 try {
-                                    const logoWidth = 30
-                                    const logoHeight = 20
-                                    const logoX = pageWidth - margin - logoWidth
+                                    const logoWidth = 40
+                                    const logoHeight = 16
+                                    const logoX = margin
                                     const logoY = margin
 
                                     // Determine image format for better compatibility
@@ -459,154 +459,196 @@ const CreateInvoice = () => {
             }
 
             // Add logo if available - check multiple possible logo fields
-            await addLogo(invoice.companyLogo || null)
+            const logoAdded = await addLogo(invoice.companyLogo || null)
 
-            let yPosition = margin + 10
+            let yPosition = margin + (logoAdded ? 20 : 10)
 
-            // Company Header
+            // Header Section - matches web layout
+            // Invoice Title (left side, below logo)
             pdf.setFontSize(24)
-            pdf.setTextColor(79, 70, 229)
+            pdf.setTextColor(55, 65, 81)
             pdf.setFont('helvetica', 'bold')
-            pdf.text(invoice.companyName, margin, yPosition)
+            pdf.text('INVOICE', margin, yPosition)
 
-            yPosition += 10
+            // Invoice Number and Status (right side)
+            pdf.setFontSize(12)
+            pdf.setTextColor(0, 0, 0)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text('Invoice #' + invoice.invoiceNumber, pageWidth - margin - 50, yPosition - 5, { align: 'right' })
+            
             pdf.setFontSize(10)
-            pdf.setTextColor(100, 100, 100)
-            pdf.setFont('helvetica', 'normal')
+            pdf.setTextColor(107, 114, 128)
+            pdf.text('Status: ' + invoice.status.toUpperCase(), pageWidth - margin - 50, yPosition + 2, { align: 'right' })
 
-            pdf.text(invoice.companyAddress, margin, yPosition)
-            yPosition += 5
-            pdf.text(invoice.companyPhone, margin, yPosition)
-            yPosition += 5
-            pdf.text(invoice.companyEmail, margin, yPosition)
-            yPosition += 5
-
-            // Invoice Title and Number (top right)
-            pdf.setFontSize(32)
-            pdf.setTextColor(79, 70, 229)
-            pdf.setFont('helvetica', 'bold')
-            pdf.text('INVOICE', pageWidth - margin - 50, margin + 15, { align: 'right' })
-
-            pdf.setFontSize(14)
-            pdf.setTextColor(100, 100, 100)
-            pdf.setFont('helvetica', 'normal')
-            pdf.text(invoice.invoiceNumber, pageWidth - margin - 50, margin + 25, { align: 'right' })
-
-            // Line separator
-            yPosition += 10
-            pdf.setDrawColor(79, 70, 229)
-            pdf.setLineWidth(1)
-            pdf.line(margin, yPosition, pageWidth - margin, yPosition)
             yPosition += 15
 
-            // Bill To and Invoice Details (two columns)
+            // From/To Section - two columns to match web layout
             const leftColX = margin
-            const rightColX = pageWidth / 2 + 10
+            const rightColX = pageWidth / 2 + 10 // Increased spacing between columns
 
-            // Bill To section
+            // From section (left column)
             pdf.setFontSize(12)
-            pdf.setTextColor(79, 70, 229)
+            pdf.setTextColor(55, 65, 81)
             pdf.setFont('helvetica', 'bold')
-            pdf.text('Bill To', leftColX, yPosition)
+            pdf.text('From:', leftColX, yPosition)
 
-            yPosition += 8
-            pdf.setFontSize(11)
-            pdf.setTextColor(0, 0, 0)
-            pdf.setFont('helvetica', 'bold')
-            pdf.text(invoice.clientName, leftColX, yPosition)
-
-            yPosition += 6
-            pdf.setFont('helvetica', 'normal')
-            if (invoice.clientAddress) {
-                pdf.text(invoice.clientAddress, leftColX, yPosition)
-                yPosition += 5
-            }
-            if (invoice.clientEmail) {
-                pdf.text(invoice.clientEmail, leftColX, yPosition)
-            }
-
-            // Invoice Details section (right column)
-            let rightYPosition = yPosition - 20
-            pdf.setFontSize(12)
-            pdf.setTextColor(79, 70, 229)
-            pdf.setFont('helvetica', 'bold')
-            pdf.text('Invoice Details', rightColX, rightYPosition)
-
-            rightYPosition += 8
+            let leftYPosition = yPosition + 8
             pdf.setFontSize(10)
             pdf.setTextColor(0, 0, 0)
             pdf.setFont('helvetica', 'normal')
 
-            const addDetailRow = (label: string, value: string) => {
-                pdf.setFont('helvetica', 'bold')
-                pdf.text(label + ':', rightColX, rightYPosition)
-                pdf.setFont('helvetica', 'normal')
-                pdf.text(value, rightColX + 25, rightYPosition)
+            // Company info
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(invoice.companyName, leftColX, leftYPosition)
+            leftYPosition += 6
+
+            pdf.setFont('helvetica', 'normal')
+            if (invoice.companyAddress) {
+                const maxWidth = (pageWidth / 2) - 25 // More restrictive width accounting for column spacing
+                // Ensure the address string is properly formatted for splitting
+                const addressText = invoice.companyAddress.toString().trim()
+                const splitAddress = pdf.splitTextToSize(addressText, maxWidth)
+                pdf.text(splitAddress, leftColX, leftYPosition)
+                leftYPosition += splitAddress.length * 5
+            }
+            if (invoice.companyPhone) {
+                pdf.text(invoice.companyPhone, leftColX, leftYPosition)
+                leftYPosition += 5
+            }
+            if (invoice.companyEmail) {
+                pdf.text(invoice.companyEmail, leftColX, leftYPosition)
+                leftYPosition += 5
+            }
+
+            // To section (right column)
+            pdf.setFontSize(12)
+            pdf.setTextColor(55, 65, 81)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('To:', rightColX, yPosition)
+
+            let rightYPosition = yPosition + 8
+            pdf.setFontSize(10)
+            pdf.setTextColor(0, 0, 0)
+
+            // Client info
+            pdf.setFont('helvetica', 'bold')
+            pdf.text(invoice.clientName, rightColX, rightYPosition)
+            rightYPosition += 6
+
+            pdf.setFont('helvetica', 'normal')
+            if (invoice.clientAddress) {
+                const maxWidth = (pageWidth / 2) - 25 // More restrictive width accounting for column spacing
+                // Ensure the address string is properly formatted for splitting
+                const clientAddressText = invoice.clientAddress.toString().trim()
+                const splitClientAddress = pdf.splitTextToSize(clientAddressText, maxWidth)
+                pdf.text(splitClientAddress, rightColX, rightYPosition)
+                rightYPosition += splitClientAddress.length * 5
+            }
+            if (invoice.clientEmail) {
+                pdf.text(invoice.clientEmail, rightColX, rightYPosition)
                 rightYPosition += 5
             }
 
-            addDetailRow('Issue Date', new Date(invoice.issueDate).toLocaleDateString())
-            addDetailRow('Due Date', new Date(invoice.dueDate).toLocaleDateString())
-            addDetailRow('Status', invoice.status.toUpperCase())
+            yPosition += 35
 
-            yPosition += 30
+            // Dates Section - two columns to match web layout
+            pdf.setFontSize(10)
+            pdf.setTextColor(55, 65, 81)
+            pdf.setFont('helvetica', 'bold')
+            pdf.text('Issue Date', leftColX, yPosition)
+            pdf.text('Due Date', rightColX, yPosition)
 
-            // Items Table
+            yPosition += 6
+            pdf.setFontSize(10)
+            pdf.setTextColor(0, 0, 0)
+            pdf.setFont('helvetica', 'normal')
+            pdf.text(new Date(invoice.issueDate).toLocaleDateString(), leftColX, yPosition)
+            pdf.text(new Date(invoice.dueDate).toLocaleDateString(), rightColX, yPosition)
+
+            yPosition += 20
+
+            // Items Table - styled to match web version
             if (invoice.items && invoice.items.length > 0) {
                 const tableY = yPosition
-                const colX = [margin, margin + 80, margin + 105, margin + 135]
+                const tableWidth = pageWidth - 2 * margin
+                const colWidths = [tableWidth * 0.5, tableWidth * 0.15, tableWidth * 0.175, tableWidth * 0.175]
+                const colX = [margin, margin + colWidths[0], margin + colWidths[0] + colWidths[1], margin + colWidths[0] + colWidths[1] + colWidths[2]]
 
-                // Header background
-                pdf.setFillColor(79, 70, 229)
-                pdf.rect(margin, tableY, pageWidth - 2 * margin, 8, 'F')
+                // Add Items section title
+                pdf.setFontSize(12)
+                pdf.setTextColor(55, 65, 81)
+                pdf.setFont('helvetica', 'bold')
+                pdf.text('Items', margin, tableY)
+                yPosition = tableY + 10
+
+                // Table border
+                pdf.setDrawColor(229, 231, 235)
+                pdf.setLineWidth(0.5)
+                pdf.rect(margin, yPosition, tableWidth, 10 + (invoice.items.length * 8), 'D')
+
+                // Header background - lighter gray to match web
+                pdf.setFillColor(249, 250, 251)
+                pdf.rect(margin, yPosition, tableWidth, 10, 'F')
+
+                // Header borders
+                pdf.setDrawColor(229, 231, 235)
+                pdf.setLineWidth(0.3)
+                for (let i = 1; i < colX.length; i++) {
+                    pdf.line(colX[i], yPosition, colX[i], yPosition + 10)
+                }
 
                 // Header text
                 pdf.setFontSize(10)
-                pdf.setTextColor(255, 255, 255)
+                pdf.setTextColor(55, 65, 81)
                 pdf.setFont('helvetica', 'bold')
-                pdf.text('Description', colX[0] + 2, tableY + 5)
-                pdf.text('Qty', colX[1] + 2, tableY + 5)
-                pdf.text('Rate', colX[2] + 2, tableY + 5)
-                pdf.text('Amount', colX[3] + 2, tableY + 5)
+                pdf.text('Description', colX[0] + 3, yPosition + 6)
+                pdf.text('Qty', colX[1] + 3, yPosition + 6, { align: 'center' })
+                pdf.text('Rate', colX[2] + 3, yPosition + 6, { align: 'right' })
+                pdf.text('Amount', colX[3] + 3, yPosition + 6, { align: 'right' })
 
-                yPosition = tableY + 8
+                yPosition += 10
 
                 // Table rows
                 pdf.setTextColor(0, 0, 0)
                 pdf.setFont('helvetica', 'normal')
 
                 invoice.items.forEach((item, index) => {
-                    yPosition += 6
-
-                    // Alternating row background
-                    if (index % 2 === 1) {
-                        pdf.setFillColor(249, 250, 251)
-                        pdf.rect(margin, yPosition - 3, pageWidth - 2 * margin, 6, 'F')
+                    const rowY = yPosition + (index * 8)
+                    
+                    // Row border
+                    if (index > 0) {
+                        pdf.setDrawColor(229, 231, 235)
+                        pdf.setLineWidth(0.2)
+                        pdf.line(margin, rowY, margin + tableWidth, rowY)
                     }
 
-                    // Add border lines
+                    // Column borders
                     pdf.setDrawColor(229, 231, 235)
-                    pdf.setLineWidth(0.1)
-                    pdf.line(margin, yPosition + 2, pageWidth - margin, yPosition + 2)
+                    pdf.setLineWidth(0.3)
+                    for (let i = 1; i < colX.length; i++) {
+                        pdf.line(colX[i], rowY, colX[i], rowY + 8)
+                    }
 
-                    // Item data
-                    pdf.text(item.description.substring(0, 45), colX[0] + 2, yPosition)
-                    pdf.text(item.quantity.toString(), colX[1] + 2, yPosition)
-                    pdf.text('$' + item.rate.toFixed(2), colX[2] + 2, yPosition)
-                    pdf.text('$' + item.amount.toFixed(2), colX[3] + 2, yPosition)
+                    // Item data with proper alignment
+                    pdf.setFontSize(9)
+                    pdf.text(item.description.substring(0, 50), colX[0] + 3, rowY + 5)
+                    pdf.text(item.quantity.toString(), colX[1] + colWidths[1]/2, rowY + 5, { align: 'center' })
+                    pdf.text('$' + item.rate.toFixed(2), colX[2] + colWidths[2] - 3, rowY + 5, { align: 'right' })
+                    pdf.text('$' + item.amount.toFixed(2), colX[3] + colWidths[3] - 3, rowY + 5, { align: 'right' })
                 })
 
-                yPosition += 15
+                yPosition += invoice.items.length * 8 + 15
             }
 
-            // Totals section (right-aligned)
-            const totalsX = pageWidth - margin - 60
+            // Totals section - right-aligned to match web layout
+            const totalsWidth = 80
+            const totalsX = pageWidth - margin - totalsWidth
             yPosition += 10
 
-            // Totals box background
-            pdf.setFillColor(248, 250, 252)
-            pdf.setDrawColor(229, 231, 235)
-            pdf.rect(totalsX - 5, yPosition - 5, 65, 30, 'FD')
+            // Calculate total rows needed
+            const rowHeight = 6
+            const totalRowsCount = 3 + (invoice.taxRate > 0 ? 1 : 0) // Subtotal, Tax (if any), Tax Amount, Total
+            const totalsHeight = totalRowsCount * rowHeight + 10
 
             pdf.setFontSize(10)
             pdf.setTextColor(0, 0, 0)
@@ -614,36 +656,44 @@ const CreateInvoice = () => {
             const addTotalRow = (label: string, amount: number, isFinal = false) => {
                 if (isFinal) {
                     pdf.setFont('helvetica', 'bold')
-                    pdf.setFontSize(12)
-                    pdf.setTextColor(79, 70, 229)
+                    pdf.setFontSize(11)
+                    pdf.setTextColor(0, 0, 0)
                 } else {
                     pdf.setFont('helvetica', 'normal')
                     pdf.setFontSize(10)
-                    pdf.setTextColor(0, 0, 0)
+                    pdf.setTextColor(107, 114, 128)
                 }
 
                 pdf.text(label + ':', totalsX, yPosition)
-                pdf.text('$' + amount.toFixed(2), totalsX + 40, yPosition, { align: 'right' })
-                yPosition += isFinal ? 8 : 6
+                pdf.setTextColor(0, 0, 0)
+                pdf.text('$' + amount.toFixed(2), totalsX + totalsWidth - 5, yPosition, { align: 'right' })
+                yPosition += rowHeight
             }
 
+            // Subtotal
             addTotalRow('Subtotal', invoice.subtotal)
+            
+            // Tax rate and amount
             if (invoice.taxRate > 0) {
-                addTotalRow(`Tax (${invoice.taxRate}%)`, invoice.taxAmount)
+                addTotalRow(`Tax Rate (%)`, invoice.taxRate)
+                addTotalRow('Tax Amount', invoice.taxAmount)
             }
 
-            // Final total with line
-            pdf.setDrawColor(79, 70, 229)
-            pdf.setLineWidth(0.5)
-            pdf.line(totalsX, yPosition - 2, totalsX + 55, yPosition - 2)
+            // Add line separator before total
             yPosition += 2
+            pdf.setDrawColor(229, 231, 235)
+            pdf.setLineWidth(0.5)
+            pdf.line(totalsX, yPosition, totalsX + totalsWidth - 5, yPosition)
+            yPosition += 4
+
+            // Final total
             addTotalRow('Total', invoice.total, true)
 
             // Notes section
             if (invoice.notes) {
                 yPosition += 15
                 pdf.setFontSize(12)
-                pdf.setTextColor(79, 70, 229)
+                pdf.setTextColor(55, 65, 81)
                 pdf.setFont('helvetica', 'bold')
                 pdf.text('Notes', margin, yPosition)
 
@@ -661,7 +711,7 @@ const CreateInvoice = () => {
             if (invoice.paymentInstructions) {
                 yPosition += 10
                 pdf.setFontSize(12)
-                pdf.setTextColor(79, 70, 229)
+                pdf.setTextColor(55, 65, 81)
                 pdf.setFont('helvetica', 'bold')
                 pdf.text('Payment Instructions', margin, yPosition)
 
