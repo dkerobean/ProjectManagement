@@ -11,6 +11,7 @@ import { getNavigation } from '@/server/actions/navigation/getNavigation'
 import { getTheme } from '@/server/actions/theme'
 import { getLocale, getMessages } from 'next-intl/server'
 import checkEnvironmentVariables from '@/utils/env-checker'
+import { Toaster } from 'react-hot-toast'
 import type { ReactNode } from 'react'
 import '@/assets/styles/app.css'
 
@@ -53,6 +54,29 @@ export default async function RootLayout({
                                     <NavigationLoadingProvider>
                                         <SessionRefresher />
                                         {children}
+                                        <Toaster
+                                            position="top-right"
+                                            toastOptions={{
+                                                duration: 4000,
+                                                style: {
+                                                    background: 'var(--bg-color)',
+                                                    color: 'var(--text-color)',
+                                                    border: '1px solid var(--border-color)',
+                                                },
+                                                success: {
+                                                    iconTheme: {
+                                                        primary: '#10B981',
+                                                        secondary: 'white',
+                                                    },
+                                                },
+                                                error: {
+                                                    iconTheme: {
+                                                        primary: '#EF4444',
+                                                        secondary: 'white',
+                                                    },
+                                                },
+                                            }}
+                                        />
                                     </NavigationLoadingProvider>
                                 </NavigationProvider>
                             </ThemeProvider>

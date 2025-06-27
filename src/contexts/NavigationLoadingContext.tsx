@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { defaultLoadingConfig, type PageLoadingConfig } from '@/types/navigation-loading'
 
 interface NavigationLoadingContextType {
     isLoading: boolean
@@ -39,34 +40,131 @@ export const NavigationLoadingProvider = ({ children }: NavigationLoadingProvide
                 if (typeof window !== 'undefined') {
                     // Wait for multiple frames to ensure page is fully rendered
                     const waitForPageReady = () => {
-                        // Check if page is ready by waiting for:
-                        // 1. Document to be ready
-                        // 2. All images to be loaded (if any)
-                        // 3. A reasonable delay for React components to mount
+                        // Enhanced page readiness detection
+                        // 1. Document state
+                        // 2. Images loaded
+                        // 3. Fonts loaded
+                        // 4. React components mounted
+                        // 5. Minimum loading time for UX
 
+                        // Get page-specific configuration
+                        const getPageConfig = (): PageLoadingConfig => {
+                            const globalConfig = defaultLoadingConfig.global
+                            const pageConfig = Object.entries(defaultLoadingConfig.pages)
+                                .find(([pattern]) => newPath.startsWith(pattern))?.[1]
+                            
+                            return { ...globalConfig, ...pageConfig }
+                        }
+
+                        const config = getPageConfig()
                         const isDocumentReady = document.readyState === 'complete'
                         const elapsedTime = loadingStartTime ? Date.now() - loadingStartTime : 0
-                        const minimumLoadingTime = 500 // Show loading for at least 500ms for better UX
+                        const minimumLoadingTime = config.minimumLoadingTime || 500
 
-                        if (isDocumentReady && elapsedTime >= minimumLoadingTime) {
-                            // Additional delay to ensure React components are mounted
-                            setTimeout(() => {
-                                setIsLoading(false)
-                                setLoadingStartTime(null)
-                                setCurrentPath(newPath)
-                            }, 200) // Extra 200ms for component mounting
-                        } else {
-                            // Wait for the remaining minimum time
-                            const remainingTime = Math.max(
-                                minimumLoadingTime - elapsedTime,
-                                isDocumentReady ? 200 : 500
-                            )
-                            setTimeout(() => {
-                                setIsLoading(false)
-                                setLoadingStartTime(null)
-                                setCurrentPath(newPath)
-                            }, remainingTime)
+                        // Check if all images are loaded
+                        const areImagesLoaded = () => {
+                            if (config.skipImageChecks) return true
+                            const images = document.querySelectorAll('img')
+                            return Array.from(images).every(img => img.complete && img.naturalHeight !== 0)
                         }
+
+                        // Check if fonts are loaded
+                        const areFontsLoaded = () => {
+                            if (config.skipFontChecks) return Promise.resolve()
+                            return document.fonts ? document.fonts.ready : Promise.resolve()
+                        }
+
+                        // Check if main content area exists (indicates React components mounted)
+                        const isMainContentReady = () => {
+                            const selectors = config.waitForSelectors || ['main', '[role="main"]', '.main-content']
+                            return selectors.some(selector => document.querySelector(selector) !== null)
+                        }
+
+                        // Check if any loading skeletons are still present
+                        const areSkeletonsGone = () => {
+                            if (config.skipSkeletonChecks) return true
+                            const baseSelectors = '[class*="skeleton"], [class*="loading"], .animate-pulse'
+                            const ignoreSelectors = config.ignoreSelectors?.join(', ') || ''
+                            const finalSelector = ignoreSelectors 
+                                ? `${baseSelectors}:not(${ignoreSelectors})`
+                                : baseSelectors
+                            const skeletons = document.querySelectorAll(finalSelector)
+                            return skeletons.length === 0
+                        }
+
+                        // Check if page has any error states
+                        const hasNoErrors = () => {
+                            const errorElements = document.querySelectorAll('[class*="error"], .error-boundary')
+                            return errorElements.length === 0
+                        }
+
+                        // Run custom readiness check if provided
+                        const customCheckPassed = async () => {
+                            if (!config.customReadinessCheck) return true
+                            try {
+                                const result = config.customReadinessCheck()
+                                return await Promise.resolve(result)
+                            } catch {
+                                return true // Don't block on custom check errors
+                            }
+                        }
+
+                        const checkAllConditions = async () => {
+                            try {
+                                // Wait for fonts to load
+                                await areFontsLoaded()
+                                
+                                // Run all checks including custom ones
+                                const [customPassed] = await Promise.all([
+                                    customCheckPassed()
+                                ])
+                                
+                                const allChecks = 
+                                    isDocumentReady &&
+                                    areImagesLoaded() &&
+                                    isMainContentReady() &&
+                                    areSkeletonsGone() &&
+                                    hasNoErrors() &&
+                                    customPassed &&
+                                    elapsedTime >= minimumLoadingTime
+
+                                if (allChecks) {
+                                    // Additional delay to ensure React hydration is complete
+                                    setTimeout(() => {
+                                        setIsLoading(false)
+                                        setLoadingStartTime(null)
+                                        setCurrentPath(newPath)
+                                    }, 150)
+                                } else {
+                                    // Check again after a short delay, but respect max loading time
+                                    const maxTime = config.maxLoadingTime || 5000
+                                    if (elapsedTime < maxTime) {
+                                        setTimeout(() => {
+                                            checkAllConditions()
+                                        }, 100)
+                                    } else {
+                                        // Force clear loading after max time
+                                        console.warn(`Navigation loading timeout reached for ${newPath} - clearing loading state`)
+                                        setIsLoading(false)
+                                        setLoadingStartTime(null)
+                                        setCurrentPath(newPath)
+                                    }
+                                }
+                            } catch {
+                                // Fallback to minimum time if any checks fail
+                                const remainingTime = Math.max(
+                                    minimumLoadingTime - elapsedTime,
+                                    200
+                                )
+                                setTimeout(() => {
+                                    setIsLoading(false)
+                                    setLoadingStartTime(null)
+                                    setCurrentPath(newPath)
+                                }, remainingTime)
+                            }
+                        }
+
+                        checkAllConditions()
                     }
 
                     // Use multiple requestAnimationFrame calls to ensure everything is rendered

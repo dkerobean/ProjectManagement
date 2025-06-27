@@ -5,7 +5,7 @@ import authConfig from '@/configs/auth.config'
 export const { handlers, signIn, signOut, auth } = NextAuth({
     pages: {
         signIn: appConfig.unAuthenticatedEntryPath,
-        error: appConfig.unAuthenticatedEntryPath,
+        error: appConfig.unAuthenticatedEntryPath, // Redirect errors back to sign-in page
     },
     session: {
         strategy: "jwt",
