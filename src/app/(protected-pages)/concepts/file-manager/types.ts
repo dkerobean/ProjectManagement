@@ -32,7 +32,7 @@ export type DropdownItemCallbackProps = {
     onDelete?: () => void
 }
 
-export type Layout = 'grid' | 'list'
+export type Layout = 'grid' | 'list' | 'large-grid' | 'tiles'
 
 export type Files = File[]
 

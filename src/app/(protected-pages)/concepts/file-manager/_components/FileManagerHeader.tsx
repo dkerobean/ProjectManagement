@@ -4,7 +4,7 @@ import { Fragment } from 'react'
 import Segment from '@/components/ui/Segment'
 import UploadFile from './UploadFile'
 import { useFileManagerStore } from '../_store/useFileManagerStore'
-import { TbChevronRight, TbLayoutGrid, TbList } from 'react-icons/tb'
+import { TbChevronRight, TbLayoutGrid, TbList, TbLayoutGridAdd, TbLayoutCards } from 'react-icons/tb'
 import type { Layout } from '../types'
 
 type FileManagerHeaderProps = {
@@ -67,11 +67,18 @@ const FileManagerHeader = ({
                 <Segment
                     value={layout}
                     onChange={(val) => setLayout(val as Layout)}
+                    className="flex-wrap"
                 >
-                    <Segment.Item value="grid" className="text-xl px-3">
+                    <Segment.Item value="grid" className="text-xl px-3" title="Grid View">
                         <TbLayoutGrid />
                     </Segment.Item>
-                    <Segment.Item value="list" className="text-xl px-3">
+                    <Segment.Item value="large-grid" className="text-xl px-3" title="Large Grid View">
+                        <TbLayoutGridAdd />
+                    </Segment.Item>
+                    <Segment.Item value="tiles" className="text-xl px-3" title="Tiles View">
+                        <TbLayoutCards />
+                    </Segment.Item>
+                    <Segment.Item value="list" className="text-xl px-3" title="List View">
                         <TbList />
                     </Segment.Item>
                 </Segment>

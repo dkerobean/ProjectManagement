@@ -1,3 +1,1 @@
-import FileIcon from './FileIcon'
-
-export default FileIcon
+export { default, getFileColor } from './FileIcon'

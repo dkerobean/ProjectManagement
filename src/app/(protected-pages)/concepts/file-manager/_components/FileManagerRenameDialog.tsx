@@ -6,18 +6,24 @@ import Button from '@/components/ui/Button'
 import DebouceInput from '@/components/shared/DebouceInput'
 import { useFileManagerStore } from '../_store/useFileManagerStore'
 
-const FileManagerRenameDialog = () => {
-    const { renameDialog, setRenameDialog, renameFile } = useFileManagerStore()
+interface FileManagerRenameDialogProps {
+    onConfirm: (newName: string) => void
+    isLoading?: boolean
+}
+
+const FileManagerRenameDialog = ({ onConfirm, isLoading = false }: FileManagerRenameDialogProps) => {
+    const { renameDialog, setRenameDialog } = useFileManagerStore()
 
     const [newName, setNewName] = useState('')
 
     const handleDialogClose = () => {
         setRenameDialog({ id: '', open: false })
+        setNewName('')
     }
 
     const handleSubmit = () => {
-        renameFile({ id: renameDialog.id, fileName: newName })
-        setRenameDialog({ id: '', open: false })
+        onConfirm(newName)
+        setNewName('')
     }
 
     return (
@@ -36,16 +42,19 @@ const FileManagerRenameDialog = () => {
                 />
             </div>
             <div className="mt-6 flex justify-end items-center gap-2">
-                <Button size="sm" onClick={handleDialogClose}>
+                <Button size="sm" onClick={handleDialogClose} disabled={isLoading}>
                     Close
                 </Button>
                 <Button
                     variant="solid"
                     size="sm"
-                    disabled={newName.length === 0}
+                    disabled={newName.length === 0 || isLoading}
                     onClick={handleSubmit}
+                    loading={isLoading}
                 >
-                    <span className="flex justify-center min-w-10">Ok</span>
+                    <span className="flex justify-center min-w-10">
+                        {isLoading ? 'Renaming...' : 'Ok'}
+                    </span>
                 </Button>
             </div>
         </Dialog>

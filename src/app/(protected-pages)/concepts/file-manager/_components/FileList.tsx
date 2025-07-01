@@ -39,13 +39,29 @@ const FileList = (props: FileListProps) => {
         return fileList.filter((file) => file.fileType !== 'directory')
     }, [fileList])
 
+    const getGridClassName = (layout: Layout) => {
+        switch (layout) {
+            case 'large-grid':
+                return 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 mt-4 gap-6 lg:gap-8'
+            case 'tiles':
+                return 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 mt-4 gap-3'
+            case 'grid':
+            default:
+                return 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-4 lg:gap-6'
+        }
+    }
+
     const renderFileSegment = (list: Files, isFolder?: boolean) => (
-        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-4 lg:gap-6">
+        <div className={getGridClassName(layout)}>
             {list.map((file) => (                <FileSegment
                     key={file.id}
                     fileType={file.fileType}
                     size={file.size}
                     name={file.name}
+                    uploadDate={file.uploadDate}
+                    recent={file.recent}
+                    author={file.author}
+                    variant={layout === 'tiles' ? 'compact' : layout === 'large-grid' ? 'large' : 'default'}
                     onClick={() => onClick(file.id)}
                     onDownload={() => onDownload(file.id)}
                     onShare={() => onShare(file.id)}
@@ -90,15 +106,13 @@ const FileList = (props: FileListProps) => {
             {folders.length > 0 && (
                 <div>
                     <h4>Folders</h4>
-                    {layout === 'grid' && renderFileSegment(folders, true)}
-                    {layout === 'list' && renderFileRow(folders, true)}
+                    {layout === 'list' ? renderFileRow(folders, true) : renderFileSegment(folders, true)}
                 </div>
             )}
             {files.length > 0 && (
                 <div className="mt-8">
                     <h4>Files</h4>
-                    {layout === 'grid' && renderFileSegment(files)}
-                    {layout === 'list' && renderFileRow(files)}
+                    {layout === 'list' ? renderFileRow(files) : renderFileSegment(files)}
                 </div>
             )}
         </div>

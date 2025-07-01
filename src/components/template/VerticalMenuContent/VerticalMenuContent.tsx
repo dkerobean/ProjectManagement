@@ -45,9 +45,20 @@ const VerticalMenuContent = (props: VerticalMenuContentProps) => {
         return fallback || key
     }
 
-    const t = (
-        translationSetup ? useTranslation() : translationPlaceholder
-    ) as TranslationFn
+    const nextIntlT = useTranslation()
+    
+    const t = (translationSetup ? (key: string, fallback?: string) => {
+        try {
+            const result = nextIntlT(key)
+            // If translation returns the key in uppercase, it means translation failed
+            if (result && result.toUpperCase() === key.toUpperCase()) {
+                return fallback || key
+            }
+            return result || fallback || key
+        } catch {
+            return fallback || key
+        }
+    } : translationPlaceholder) as TranslationFn
 
     const [defaulExpandKey, setDefaulExpandKey] = useState<string[]>([])
 
@@ -126,7 +137,7 @@ const VerticalMenuContent = (props: VerticalMenuContentProps) => {
                             >
                                 <MenuGroup
                                     key={nav.key}
-                                    label={t(nav.translateKey) || nav.title}
+                                    label={t(nav.translateKey, nav.title)}
                                 >
                                     {nav.subMenu &&
                                         nav.subMenu.length > 0 &&

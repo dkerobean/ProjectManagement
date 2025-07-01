@@ -568,65 +568,81 @@ const ProjectFormModal = () => {
                     {/* Tasks Section */}
                     <div className="mb-4">
                         <h6 className="text-sm font-medium text-gray-700 mb-2">Tasks</h6>
-                        {formData.tasks.map((task, index) => (
-                            <div key={index} className="mb-3 p-3 border border-gray-200 rounded-lg">
-                                <div className="flex justify-between items-start mb-2">
-                                    <Input
-                                        placeholder="Task title"
-                                        value={task.title}
-                                        onChange={(e) => {
-                                            const updatedTasks = [...formData.tasks]
-                                            updatedTasks[index].title = e.target.value
-                                            setFormData({ ...formData, tasks: updatedTasks })
-                                        }}
-                                        className="mr-2"
-                                    />
-                                    <Button
-                                        size="sm"
-                                        variant="plain"
-                                        onClick={() => {
-                                            const updatedTasks = formData.tasks.filter((_, i) => i !== index)
-                                            setFormData({ ...formData, tasks: updatedTasks })
-                                        }}
-                                    >
-                                        Remove
-                                    </Button>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Select
-                                        placeholder="Priority"
-                                        value={taskPriorityOptions.find(opt => opt.value === task.priority)}
-                                        onChange={(option) => {
-                                            const updatedTasks = [...formData.tasks]
-                                            updatedTasks[index].priority = (option?.value as 'low' | 'medium' | 'high' | 'critical') || 'medium'
-                                            setFormData({ ...formData, tasks: updatedTasks })
-                                        }}
-                                        options={taskPriorityOptions}
-                                    />
-                                    <Select
-                                        placeholder="Status"
-                                        value={taskStatusOptions.find(opt => opt.value === task.status)}
-                                        onChange={(option) => {
-                                            const updatedTasks = [...formData.tasks]
-                                            updatedTasks[index].status = (option?.value as 'todo' | 'in_progress' | 'review' | 'done' | 'blocked') || 'todo'
-                                            setFormData({ ...formData, tasks: updatedTasks })
-                                        }}
-                                        options={taskStatusOptions}
-                                    />
-                                </div>
-                                <Input
-                                    type="date"
-                                    placeholder="Start date"
-                                    value={task.start_date || ''}
-                                    onChange={(e) => {
-                                        const updatedTasks = [...formData.tasks]
-                                        updatedTasks[index].start_date = e.target.value
-                                        setFormData({ ...formData, tasks: updatedTasks })
-                                    }}
-                                    className="mt-2"
-                                />
+                        
+                        {/* Scrollable Tasks Container */}
+                        <div className="max-h-80 overflow-y-auto mb-3 border border-gray-100 rounded-lg bg-gray-50/50 dark:bg-gray-800/50 dark:border-gray-700">
+                            <div className="p-3 space-y-3">
+                                {formData.tasks.length === 0 ? (
+                                    <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                                        <p className="text-sm">No tasks added yet.</p>
+                                        <p className="text-xs mt-1">Click &quot;Add Task&quot; to create your first task.</p>
+                                    </div>
+                                ) : (
+                                    formData.tasks.map((task, index) => (
+                                        <div key={index} className="p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <Input
+                                                    placeholder="Task title"
+                                                    value={task.title}
+                                                    onChange={(e) => {
+                                                        const updatedTasks = [...formData.tasks]
+                                                        updatedTasks[index].title = e.target.value
+                                                        setFormData({ ...formData, tasks: updatedTasks })
+                                                    }}
+                                                    className="mr-2"
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    variant="plain"
+                                                    onClick={() => {
+                                                        const updatedTasks = formData.tasks.filter((_, i) => i !== index)
+                                                        setFormData({ ...formData, tasks: updatedTasks })
+                                                    }}
+                                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <Select
+                                                    placeholder="Priority"
+                                                    value={taskPriorityOptions.find(opt => opt.value === task.priority)}
+                                                    onChange={(option) => {
+                                                        const updatedTasks = [...formData.tasks]
+                                                        updatedTasks[index].priority = (option?.value as 'low' | 'medium' | 'high' | 'critical') || 'medium'
+                                                        setFormData({ ...formData, tasks: updatedTasks })
+                                                    }}
+                                                    options={taskPriorityOptions}
+                                                />
+                                                <Select
+                                                    placeholder="Status"
+                                                    value={taskStatusOptions.find(opt => opt.value === task.status)}
+                                                    onChange={(option) => {
+                                                        const updatedTasks = [...formData.tasks]
+                                                        updatedTasks[index].status = (option?.value as 'todo' | 'in_progress' | 'review' | 'done' | 'blocked') || 'todo'
+                                                        setFormData({ ...formData, tasks: updatedTasks })
+                                                    }}
+                                                    options={taskStatusOptions}
+                                                />
+                                            </div>
+                                            <Input
+                                                type="date"
+                                                placeholder="Start date"
+                                                value={task.start_date || ''}
+                                                onChange={(e) => {
+                                                    const updatedTasks = [...formData.tasks]
+                                                    updatedTasks[index].start_date = e.target.value
+                                                    setFormData({ ...formData, tasks: updatedTasks })
+                                                }}
+                                                className="mt-2"
+                                            />
+                                        </div>
+                                    ))
+                                )}
                             </div>
-                        ))}
+                        </div>
+                        
+                        {/* Add Task Button - Outside scroll area */}
                         <Button
                             size="sm"
                             variant="solid"
@@ -638,6 +654,7 @@ const ProjectFormModal = () => {
                                 }
                                 setFormData({ ...formData, tasks: [...formData.tasks, newTask] })
                             }}
+                            className="w-full"
                         >
                             Add Task
                         </Button>

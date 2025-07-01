@@ -8,14 +8,12 @@ import toast from 'react-hot-toast'
 import { useEffect } from 'react'
 import type {
     OnSignInPayload,
-    OnOauthSignInPayload,
 } from '@/components/auth/SignIn'
 
-interface SignInClientProps {
-    handleOauthSignIn: (signInMethod: string, callbackUrl?: string) => Promise<void>
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+interface SignInClientProps {}
 
-const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
+const SignInClient = ({}: SignInClientProps) => {
     const searchParams = useSearchParams()
     const router = useRouter()
     const { data: session, status } = useSession()
@@ -62,12 +60,9 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
                         duration: 5000,
                     })
                     break
-                case 'OAuthSignin':
-                case 'OAuthCallback':
-                case 'OAuthCreateAccount':
                 case 'EmailCreateAccount':
                 case 'Callback':
-                    toast.error('OAuth sign-in failed. Please try again or use email/password.', {
+                    toast.error('Sign-in failed. Please try again or use email/password.', {
                         duration: 5000,
                     })
                     break
@@ -209,28 +204,8 @@ const SignInClient = ({ handleOauthSignIn }: SignInClientProps) => {
         }
     }
 
-    const handleOAuthSignIn = async ({ type }: OnOauthSignInPayload) => {
-        try {
-            console.log('🔄 OAuth sign-in initiated for:', type, 'with callback:', callbackUrl)
-            toast.loading(`Signing in with ${type === 'google' ? 'Google' : 'GitHub'}...`, {
-                duration: 3000,
-            })
-            
-            if (type === 'google') {
-                await handleOauthSignIn('google', callbackUrl)
-            }
-            if (type === 'github') {
-                await handleOauthSignIn('github', callbackUrl)
-            }
-        } catch (error) {
-            console.error('OAuth sign in error:', error)
-            toast.error(`${type === 'google' ? 'Google' : 'GitHub'} sign-in failed. Please try again or use email/password.`, {
-                duration: 5000,
-            })
-        }
-    }
 
-    return <SignIn onSignIn={handleSignIn} onOauthSignIn={handleOAuthSignIn} />
+    return <SignIn onSignIn={handleSignIn} />
 }
 
 export default SignInClient

@@ -41,40 +41,6 @@ const conceptsNavigationConfig: NavigationTree[] = [
                 subMenu: [],
             },
             {
-                key: 'concepts.projects.scrumBoard',
-                path: `${CONCEPTS_PREFIX_PATH}/projects/scrum-board`,
-                title: 'Scrum Board',
-                translateKey: 'nav.conceptsProjects.scrumBoard',
-                icon: 'projectScrumBoard',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey:
-                            'nav.conceptsProjects.scrumBoardDesc',
-                        label: 'Manage your scrum workflow',
-                    },
-                },
-                subMenu: [],
-            },
-            {
-                key: 'concepts.projects.projectDashboard',
-                path: `${CONCEPTS_PREFIX_PATH}/projects/dashboard`,
-                title: 'Project Dashboard',
-                translateKey: 'nav.conceptsProjects.projectDashboard',
-                icon: 'dashboardProject',
-                type: NAV_ITEM_TYPE_ITEM,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey:
-                            'nav.conceptsProjects.projectDashboardDesc',
-                        label: 'Project overview and metrics',
-                    },
-                },
-                subMenu: [],
-            },
-            {
                 key: 'concepts.projects.projectTasks',
                 path: `${CONCEPTS_PREFIX_PATH}/projects/tasks`,
                 title: 'Tasks',
@@ -367,90 +333,6 @@ const conceptsNavigationConfig: NavigationTree[] = [
                             description: {
                                 translateKey: 'nav.conceptsInvoicing.companySettingsDesc',
                                 label: 'Manage company profile and logo',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                ],
-            },
-            {
-                key: 'concepts.account',
-                path: '',
-                title: 'Account',
-                translateKey: 'nav.conceptsAccount.account',
-                icon: 'account',
-                type: NAV_ITEM_TYPE_COLLAPSE,
-                authority: [ADMIN, USER],
-                meta: {
-                    description: {
-                        translateKey: 'nav.conceptsAccount.accountDesc',
-                        label: 'Account settings and info',
-                    },
-                },
-                subMenu: [
-                    {
-                        key: 'concepts.account.settings',
-                        path: `${CONCEPTS_PREFIX_PATH}/account/settings`,
-                        title: 'Settings',
-                        translateKey: 'nav.conceptsAccount.settings',
-                        icon: 'accountSettings',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsAccount.settingsDesc',
-                                label: 'Configure your settings',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.account.activityLog',
-                        path: `${CONCEPTS_PREFIX_PATH}/account/activity-log`,
-                        title: 'Activity log',
-                        translateKey: 'nav.conceptsAccount.activityLog',
-                        icon: 'accountActivityLogs',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsAccount.activityLogDesc',
-                                label: 'View recent activities',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.account.rolesPermissions',
-                        path: `${CONCEPTS_PREFIX_PATH}/account/roles-permissions`,
-                        title: 'Roles & Permissions',
-                        translateKey: 'nav.conceptsAccount.rolesPermissions',
-                        icon: 'accountRoleAndPermission',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey:
-                                    'nav.conceptsAccount.rolesPermissionsDesc',
-                                label: 'Manage roles & permissions',
-                            },
-                        },
-                        subMenu: [],
-                    },
-                    {
-                        key: 'concepts.account.pricing',
-                        path: `${CONCEPTS_PREFIX_PATH}/account/pricing`,
-                        title: 'Pricing',
-                        translateKey: 'nav.conceptsAccount.pricing',
-                        icon: 'accountPricing',
-                        type: NAV_ITEM_TYPE_ITEM,
-                        authority: [ADMIN, USER],
-                        meta: {
-                            description: {
-                                translateKey: 'nav.conceptsAccount.pricingDesc',
-                                label: 'View pricing plans',
                             },
                         },
                         subMenu: [],

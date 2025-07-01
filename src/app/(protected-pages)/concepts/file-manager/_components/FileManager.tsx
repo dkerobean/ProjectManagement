@@ -39,6 +39,20 @@ async function deleteFile(_: string, { arg }: { arg: string }) {
     return response.json()
 }
 
+async function renameFile(_: string, { arg }: { arg: { id: string; name: string } }) {
+    const response = await fetch(`/api/files/${arg.id}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ original_name: arg.name }),
+    })
+    if (!response.ok) {
+        throw new Error('Failed to rename file')
+    }
+    return response.json()
+}
+
 const FileManager = () => {
     const {
         layout,
@@ -48,6 +62,7 @@ const FileManager = () => {
         setDeleteDialog,
         setInviteDialog,
         setRenameDialog,
+        renameDialog,
         setDirectories,
         setSelectedFile,
     } = useFileManagerStore()
@@ -72,11 +87,11 @@ const FileManager = () => {
         },
     )
 
-    const { trigger: triggerDeleteFile, isMutating: isDeletingFile } = useSWRMutation(
+    const { trigger: triggerDeleteFile } = useSWRMutation(
         '/api/files/delete',
         deleteFile,
         {
-            onSuccess: (resp) => {
+            onSuccess: () => {
                 // Remove deleted file from list
                 setFileList(fileList.filter(file => file.id !== deleteDialog.id))
                 setDeleteDialog({ id: '', open: false })
@@ -95,6 +110,35 @@ const FileManager = () => {
                     </Notification>,
                     { placement: 'top-center' }
                 )            }
+        },
+    )
+
+    const { trigger: triggerRenameFile, isMutating: isRenamingFile } = useSWRMutation(
+        '/api/files/rename',
+        renameFile,
+        {
+            onSuccess: (resp) => {
+                // Update renamed file in list
+                setFileList(fileList.map(file => 
+                    file.id === resp.file.id ? resp.file : file
+                ))
+                setRenameDialog({ id: '', open: false })
+                toast.push(
+                    <Notification type="success" title="Success">
+                        File renamed successfully
+                    </Notification>,
+                    { placement: 'top-center' }
+                )
+            },
+            onError: (error) => {
+                console.error('Failed to rename file:', error)
+                toast.push(
+                    <Notification type="danger" title="Error">
+                        Failed to rename file. Please try again.
+                    </Notification>,
+                    { placement: 'top-center' }
+                )
+            }
         },
     )
 
@@ -118,6 +162,15 @@ const FileManager = () => {
             triggerDeleteFile(deleteDialog.id)
         } else {
             console.error('❌ No file ID to delete')
+        }
+    }
+
+    const handleConfirmRename = (newName: string) => {
+        if (renameDialog.id && newName.trim()) {
+            console.log('✏️ Renaming file with ID:', renameDialog.id, 'to:', newName)
+            triggerRenameFile({ id: renameDialog.id, name: newName.trim() })
+        } else {
+            console.error('❌ No file ID to rename or invalid name')
         }
     }
 
@@ -174,9 +227,15 @@ const FileManager = () => {
                 />
                 <div className="mt-6">
                     {isLoadingFiles ? (
-                        layout === 'grid' ? (
-                            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-4 lg:gap-6">
-                                {Array.from(Array(4).keys()).map((item) => (
+                        layout !== 'list' ? (
+                            <div className={`mt-4 gap-4 lg:gap-6 ${
+                                layout === 'large-grid' 
+                                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8'
+                                    : layout === 'tiles'
+                                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3'
+                                    : 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4'
+                            }`}>
+                                {Array.from(Array(8).keys()).map((item) => (
                                     <FileSegment
                                         key={item}
                                         loading={isLoadingFiles}
@@ -221,7 +280,7 @@ const FileManager = () => {
             <FileDetails onShare={handleShare} />
             <FileManagerDeleteDialog onConfirm={handleConfirmDelete} />
             <FileManagerInviteDialog />
-            <FileManagerRenameDialog />
+            <FileManagerRenameDialog onConfirm={handleConfirmRename} isLoading={isRenamingFile} />
         </>
     )
 }
