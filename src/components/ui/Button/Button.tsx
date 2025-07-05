@@ -90,28 +90,28 @@ const Button = (props: ButtonProps) => {
                 break
             case SIZES.SM:
                 sizeClass = classNames(
-                    CONTROL_SIZES.sm.h,
+                    'min-h-[44px]',
                     shape === 'round' ? 'rounded-xl' : radiusShape[shape],
                     icon && !children
-                        ? `${CONTROL_SIZES.sm.w} ${sizeIconClass} text-lg`
+                        ? `min-w-[44px] ${sizeIconClass} text-lg`
                         : 'px-3 py-2 text-sm',
                 )
                 break
             case SIZES.XS:
                 sizeClass = classNames(
-                    CONTROL_SIZES.xs.h,
+                    'min-h-[40px]',
                     shape === 'round' ? 'rounded-lg' : radiusShape[shape],
                     icon && !children
-                        ? `${CONTROL_SIZES.xs.w} ${sizeIconClass} text-base`
+                        ? `min-w-[40px] ${sizeIconClass} text-base`
                         : 'px-3 py-1 text-xs',
                 )
                 break
             default:
                 sizeClass = classNames(
-                    CONTROL_SIZES.md.h,
+                    'min-h-[44px]',
                     radiusShape[shape],
                     icon && !children
-                        ? `${CONTROL_SIZES.md.w} ${sizeIconClass} text-xl`
+                        ? `min-w-[44px] ${sizeIconClass} text-xl`
                         : 'px-5 py-2',
                 )
                 break
@@ -186,6 +186,7 @@ const Button = (props: ButtonProps) => {
         className,
         block ? 'w-full' : '',
         feedback && !unclickable && 'button-press-feedback',
+        'touch-manipulation transition-all duration-200',
         customColorClass?.({
             active,
             unclickable,

@@ -49,6 +49,8 @@ const Dialog = (props: DialogProps) => {
     const contentStyle = {
         content: {
             inset: 'unset',
+            margin: currentSize.width && currentSize.width <= 768 ? '16px' : '0',
+            borderRadius: currentSize.width && currentSize.width <= 768 ? '12px' : undefined,
         },
         ...style,
     }
@@ -58,6 +60,12 @@ const Dialog = (props: DialogProps) => {
 
         if (
             typeof currentSize.width !== 'undefined' &&
+            currentSize.width <= 768
+        ) {
+            contentStyle.content.width = 'calc(100vw - 32px)'
+            contentStyle.content.maxWidth = 'calc(100vw - 32px)'
+        } else if (
+            typeof currentSize.width !== 'undefined' &&
             currentSize.width <= width
         ) {
             contentStyle.content.width = 'auto'
@@ -66,6 +74,20 @@ const Dialog = (props: DialogProps) => {
 
     if (height !== undefined) {
         contentStyle.content.height = height
+        
+        if (
+            typeof currentSize.height !== 'undefined' &&
+            currentSize.height <= 600
+        ) {
+            contentStyle.content.maxHeight = 'calc(100vh - 32px)'
+            contentStyle.content.overflow = 'auto'
+        }
+    } else if (
+        typeof currentSize.height !== 'undefined' &&
+        currentSize.height <= 600
+    ) {
+        contentStyle.content.maxHeight = 'calc(100vh - 32px)'
+        contentStyle.content.overflow = 'auto'
     }
 
     const defaultDialogContentClass = 'dialog-content'
@@ -93,11 +115,16 @@ const Dialog = (props: DialogProps) => {
             {...rest}
         >
             <motion.div
-                className={dialogClass}
-                initial={{ transform: 'scale(0.9)' }}
-                animate={{
-                    transform: isOpen ? 'scale(1)' : 'scale(0.9)',
+                className={classNames(dialogClass, 'touch-manipulation')}
+                initial={{ 
+                    transform: currentSize.width && currentSize.width <= 768 ? 'translateY(20px)' : 'scale(0.9)',
+                    opacity: 0
                 }}
+                animate={{
+                    transform: isOpen ? (currentSize.width && currentSize.width <= 768 ? 'translateY(0)' : 'scale(1)') : (currentSize.width && currentSize.width <= 768 ? 'translateY(20px)' : 'scale(0.9)'),
+                    opacity: isOpen ? 1 : 0
+                }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
             >
                 {closable && renderCloseButton}
                 {children}

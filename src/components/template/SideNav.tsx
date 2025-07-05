@@ -65,7 +65,7 @@ const SideNav = ({
         <div
             style={sideNavCollapse ? sideNavCollapseStyle : sideNavStyle}
             className={classNames(
-                'side-nav hidden lg:block',
+                'side-nav hidden lg:block transition-all duration-300 ease-in-out',
                 background && 'side-nav-bg',
                 !sideNavCollapse && 'side-nav-expand',
                 className,

@@ -193,8 +193,10 @@ const TaskCreationModal = ({
                     variant="solid"
                     onClick={() => setIsOpen(true)}
                     icon={<TbPlus />}
+                    className="min-h-[44px] text-xs sm:text-sm"
                 >
-                    New Task
+                    <span className="hidden sm:inline">New Task</span>
+                    <span className="sm:hidden">New</span>
                 </Button>
             )}
 
@@ -203,8 +205,8 @@ const TaskCreationModal = ({
                 onClose={handleClose}
                 onRequestClose={handleClose}
             >
-                <div className="p-6">
-                    <h4 className="mb-6">Create New Task</h4>
+                <div className="p-4 sm:p-6">
+                    <h4 className="mb-4 sm:mb-6 text-lg sm:text-xl">Create New Task</h4>
                     
                     <Form
                         layout="vertical"
@@ -246,7 +248,7 @@ const TaskCreationModal = ({
                             />
                         </FormItem>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormItem
                                 label="Status"
                                 invalid={Boolean(errors.status)}
@@ -286,7 +288,7 @@ const TaskCreationModal = ({
                             </FormItem>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <FormItem
                                 label="Due Date"
                                 invalid={Boolean(errors.due_date)}
@@ -343,6 +345,7 @@ const TaskCreationModal = ({
                                         type="button"
                                         onClick={addTag}
                                         disabled={!tagInput.trim()}
+                                        className="min-h-[44px] text-xs sm:text-sm"
                                     >
                                         Add
                                     </Button>
@@ -369,11 +372,12 @@ const TaskCreationModal = ({
                             </div>
                         </FormItem>
 
-                        <div className="flex justify-end gap-3 mt-6">
+                        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
                             <Button
                                 type="button"
                                 onClick={handleClose}
                                 disabled={isLoading}
+                                className="min-h-[44px] text-xs sm:text-sm order-2 sm:order-1"
                             >
                                 Cancel
                             </Button>
@@ -381,6 +385,7 @@ const TaskCreationModal = ({
                                 type="submit"
                                 variant="solid"
                                 loading={isLoading}
+                                className="min-h-[44px] text-xs sm:text-sm order-1 sm:order-2"
                             >
                                 Create Task
                             </Button>

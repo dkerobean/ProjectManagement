@@ -55,7 +55,7 @@ const MobileNav = ({
     return (
         <>
             <div
-                className="text-2xl block lg:hidden"
+                className="text-2xl block lg:hidden cursor-pointer p-2 -ml-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors touch-manipulation"
                 onClick={handleOpenDrawer}
             >
                 <MobileNavToggle toggled={isOpen} />
@@ -64,7 +64,7 @@ const MobileNav = ({
                 title="Navigation"
                 isOpen={isOpen}
                 bodyClass={classNames('p-0')}
-                width={330}
+                width={280}
                 placement={direction === DIR_RTL ? 'right' : 'left'}
                 onClose={handleDrawerClose}
                 onRequestClose={handleDrawerClose}

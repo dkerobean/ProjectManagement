@@ -228,12 +228,12 @@ const FileManager = () => {
                 <div className="mt-6">
                     {isLoadingFiles ? (
                         layout !== 'list' ? (
-                            <div className={`mt-4 gap-4 lg:gap-6 ${
+                            <div className={`mt-4 ${
                                 layout === 'large-grid' 
-                                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8'
+                                    ? 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8'
                                     : layout === 'tiles'
-                                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-3'
-                                    : 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4'
+                                    ? 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2 sm:gap-3'
+                                    : 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6'
                             }`}>
                                 {Array.from(Array(8).keys()).map((item) => (
                                     <FileSegment

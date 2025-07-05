@@ -95,6 +95,9 @@ const Input = (props: InputProps) => {
         disabled && 'input-disabled',
         isInputInvalid && 'input-invalid',
         textArea && 'input-textarea',
+        'touch-manipulation',
+        !textArea && 'min-h-[44px]',
+        textArea && 'min-h-[88px]',
     )
 
     const prefixNode = useRef<HTMLDivElement>(null)

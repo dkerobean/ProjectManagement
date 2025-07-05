@@ -101,13 +101,11 @@ const ProjectDetails = ({ id }: { id: string }) => {    const { data, mutate } =
                         onEdit={handleEdit}
                         onChange={handleNavigationChange}
                     />
-                    <div className="mt-6 flex gap-12">
-                        {larger.xl && (
-                            <ProjectDetailsNavigation
-                                selected={selectedNav}
-                                onChange={handleNavigationChange}
-                            />
-                        )}
+                    <div className="mt-6">
+                        <ProjectDetailsNavigation
+                            selected={selectedNav}
+                            onChange={handleNavigationChange}
+                        />
                         <div className="w-full">
                             <Suspense
                                 fallback={

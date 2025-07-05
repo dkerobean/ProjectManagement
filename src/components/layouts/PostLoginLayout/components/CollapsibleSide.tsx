@@ -21,11 +21,11 @@ const CollapsibleSide = ({ children }: CommonProps) => {
         >
             <NavigationProgressBar />
             <NavigationLoadingOverlay />
-            <div className="flex flex-auto min-w-0">
+            <div className="flex flex-auto min-w-0 relative">
                 <SideNav />
                 <div className="flex flex-col flex-auto min-h-screen min-w-0 relative w-full">
                     <Header
-                        className="shadow-sm dark:shadow-2xl"
+                        className="shadow-sm dark:shadow-2xl sticky top-0 z-10 bg-white dark:bg-gray-800"
                         headerStart={
                             <>
                                 <MobileNav />
@@ -40,7 +40,7 @@ const CollapsibleSide = ({ children }: CommonProps) => {
                             </>
                         }
                     />
-                    <div className="h-full flex flex-auto flex-col">
+                    <div className="h-full flex flex-auto flex-col p-4 sm:p-6 lg:p-8">
                         {children}
                     </div>
                 </div>

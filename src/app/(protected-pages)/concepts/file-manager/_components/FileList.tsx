@@ -42,12 +42,12 @@ const FileList = (props: FileListProps) => {
     const getGridClassName = (layout: Layout) => {
         switch (layout) {
             case 'large-grid':
-                return 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 mt-4 gap-6 lg:gap-8'
+                return 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 mt-4 gap-4 sm:gap-6 lg:gap-8'
             case 'tiles':
-                return 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 mt-4 gap-3'
+                return 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 mt-4 gap-2 sm:gap-3'
             case 'grid':
             default:
-                return 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-4 lg:gap-6'
+                return 'grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 mt-4 gap-3 sm:gap-4 lg:gap-6'
         }
     }
 
@@ -105,13 +105,13 @@ const FileList = (props: FileListProps) => {
         <div>
             {folders.length > 0 && (
                 <div>
-                    <h4>Folders</h4>
+                    <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Folders</h4>
                     {layout === 'list' ? renderFileRow(folders, true) : renderFileSegment(folders, true)}
                 </div>
             )}
             {files.length > 0 && (
-                <div className="mt-8">
-                    <h4>Files</h4>
+                <div className="mt-6 sm:mt-8">
+                    <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Files</h4>
                     {layout === 'list' ? renderFileRow(files) : renderFileSegment(files)}
                 </div>
             )}

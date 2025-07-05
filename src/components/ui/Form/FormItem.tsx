@@ -50,14 +50,14 @@ const FormItem = (props: FormItemProps) => {
             case LAYOUT.HORIZONTAL:
                 return label
                     ? `${CONTROL_SIZES[formItemLabelHeight].h} ${
-                          label && 'ltr:pr-2 rtl:pl-2'
+                          label && 'ltr:pr-2 rtl:pl-2 sm:ltr:pr-4 sm:rtl:pl-4'
                       }`
-                    : 'ltr:pr-2 rtl:pl-2'
+                    : 'ltr:pr-2 rtl:pl-2 sm:ltr:pr-4 sm:rtl:pl-4'
             case LAYOUT.VERTICAL:
-                return `mb-2`
+                return `mb-2 sm:mb-3`
             case LAYOUT.INLINE:
                 return `${CONTROL_SIZES[formItemLabelHeight].h} ${
-                    label && 'ltr:pr-2 rtl:pl-2'
+                    label && 'ltr:pr-2 rtl:pl-2 sm:ltr:pr-4 sm:rtl:pl-4'
                 }`
             default:
                 return ''
@@ -109,8 +109,8 @@ const FormItem = (props: FormItemProps) => {
                 <div
                     className={
                         formItemLayout === LAYOUT.HORIZONTAL
-                            ? 'w-full flex flex-col justify-center relative'
-                            : ''
+                            ? 'w-full flex flex-col justify-center relative min-h-[44px]'
+                            : 'min-h-[44px] flex flex-col justify-center'
                     }
                 >
                     {children}

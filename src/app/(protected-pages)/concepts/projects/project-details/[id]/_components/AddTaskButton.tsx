@@ -125,8 +125,8 @@ const AddTaskButton = ({ projectId, status, onTaskCreated }: AddTaskButtonProps)
 
     if (isCreating) {
         return (
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 mb-3">
-                <div className="space-y-3">
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 mb-3 touch-manipulation">
+                <div className="space-y-2 sm:space-y-3">
                     <Input
                         placeholder="Enter task title..."
                         value={taskTitle}
@@ -142,7 +142,7 @@ const AddTaskButton = ({ projectId, status, onTaskCreated }: AddTaskButtonProps)
                             options={priorityOptions}
                             value={priorityOptions.find(option => option.value === taskPriority)}
                             onChange={(option) => setTaskPriority((option?.value as 'critical' | 'high' | 'medium' | 'low') || 'medium')}
-                            className="flex-1"
+                            className="flex-1 min-h-[44px]"
                         />
                     </div>
                     <div className="flex items-center gap-2">
@@ -153,8 +153,10 @@ const AddTaskButton = ({ projectId, status, onTaskCreated }: AddTaskButtonProps)
                             loading={isLoading}
                             disabled={!taskTitle.trim()}
                             icon={<TbCheck />}
+                            className="flex-1 min-h-[44px] text-xs sm:text-sm"
                         >
-                            Add Task
+                            <span className="hidden sm:inline">Add Task</span>
+                            <span className="sm:hidden">Add</span>
                         </Button>
                         <Button
                             size="sm"
@@ -162,6 +164,7 @@ const AddTaskButton = ({ projectId, status, onTaskCreated }: AddTaskButtonProps)
                             onClick={handleCancel}
                             disabled={isLoading}
                             icon={<TbX />}
+                            className="flex-1 min-h-[44px] text-xs sm:text-sm"
                         >
                             Cancel
                         </Button>
@@ -176,11 +179,12 @@ const AddTaskButton = ({ projectId, status, onTaskCreated }: AddTaskButtonProps)
             variant="outline"
             size="sm"
             block
-            className="border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors min-h-[44px] text-xs sm:text-sm touch-manipulation"
             onClick={() => setIsCreating(true)}
             icon={<TbPlus />}
         >
-            Add Task
+            <span className="hidden sm:inline">Add Task</span>
+            <span className="sm:hidden">Add</span>
         </Button>
     )
 }

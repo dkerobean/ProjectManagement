@@ -192,7 +192,7 @@ function SortableTaskItem({ task, onStatusChange, onAttachmentUpdate }: Sortable
                 style={style}
                 {...attributes}
                 {...listeners}
-                className="bg-white rounded-lg border border-gray-200 p-4 mb-3 hover:shadow-sm transition-shadow cursor-grab active:cursor-grabbing"
+                className="bg-white rounded-lg border border-gray-200 p-3 sm:p-4 mb-3 hover:shadow-sm transition-shadow cursor-grab active:cursor-grabbing touch-manipulation"
             >
                 <div className="flex items-start justify-between mb-3">
                     <button
@@ -225,23 +225,30 @@ function SortableTaskItem({ task, onStatusChange, onAttachmentUpdate }: Sortable
                 </div>
 
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                         {/* Priority Tag */}
                         {task.priority && (
                             <Tag className={`text-xs px-2 py-1 ${priorityColors[task.priority]}`}>
-                                {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} priority
+                                <span className="hidden sm:inline">{task.priority.charAt(0).toUpperCase() + task.priority.slice(1)} priority</span>
+                                <span className="sm:hidden">{task.priority.charAt(0).toUpperCase()}</span>
                             </Tag>
                         )}
 
                         {/* Custom Tags */}
-                        {task.tags?.map((tag, index) => (
+                        {task.tags?.slice(0, 2).map((tag, index) => (
                             <Tag key={index} className={`text-xs px-2 py-1 ${taskLabelColors[tag] || 'bg-gray-100 text-gray-700'}`}>
                                 {tag}
                             </Tag>
                         ))}
+                        {task.tags && task.tags.length > 2 && (
+                            <Tag className="text-xs px-2 py-1 bg-gray-100 text-gray-700">
+                                <span className="hidden sm:inline">+{task.tags.length - 2} more</span>
+                                <span className="sm:hidden">+{task.tags.length - 2}</span>
+                            </Tag>
+                        )}
                     </div>
 
-                    <div className="flex items-center gap-3 ml-3">
+                    <div className="flex items-center gap-2 sm:gap-3 ml-2 sm:ml-3">
                         {/* Attachment indicator */}
                         {task.attachment_count && task.attachment_count > 0 && (
                             <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -252,7 +259,7 @@ function SortableTaskItem({ task, onStatusChange, onAttachmentUpdate }: Sortable
 
                         {/* Due Date */}
                         {task.due_date && (
-                            <span className="text-xs text-gray-500">
+                            <span className="text-xs text-gray-500 hidden sm:inline">
                                 {dayjs(task.due_date).format('MMM DD')}
                             </span>
                         )}
@@ -261,8 +268,17 @@ function SortableTaskItem({ task, onStatusChange, onAttachmentUpdate }: Sortable
                         {task.assignees && task.assignees.length > 0 && (
                             <UsersAvatarGroup
                                 users={task.assignees}
+                                avatarProps={{ size: 20 }}
+                                maxCount={2}
+                                className="sm:hidden"
+                            />
+                        )}
+                        {task.assignees && task.assignees.length > 0 && (
+                            <UsersAvatarGroup
+                                users={task.assignees}
                                 avatarProps={{ size: 24 }}
                                 maxCount={3}
+                                className="hidden sm:flex"
                             />
                         )}
                     </div>
@@ -348,21 +364,21 @@ function DroppableColumn({ status, tasks, onStatusChange, onAttachmentUpdate, on
     return (
         <div
             ref={setNodeRef}
-            className={`bg-gray-50 rounded-lg p-4 min-h-[200px] transition-colors ${
-                isOver ? 'bg-blue-50 border-2 border-blue-300 border-dashed' : ''
+            className={`bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4 min-h-[200px] sm:min-h-[250px] transition-colors w-full min-w-0 ${
+                isOver ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 border-dashed' : ''
             }`}
         >
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900 text-lg">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="font-semibold text-gray-900 text-sm sm:text-lg">
                     {statusLabels[status]}
                 </h3>
-                <span className="text-sm text-gray-500 bg-white rounded-full px-2 py-1">
+                <span className="text-xs sm:text-sm text-gray-500 bg-white rounded-full px-2 py-1 min-w-[24px] text-center">
                     {tasks.length}
                 </span>
             </div>
 
             <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                     {tasks.map((task) => (
                         <SortableTaskItem
                             key={task.id}
@@ -371,7 +387,7 @@ function DroppableColumn({ status, tasks, onStatusChange, onAttachmentUpdate, on
                             onAttachmentUpdate={onAttachmentUpdate}
                         />
                     ))}
-                    <div className="mt-3">
+                    <div className="mt-2 sm:mt-3">
                         <AddTaskButton
                             projectId={projectId}
                             status={status}
@@ -574,7 +590,7 @@ const ProjectDetailsTask = () => {
     return (
         <div>
             {/* Task Board Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
                 <div>
                     <h3 className="text-lg font-semibold">Task Board</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -592,7 +608,7 @@ const ProjectDetailsTask = () => {
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 overflow-x-auto">
                 {(Object.keys(statusLabels) as TaskStatus[]).map((status) => (
                     <div key={status} id={status}>
                         <DroppableColumn
