@@ -130,17 +130,21 @@ const ProjectDetails = ({ id }: { id: string }) => {    const { data, mutate } =
                                     <ProjectDetailsTask />
                                 )}
                                 {selectedNav === 'attachments' && (
-                                    <ProjectDetailsAttachments />
+                                    <ProjectDetailsAttachments projectId={id} />
                                 )}
                                 {selectedNav === 'activity' && (
-                                    <ProjectDetailsActivity />
+                                    <ProjectDetailsActivity projectId={id} />
                                 )}
                                 {selectedNav === 'settings' && (
                                     <ProjectDetailsSetting
+                                        projectId={id}
                                         name={data.name}
-                                        content={data.content}
-                                        dueDate={data.schedule.dueDate}
-                                        onUpdate={handleUpdate}
+                                        description={data.description || data.content || ''}
+                                        status={data.status || 'active'}
+                                        priority={data.priority || 'medium'}
+                                        due_date={data.due_date || (data.schedule?.dueDate ? new Date(data.schedule.dueDate * 1000).toISOString().split('T')[0] : undefined)}
+                                        color={data.color}
+                                        onUpdate={() => mutate()}
                                     />
                                 )}
                             </Suspense>
