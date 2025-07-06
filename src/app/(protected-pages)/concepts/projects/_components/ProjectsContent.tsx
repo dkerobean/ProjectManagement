@@ -14,6 +14,24 @@ import {
 } from 'react-icons/tb'
 import Link from 'next/link'
 
+// Utility function to sanitize HTML content while preserving formatting
+const sanitizeHtml = (html: string): string => {
+    if (!html) return ''
+    // Basic sanitization - remove dangerous tags but keep formatting
+    return html
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+        .replace(/on\w+="[^"]*"/g, '') // Remove event handlers
+        .trim()
+}
+
+// Utility function to strip HTML tags for plain text display
+const stripHtmlForPreview = (html: string, wordLimit: number = 8): string => {
+    if (!html) return ''
+    const plainText = html.replace(/<[^>]*>/g, '').trim()
+    return plainText.split(' ').slice(0, wordLimit).join(' ')
+}
+
 const ProjectsContent = () => {
     const loadedRef = useRef(false)
 
@@ -128,9 +146,18 @@ const ProjectsContent = () => {
                     </div>
 
                     {/* Description */}
-                    <p className="text-gray-600 text-sm mb-6 line-clamp-2">
-                        {project.description || 'Most of you are familiar with the virtues of a programmer'}
-                    </p>
+                    <div className="text-gray-600 text-sm mb-6 line-clamp-2">
+                        {project.description ? (
+                            <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ 
+                                    __html: sanitizeHtml(project.description) 
+                                }}
+                            />
+                        ) : (
+                            <p>Most of you are familiar with the virtues of a programmer</p>
+                        )}
+                    </div>
 
                     {/* Line 1: Progress bar + Percentage */}
                     <div className="flex items-center gap-3 mb-3">
@@ -204,7 +231,7 @@ const ProjectsContent = () => {
                                 </h6>
                             </Link>
                             <p className="text-sm text-gray-500 mt-1">
-                                {project.description?.split(' ').slice(0, 8).join(' ') || 'Web Backend Application'}
+                                {project.description ? stripHtmlForPreview(project.description, 8) : 'Web Backend Application'}
                             </p>
                         </div>
                     </div>

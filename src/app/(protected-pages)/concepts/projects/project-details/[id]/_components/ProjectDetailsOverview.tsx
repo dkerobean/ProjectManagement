@@ -6,6 +6,17 @@ import Progress from '@/components/ui/Progress'
 import Tag from '@/components/ui/Tag'
 import dayjs from 'dayjs'
 
+// Utility function to sanitize HTML content while preserving formatting
+const sanitizeHtml = (html: string): string => {
+    if (!html) return ''
+    // Basic sanitization - remove dangerous tags but keep formatting
+    return html
+        .replace(/<script[^>]*>.*?<\/script>/gi, '')
+        .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+        .replace(/on\w+="[^"]*"/g, '') // Remove event handlers
+        .trim()
+}
+
 type ProjectData = {
     id: string
     name: string
@@ -129,9 +140,18 @@ const ProjectDetailsOverview = () => {
             <div className="flex-1">
                 {/* Project description */}
                 <div className="mb-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Project description</h2>
-                    <div className="text-gray-600 leading-relaxed">
-                        <p>{projectData.description || 'No description available for this project.'}</p>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Project overview</h2>
+                    <div className="text-gray-600 leading-relaxed prose prose-sm max-w-none">
+                        {projectData.description ? (
+                            <div 
+                                className="text-base leading-7"
+                                dangerouslySetInnerHTML={{ 
+                                    __html: sanitizeHtml(projectData.description) 
+                                }}
+                            />
+                        ) : (
+                            <p className="text-base leading-7">No description available for this project.</p>
+                        )}
                     </div>
                 </div>
             </div>
