@@ -177,7 +177,9 @@ export async function POST(request: NextRequest) {
         }
 
         const activityData = validationResult.data
-        const supabase = await createSupabaseServerClient()
+        // Use service role client to bypass RLS for system activities
+        const { createSupabaseServiceClient } = await import('@/lib/supabase/server')
+        const supabase = createSupabaseServiceClient()
 
         // Create the activity
         const { data: activity, error } = await supabase

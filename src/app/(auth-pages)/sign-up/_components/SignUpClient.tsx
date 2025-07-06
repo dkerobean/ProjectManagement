@@ -44,11 +44,15 @@ const SignUpClient = () => {
             // Show success message
             toast.push(
                 <Notification title="Account Created!" type="success">
-                    Your account has been created successfully. You can now sign in.
+                    Account created! Please check your email and click the verification link to complete registration.
                 </Notification>,
                 { placement: 'top-end' }
-            )            // Redirect to sign-in page
-            router.push(appConfig.unAuthenticatedEntryPath)
+            )
+            
+            // Redirect to sign-in page with a small delay to ensure toast is shown
+            setTimeout(() => {
+                router.push('/sign-in')
+            }, 1000)
         } catch (error) {
             console.error('Sign up error:', error)
             setMessage('An unexpected error occurred. Please try again.')

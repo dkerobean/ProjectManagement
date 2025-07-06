@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
             options: {
                 data: {
                     name: name,
-                }
+                },
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://project-management-delta-dun.vercel.app'}/sign-in?email_verified=true`
             }
         })
 

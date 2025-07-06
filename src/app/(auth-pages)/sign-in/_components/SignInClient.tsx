@@ -30,10 +30,26 @@ const SignInClient = ({}: SignInClientProps) => {
         searchParams: Object.fromEntries(searchParams.entries())
     })
 
-    // Check for error in URL parameters (from NextAuth redirects)
+    // Check for URL parameters (errors, email verification, etc.)
     useEffect(() => {
         const error = searchParams.get('error')
         const code = searchParams.get('code')
+        const emailVerified = searchParams.get('email_verified')
+        const message = searchParams.get('message')
+        
+        // Handle email verification success
+        if (emailVerified === 'true' || message === 'email_confirmed') {
+            toast.success('Email verified successfully! You can now sign in.', {
+                duration: 5000,
+            })
+            // Clean the URL
+            const cleanUrl = new URL(window.location.href)
+            cleanUrl.searchParams.delete('email_verified')
+            cleanUrl.searchParams.delete('message')
+            cleanUrl.searchParams.delete('type')
+            router.replace(cleanUrl.pathname + cleanUrl.search, { scroll: false })
+            return
+        }
         
         if (error) {
             console.log('🔍 Error detected in URL:', { error, code })

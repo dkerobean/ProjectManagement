@@ -80,23 +80,6 @@ export async function createSupabaseServerComponentClient() {
   }
 }
 
-export async function createSupabaseServiceClient() {
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
-  if (!serviceRoleKey) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY environment variable is not set')
-  }
-  
-  const { supabaseUrl } = getSupabaseConfig()
-  
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  })
-}
-
 export function createSupabaseServiceClient() {
   console.log('🔑 Creating Supabase service client...')
   console.log('🌐 URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing')
@@ -124,5 +107,10 @@ export function createSupabaseServiceClient() {
 
   console.log('✅ Service client configuration valid')
 
-  return createClient<Database>(url, key)
+  return createClient<Database>(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
 }
