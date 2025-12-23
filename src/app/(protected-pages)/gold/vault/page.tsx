@@ -124,164 +124,127 @@ export default function VaultPage() {
     return LOCATIONS.find((l) => l.key === key) || LOCATIONS[0];
   };
 
+  // Aggregate inventory by purity/type for the grid view
+  const stockBreakdown = inventory.reduce((acc, item) => {
+    const key = `${item.purity} Gold`;
+    if (!acc[key]) {
+      acc[key] = { weight: 0, cost: 0, count: 0, purity: item.purity };
+    }
+    acc[key].weight += item.weightGrams;
+    acc[key].cost += item.totalCost;
+    acc[key].count += 1;
+    return acc;
+  }, {} as Record<string, { weight: number; cost: number; count: number; purity: string }>);
+
   return (
-    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
-      <div className="w-full max-w-md bg-white dark:bg-[#1C1C1E] min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-dark text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
+      <div className="w-full max-w-md bg-background-dark min-h-screen relative overflow-hidden flex flex-col">
         {/* Header */}
-        <header className="px-5 pt-12 pb-2 flex justify-between items-center bg-white dark:bg-[#1C1C1E] z-10 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-primary tracking-tight">Vault</h1>
+        <header className="px-5 pt-12 pb-4 flex justify-between items-center z-10 sticky top-0 bg-background-dark/90 backdrop-blur-md">
+          <h1 className="text-3xl font-bold text-primary tracking-tight">Vault</h1>
           <button 
-            onClick={() => setSelectedLocation(null)}
-            className={`text-sm font-medium hover:text-primary-dark transition-colors ${(selectedLocation === null) ? 'text-primary' : 'text-gray-500'}`}
+            // Mock functionality for now
+            onClick={() => {}}
+            className="px-4 py-2 rounded-xl bg-primary hover:bg-yellow-400 text-black text-xs font-bold shadow-glow flex items-center gap-2 transition-all active:scale-95"
           >
-            {selectedLocation ? 'Show All' : 'All Views'}
+             <span>+</span> Add Stock
           </button>
         </header>
 
         <main className="flex-1 px-4 pb-28 overflow-y-auto space-y-5 pt-2">
-          {/* Total Asset Value Card */}
+           {/* Tabs */}
+           <div className="bg-[#1C1C1E] p-1 rounded-2xl flex gap-1 border border-white/5 shadow-lg mb-2">
+              <button className="flex-1 py-3 rounded-xl text-xs font-bold bg-primary text-black shadow-glow transition-all">
+                Inventory
+              </button>
+              <button className="flex-1 py-3 rounded-xl text-xs font-bold text-gray-500 hover:text-gray-300 bg-transparent transition-all">
+                Audit Log
+              </button>
+           </div>
+
+          {/* Total Value Card */}
           {summary && (
-            <div className="relative w-full rounded-3xl bg-surface-darker border border-primary/20 p-8 overflow-hidden shadow-glow-subtle flex flex-col items-center justify-center text-center">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none"></div>
-              <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
-              <h2 className="text-xs font-bold text-primary/80 uppercase tracking-[0.2em] mb-3 relative z-10">Total Asset Value</h2>
-              <div className="relative z-10 mb-5">
-                <motion.span 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-5xl font-bold text-white tracking-tight"
-                >
+            <div className="relative w-full rounded-3xl bg-[#151517] border border-white/5 p-8 overflow-hidden shadow-2xl flex flex-col items-center justify-center text-center group">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-500/20 via-transparent to-transparent opacity-40 pointer-events-none"></div>
+              
+              <h2 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 relative z-10">Total Stock Value</h2>
+              <div className="relative z-10 mb-2">
+                <span className="text-5xl font-bold text-accent-green tracking-tight drop-shadow-md" style={{ textShadow: '0 0 30px rgba(16, 185, 129, 0.3)' }}>
                   {formatCurrency(summary.grandTotal.totalCost)}
-                </motion.span>
+                </span>
               </div>
-              <div className="relative z-10">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-dark border border-white/5 shadow-inner-light">
-                  <span className="text-primary text-sm font-bold">⚖</span>
-                  <span className="text-sm font-medium text-gray-200">{formatWeight(summary.grandTotal.totalWeight)} <span className="text-gray-500">Total Weight</span></span>
-                </div>
+              <div className="relative z-10 text-[11px] text-gray-600 font-medium">
+                {formatWeight(summary.grandTotal.totalWeight)} in vault
               </div>
             </div>
           )}
 
-          {/* Location Cards Grid */}
+          {/* Stock Breakdown Grid */}
           <div className="grid grid-cols-2 gap-3">
-            {LOCATIONS.map((loc, index) => {
-              const locData = summary?.byLocation[loc.key];
-              const isSelected = selectedLocation === loc.key;
-              
-              // Colors based on map
-              const colors: Record<string, string> = {
-                in_safe: 'accent-purple',
-                at_refinery: 'accent-orange',
-                in_transit: 'accent-cyan',
-                exported: 'accent-blue'
-              };
-              const colorClass = colors[loc.key] || 'primary';
-              
-              // Helper to get tailwind class dynamically
-              const getBgColor = (c: string) => {
-                if(c === 'accent-purple') return 'bg-purple-500';
-                if(c === 'accent-orange') return 'bg-orange-500';
-                if(c === 'accent-cyan') return 'bg-cyan-500';
-                return 'bg-blue-500';
-              };
-              
-              const getText = (c: string) => {
-                if(c === 'accent-purple') return 'text-purple-500';
-                if(c === 'accent-orange') return 'text-orange-500';
-                if(c === 'accent-cyan') return 'text-cyan-500';
-                return 'text-blue-500';
-              }
-              
-              const getBorder = (c: string) => {
-                if(c === 'accent-purple') return 'border-purple-500';
-                if(c === 'accent-orange') return 'border-orange-500';
-                if(c === 'accent-cyan') return 'border-cyan-500';
-                return 'border-blue-500';
-              }
-
-              return (
-                <div 
-                  key={loc.key}
-                  onClick={() => setSelectedLocation(isSelected ? null : loc.key)}
-                  className={`relative group rounded-2xl bg-surface-card border cursor-pointer overflow-hidden shadow-sm transition-all duration-300 ${isSelected ? 'border-primary/50 ring-1 ring-primary/20' : 'border-white/5 hover:border-white/20'}`}
-                >
-                  <div className={`absolute top-0 right-0 w-20 h-20 rounded-bl-full -mr-4 -mt-4 transition-all opacity-5 ${getBgColor(colorClass)}`}></div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className={`w-10 h-10 rounded-xl bg-opacity-10 flex items-center justify-center border bg-white/5 border-white/10 ${getText(colorClass)}`}>
-                        <span className="text-xl">{loc.icon}</span>
+             {Object.entries(stockBreakdown).map(([name, data]) => (
+                <div key={name} className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-5 relative overflow-hidden group hover:border-primary/20 transition-all">
+                   <div className="flex justify-between items-start mb-4">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl border border-primary/10">
+                         👑
                       </div>
-                      <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-1.5 py-0.5 rounded uppercase">
-                        {loc.key === 'in_safe' ? 'SAFE' : loc.key === 'at_refinery' ? 'REF' : loc.key === 'in_transit' ? 'SHIP' : 'EXP'}
-                      </span>
-                    </div>
-                    <h3 className="text-sm font-medium text-gray-300 mb-0.5">{loc.label}</h3>
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-xl font-bold text-white">{formatWeight(locData?.totalWeight || 0).split(' ')[0]}</span>
-                      <span className="text-xs text-gray-500 font-medium">g</span>
-                    </div>
-                    {/* Progress bar simulation */}
-                    <div className="w-full bg-gray-800 rounded-full h-1 mt-2 overflow-hidden">
-                      <div className={`h-1 rounded-full ${getBgColor(colorClass)}`} style={{ width: locData?.totalWeight ? '60%' : '5%' }}></div>
-                    </div>
-                    <p className="text-[10px] text-gray-500 mt-2 font-mono">{formatCurrency(locData?.totalCost || 0)}</p>
-                  </div>
+                      <span className="text-[10px] font-bold text-gray-500 bg-white/5 px-2 py-1 rounded-full">{data.purity}</span>
+                   </div>
+                   <h3 className="text-sm font-bold text-gray-300 mb-1">{name}</h3>
+                   <div className="text-xl font-bold text-white mb-0.5">{formatWeight(data.weight)}</div>
+                   <div className="text-xs font-bold text-accent-green">{formatCurrency(data.cost)}</div>
                 </div>
-              );
-            })}
+             ))}
+             {/* If empty, show placeholders or "Add New Type" */}
+             {Object.keys(stockBreakdown).length === 0 && (
+                <>
+                   <div className="col-span-2 text-center py-8 opacity-50 text-sm font-medium text-gray-500">
+                      No stock breakdown available
+                   </div>
+                </>
+             )}
           </div>
 
-          {/* Recent Items / Empty State */}
-          <div className="pt-2">
-             <div className="flex items-center justify-between mb-3 px-1">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {selectedLocation ? getLocationInfo(selectedLocation).label : 'Recent Items'}
-              </h3>
-              <span className="text-[10px] font-medium px-2 py-1 rounded-full bg-surface-card border border-white/5 text-gray-500">
-                {inventory.length} items
-              </span>
-            </div>
-
-            {loading ? (
-              <div className="text-center py-10 text-gray-500">Loading vault data...</div>
-            ) : inventory.length === 0 ? (
-              <div className="rounded-2xl bg-surface-card/50 border border-white/5 border-dashed p-10 flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-full bg-surface-darker flex items-center justify-center mb-4 shadow-inner">
-                  <span className="text-3xl text-gray-700">🕸️</span> 
-                </div>
-                <h4 className="text-gray-400 font-medium mb-1">Vault is empty</h4>
-                <p className="text-xs text-gray-600 max-w-[200px] mb-4">Start trading to fill up your vault with assets.</p>
-                <button className="text-xs font-semibold text-primary hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
-                   + Add First Item
-                </button>
-              </div>
-            ) : (
-               <div className="space-y-3">
-                 {inventory.map(item => (
-                   <div key={item._id} className="rounded-2xl bg-surface-card border border-white/5 p-4 flex items-center justify-between group hover:border-primary/20 transition-all">
-                      <div className="flex items-center gap-3">
-                         <div className="w-10 h-10 rounded-xl bg-surface-darker flex items-center justify-center text-lg border border-white/5">
-                           {getLocationInfo(item.location).icon}
-                         </div>
-                         <div>
-                           <div className="text-sm font-bold text-gray-200">{item.weightGrams}g <span className="text-primary text-xs ml-1 bg-primary/10 px-1 rounded">{item.purity}</span></div>
-                           <div className="text-[10px] text-gray-500 font-mono">#{item.batchId}</div>
-                         </div>
-                      </div>
-                      <div className="text-right">
-                         <div className="text-sm font-bold text-white">{formatCurrency(item.totalCost)}</div>
-                         <button 
-                           onClick={() => setMoveModal({item, isOpen: true})}
-                           className="text-[10px] text-primary hover:text-primary-dark mt-1 flex items-center gap-1 justify-end"
-                         >
-                           Move Item ➜
-                         </button>
-                      </div>
-                   </div>
-                 ))}
+          {/* Recent Movements (Simulated from Inventory for now, ideally needs a separate API endpoint) */}
+          <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-5">
+             <div className="flex items-center justify-between mb-4">
+               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Recent Movements</h3>
+               <button className="text-[10px] font-bold text-primary hover:text-white transition-colors">View All</button>
+             </div>
+             
+             <div className="space-y-4">
+               {/* Mock Data for visual match as per screenshot, replace with real data when API ready */}
+               <div className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 text-accent-green">
+                        ↓
+                     </div>
+                     <div>
+                        <div className="text-sm font-bold text-white">Stock Added</div>
+                        <div className="text-[10px] text-gray-500">Today, 10:30 AM</div>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                     <div className="text-sm font-bold text-accent-green">+500g</div>
+                     <div className="text-[10px] text-gray-500">24K Gold</div>
+                  </div>
                </div>
-            )}
+
+                <div className="flex items-center justify-between group">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 text-accent-red">
+                        ↑
+                     </div>
+                     <div>
+                        <div className="text-sm font-bold text-white">Stock Removed</div>
+                        <div className="text-[10px] text-gray-500">Yesterday, 4:15 PM</div>
+                     </div>
+                  </div>
+                  <div className="text-right">
+                     <div className="text-sm font-bold text-accent-red">-200g</div>
+                     <div className="text-[10px] text-gray-500">To Refinery</div>
+                  </div>
+               </div>
+             </div>
           </div>
         </main>
 

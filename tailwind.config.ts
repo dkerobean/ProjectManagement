@@ -58,14 +58,14 @@ const config: Config = {
 		},
 		extend: {
 			colors: {
-				// New luxury gold theme
-				primary: "#D4AF37", // Gold color
-				"primary-dark": "#B8962E",
+				// New luxury gold theme - Exact Match
+				primary: "#FBBF24", // Amber 400 - More vivid gold
+				"primary-dark": "#D97706", // Amber 600
 				"background-light": "#F3F4F6",
-				"background-dark": "#18181B", // Zinc 900
-				"surface-dark": "#27272A", // Zinc 800
-				"surface-darker": "#121212", // Very dark for cards
-				"surface-card": "#1E1E20",
+				"background-dark": "#09090B", // Zinc 950 - Darker background
+				"surface-dark": "#18181B", // Zinc 900
+				"surface-darker": "#121212", // Almost black
+				"surface-card": "#1C1C1E", // Apple Dark Gray
 				"accent-green": "#10B981", // Emerald 500
 				"accent-red": "#EF4444", // Red 500
 				"accent-blue": "#3B82F6", // Blue 500

@@ -9,7 +9,7 @@ import type { Mode } from '@/@types/theme'
 const HeroContent = ({ mode }: { mode: Mode }) => {    const router = useRouter()
     
     const handlePreview = () => {
-        router.push('/sign-up')
+        router.push('/sign-in')
     }
 
     const handleGetTemplate = () => {

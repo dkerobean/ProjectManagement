@@ -107,43 +107,62 @@ export default function TradePage() {
     return badges[method] || { icon: '💰', color: 'bg-gray-600' };
   };
 
+  // Group transactions by date
+  const groupedTransactions = transactions.reduce((groups, tx) => {
+    const date = new Date(tx.createdAt);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    let key = date.toLocaleDateString();
+    if (date.toDateString() === today.toDateString()) {
+      key = 'TODAY';
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      key = 'YESTERDAY';
+    } else {
+        key = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+    }
+
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(tx);
+    return groups;
+  }, {} as Record<string, Transaction[]>);
+
   return (
-    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
-      <div className="w-full max-w-md bg-white dark:bg-[#1C1C1E] min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-dark text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
+      <div className="w-full max-w-md bg-background-dark min-h-screen relative overflow-hidden flex flex-col">
         {/* Header */}
-        <header className="px-5 pt-12 pb-4 flex justify-between items-center bg-white dark:bg-[#1C1C1E] z-10 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-primary tracking-tight">History</h1>
+        <header className="px-5 pt-12 pb-4 flex justify-between items-center z-10 sticky top-0 bg-background-dark/90 backdrop-blur-md">
+          <h1 className="text-3xl font-bold text-primary tracking-tight">History</h1>
           <div className="flex gap-2">
             <button 
               onClick={() => setShowBuyModal(true)}
-              className="px-4 py-2 rounded-xl bg-accent-green hover:bg-emerald-600 text-white text-xs font-bold shadow-glow-green transition-all active:scale-95"
+              className="px-4 py-2 rounded-lg bg-[#064E3B] hover:brightness-110 text-accent-green text-xs font-bold border border-accent-green/20 transition-all active:scale-95 flex items-center gap-1"
             >
-              ⬇ Buy
+              <span>⬇</span> BUY
             </button>
             <button 
               onClick={() => setShowSellModal(true)}
-              className="px-4 py-2 rounded-xl bg-accent-red hover:bg-red-600 text-white text-xs font-bold shadow-glow-red transition-all active:scale-95"
+              className="px-4 py-2 rounded-lg bg-[#450A0A] hover:brightness-110 text-accent-red text-xs font-bold border border-accent-red/20 transition-all active:scale-95 flex items-center gap-1"
             >
-              ⬆ Sell
+              <span>⬆</span> SELL
             </button>
           </div>
         </header>
 
         <main className="flex-1 px-4 pb-28 overflow-y-auto space-y-4 pt-2">
           {/* Filter Tabs */}
-          <div className="bg-surface-card p-1 rounded-2xl flex gap-1 border border-white/5 sticky top-0 z-20 shadow-sm mb-4">
+          <div className="bg-[#1C1C1E] p-1 rounded-2xl flex gap-1 border border-white/5 sticky top-0 z-20 shadow-lg">
              {(['all', 'buy', 'sell'] as Filter[]).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
                   filter === f
-                    ? f === 'buy'
-                      ? 'bg-accent-green/10 text-accent-green shadow-sm'
-                      : f === 'sell'
-                      ? 'bg-accent-red/10 text-accent-red shadow-sm'
-                      : 'bg-primary/10 text-primary shadow-sm'
-                    : 'text-gray-500 hover:text-gray-300 bg-transparent'
+                    ? 'bg-white/5 text-primary shadow-inner border border-white/5'
+                    : 'text-gray-500 hover:text-gray-300 bg-transparent border border-transparent'
                 }`}
               >
                 {f === 'all' && 'All Trades'}
@@ -166,72 +185,55 @@ export default function TradePage() {
                <span className="text-sm font-medium">No transactions found</span>
             </div>
           ) : (
-             <div className="space-y-4">
-               {/* Group by date if possible, but for now flat list to match structure */}
-               <div className="relative">
-                  {/* Timeline Line */}
-                  <div className="absolute left-6 top-4 bottom-4 w-px bg-gradient-to-b from-gray-800 via-gray-700 to-gray-800"></div>
-                  
-                  {transactions.map((tx, index) => (
-                    <motion.div 
-                      key={tx._id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="relative pl-14 mb-6 group"
-                    >
-                       {/* Timeline Dot */}
-                       <div className={`absolute left-[20px] top-6 w-3 h-3 rounded-full border-2 border-[#1C1C1E] z-10 ${tx.type === 'buy' ? 'bg-accent-green box-shadow-[0_0_0_4px_rgba(16,185,129,0.2)]' : 'bg-accent-red box-shadow-[0_0_0_4px_rgba(239,68,68,0.2)]'}`}></div>
-                       
-                       {/* Card */}
-                       <div className="bg-surface-card border border-white/5 rounded-2xl p-4 shadow-sm hover:border-primary/20 transition-all">
-                          <div className="flex justify-between items-start mb-3">
-                             <div>
-                                <h3 className="text-sm font-bold text-gray-200">{tx.supplierName}</h3>
-                                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{tx.receiptNumber}</p>
-                             </div>
-                             <div className="text-right">
-                                <span className={`text-sm font-bold block ${tx.type === 'buy' ? 'text-accent-green' : 'text-accent-red'}`}>
-                                   {tx.type === 'buy' ? '-' : '+'}{formatCurrency(tx.totalAmount)}
-                                </span>
-                                <span className="text-[10px] text-gray-600">{new Date(tx.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                             </div>
+             <div className="space-y-6">
+               {Object.entries(groupedTransactions).map(([dateLabel, txs]) => (
+                  <div key={dateLabel}>
+                      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 pl-2">{dateLabel}</h3>
+                      <div className="space-y-3">
+                        {txs.map((tx) => (
+                          <div 
+                              key={tx._id}
+                              className="bg-[#1C1C1E] rounded-3xl p-4 border border-white/5 flex items-center justify-between group active:scale-[0.98] transition-all"
+                          >
+                              <div className="flex items-center gap-4">
+                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center border ${
+                                      tx.type === 'buy' 
+                                      ? 'bg-green-900/20 border-green-900/50 text-accent-green' 
+                                      : 'bg-red-900/20 border-red-900/50 text-accent-red' 
+                                  }`}>
+                                      <span className="text-xl font-bold">{tx.type === 'buy' ? '↓' : '↑'}</span>
+                                  </div>
+                                  <div>
+                                      <div className="flex items-center gap-2">
+                                          <h4 className="font-bold text-base text-gray-200">
+                                              {tx.type === 'buy' ? 'Buy Gold' : 'Sell Gold'}
+                                          </h4>
+                                          {/* Simulate Pending Status if needed, for now logic is hidden but UI ready */}
+                                          {false && <span className="text-[10px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">PENDING</span>}
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-0.5 font-medium">
+                                          {new Date(tx.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • 24K Gold
+                                      </div>
+                                  </div>
+                              </div>
+                              <div className="text-right">
+                                  <div className={`text-base font-bold ${tx.type === 'buy' ? 'text-white' : 'text-white'}`}>
+                                      {tx.type === 'buy' ? '+' : '-'}{tx.weightGrams} g
+                                  </div>
+                                  <div className={`${tx.type === 'buy' ? 'text-accent-green' : 'text-gray-500'} text-xs font-medium`}>
+                                      {tx.type === 'buy' ? 'Completed' : formatCurrency(tx.totalAmount)}
+                                  </div>
+                              </div>
                           </div>
-                          
-                          <div className="flex items-center gap-2 mb-3">
-                             <span className="bg-surface-dark px-2 py-1 rounded text-[10px] font-bold text-gray-300 border border-white/5">
-                               {tx.weightGrams}g
-                             </span>
-                             <span className="bg-surface-dark px-2 py-1 rounded text-[10px] font-bold text-gray-400 border border-white/5">
-                               {tx.purity}
-                             </span>
-                             <span className="bg-primary/5 px-2 py-1 rounded text-[10px] font-bold text-primary border border-primary/10">
-                               {formatCurrency(tx.buyingPricePerGram)}/g
-                             </span>
-                          </div>
-                          
-                          <div className="pt-3 border-t border-white/5 flex justify-between items-center">
-                             <div className="flex items-center gap-1.5">
-                                <span className="text-xs grayscale opacity-70">
-                                   {getPaymentBadge(tx.paymentMethod).icon}
-                                </span>
-                                <span className="text-[10px] font-medium text-gray-500 uppercase">
-                                   {tx.paymentMethod.replace(/_/g, ' ')}
-                                </span>
-                             </div>
-                             <span className="text-[10px] text-gray-600 flex items-center gap-1">
-                                <span>📍</span> {tx.location.replace(/_/g, ' ')}
-                             </span>
-                          </div>
-                       </div>
-                    </motion.div>
-                  ))}
-               </div>
-               
+                        ))}
+                      </div>
+                  </div>
+               ))}
+
                {hasMore && (
                   <button 
                     onClick={loadMore}
-                    className="w-full py-3 rounded-xl bg-surface-card hover:bg-white/5 text-xs font-bold text-gray-400 border border-white/5 transition-colors"
+                    className="w-full py-3 rounded-xl bg-[#1C1C1E] hover:bg-white/5 text-xs font-bold text-gray-400 border border-white/5 transition-colors"
                   >
                     Load More History
                   </button>

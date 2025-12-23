@@ -74,7 +74,7 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                                 Sign In
                             </Link>
                             <Link 
-                                href="/sign-up"
+                                href="/sign-in"
                                 className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 text-center"
                                 onClick={onDrawerClose}
                             >
@@ -117,7 +117,7 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                         Sign In
                     </Link>
                     <Link 
-                        href="/sign-up"
+                        href="/sign-in"
                         className="bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200"
                     >
                         Get Started
