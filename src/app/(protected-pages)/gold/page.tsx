@@ -12,6 +12,7 @@ import OfflineStatus from '@/components/gold/OfflineStatus';
 import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
 import { cachePrice, cacheSuppliers } from '@/lib/offline-storage';
+import { DashboardSkeleton } from '@/components/gold/Skeleton';
 
 interface DashboardData {
   spotPrice: {

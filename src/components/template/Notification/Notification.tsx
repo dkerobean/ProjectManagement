@@ -50,13 +50,13 @@ const _Notification = ({ className }: { className?: string }) => {
     const router = useRouter()
 
     const getNotificationCount = async () => {
-        const resp = await apiGetNotificationCount()
-        if (resp.count > 0) {
-            setNoResult(false)
-            setUnreadNotification(true)
-        } else {
+        // const resp = await apiGetNotificationCount()
+        // if (resp.count > 0) {
+        //     setNoResult(false)
+        //     setUnreadNotification(true)
+        // } else {
             setNoResult(true)
-        }
+        // }
     }
 
     useEffect(() => {
@@ -66,9 +66,9 @@ const _Notification = ({ className }: { className?: string }) => {
     const onNotificationOpen = async () => {
         if (notificationList.length === 0) {
             setLoading(true)
-            const resp = await apiGetNotificationList()
+            // const resp = await apiGetNotificationList()
             setLoading(false)
-            setNotificationList(resp)
+            setNotificationList([])
         }
     }
 
