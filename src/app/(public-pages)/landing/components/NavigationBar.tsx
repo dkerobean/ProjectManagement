@@ -164,7 +164,7 @@ const Navigation = ({ toggleMode, mode }: NavigationProps) => {
                         <div className="w-6 h-6 bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] rounded-full flex items-center justify-center">
                             <span className="text-white text-xs font-bold">Z</span>
                         </div>
-                        <span className="heading-text">Zeno</span>
+                        <span className="heading-text">GoldTrader Pro</span>
                     </div>
                 </div>
             </div>

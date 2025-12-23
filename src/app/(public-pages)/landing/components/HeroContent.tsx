@@ -21,9 +21,9 @@ const HeroContent = ({ mode }: { mode: Mode }) => {    const router = useRouter(
             <div className="flex flex-col min-h-screen pt-20 md:pt-40 relative overflow-hidden">
                 <div>                    <TextGenerateEffect 
                         wordClassName="text-2xl md:text-4xl lg:text-8xl font-bold max-w-7xl mx-auto text-center mt-6 relative z-10"
-                        words="Transform Your Project Management with Zeno"
+                        words="Transform Your Gold Trading with GoldTrader Pro"
                         wordsCallbackClass={({word}) => {
-                            if(word === 'Zeno') {
+                            if(word === 'GoldTrader' || word === 'Pro') {
                                 return 'bg-gradient-to-r from-[#2feaa8] to-[#0eb9ce] bg-clip-text text-transparent'
                             }
 
