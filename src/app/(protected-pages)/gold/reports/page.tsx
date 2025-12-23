@@ -6,6 +6,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FileText, Calendar, Package, Wallet } from 'lucide-react';
 import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
 import { ReportSkeleton } from '@/components/gold/Skeleton';
@@ -141,7 +142,7 @@ export default function ReportsPage() {
                 <span>⏳ Exporting...</span>
             ) : (
                 <>
-                    <span className="text-base">📄</span> Export PDF
+                    <FileText className="w-4 h-4" /> Export PDF
                 </>
             )}
           </button>
@@ -169,7 +170,7 @@ export default function ReportsPage() {
 
           <div className="flex justify-center">
              <div className="px-4 py-1.5 bg-[#1C1C1E] rounded-full text-[11px] font-bold text-gray-400 border border-white/5 flex items-center gap-2">
-                <span>📅</span> {formatDate(data?.period?.start || '')} — {formatDate(data?.period?.end || '')}
+                <Calendar className="w-3.5 h-3.5" /> {formatDate(data?.period?.start || '')} — {formatDate(data?.period?.end || '')}
              </div>
           </div>
 
@@ -231,8 +232,8 @@ export default function ReportsPage() {
                  {/* Net Inventory */}
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-3">
-                     <div className="w-8 h-8 rounded-lg bg-orange-900/20 flex items-center justify-center border border-orange-500/20">
-                        <span className="text-lg">📦</span>
+                     <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 text-orange-500">
+                        <Package className="w-5 h-5" />
                      </div>
                      <span className="text-sm font-bold text-gray-300">Net Inventory Flow</span>
                   </div>
@@ -243,7 +244,10 @@ export default function ReportsPage() {
 
                 {/* Advances */}
                 <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                   <span className="text-sm font-medium text-gray-400">Pre-payments (Advances)</span>
+                   <div className="flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-400">Pre-payments (Advances)</span>
+                   </div>
                    <div className="text-right">
                       <div className="text-lg font-bold text-primary">{formatCurrency(data.advances.totalGiven)}</div>
                       <div className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">{data.advances.count} ISSUED</div>

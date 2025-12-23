@@ -147,7 +147,7 @@ InventorySchema.index({ purity: 1 });
 InventorySchema.index({ batchId: 1 });
 
 // Pre-save to generate batch ID
-InventorySchema.pre('save', function (next) {
+InventorySchema.pre('save', async function () {
   if (this.isNew && !this.batchId) {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 5).toUpperCase();
@@ -156,8 +156,6 @@ InventorySchema.pre('save', function (next) {
   
   // Calculate total cost
   this.totalCost = this.weightGrams * this.avgCostPerGram;
-  
-  next();
 });
 
 // Method to move inventory

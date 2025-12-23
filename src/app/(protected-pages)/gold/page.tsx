@@ -14,6 +14,7 @@ import GradientButton from '@/components/gold/GradientButton';
 import { cachePrice, cacheSuppliers } from '@/lib/offline-storage';
 import { DashboardSkeleton } from '@/components/gold/Skeleton';
 import GoldBottomNav from '@/components/gold/GoldBottomNav';
+import { RefreshCw, Calendar } from 'lucide-react';
 
 interface DashboardData {
   spotPrice: {
@@ -148,6 +149,8 @@ export default function GoldDashboardPage() {
            <OfflineStatus />
         </div>
 
+
+
         {/* Header */}
         <header className="px-5 pt-12 pb-4 flex justify-between items-center z-10 sticky top-0 bg-background-dark/90 backdrop-blur-md">
           <div className="flex items-center gap-3">
@@ -158,110 +161,86 @@ export default function GoldDashboardPage() {
           </div>
           <button 
             onClick={fetchDashboard}
-            className="w-10 h-10 rounded-full bg-surface-dark border border-gray-800 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors"
+            className="w-10 h-10 rounded-full bg-surface-dark border border-gray-800 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors active:scale-95"
           >
-             <span className={`text-lg ${loading ? 'animate-spin' : ''}`}>🔄</span>
+             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </header>
 
         <main className="flex-1 px-4 pb-24 space-y-4">
-          {/* Live Spot Price Card */}
-          <div className="relative w-full rounded-2xl bg-[#1C1C1E] border border-white/5 p-6 overflow-hidden shadow-lg">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent-green animate-pulse"></span>
-                <span className="text-xs font-bold text-primary uppercase tracking-widest">Live Spot Price</span>
-              </div>
-              <span className="text-xs text-gray-500 font-mono">
-                {data?.spotPrice?.timestamp 
-                  ? new Date(data.spotPrice.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-                  : '00:00 AM'}
-              </span>
-            </div>
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className="text-5xl font-bold text-white tracking-tight">
-                {data?.spotPrice ? formatCurrency(data.spotPrice.perOz) : '$0.00'}
-              </span>
-              <span className="text-lg text-primary font-medium">/oz</span>
-            </div>
-            <p className="text-base text-gray-400 font-medium">
-              {data?.spotPrice ? formatCurrency(data.spotPrice.perGram) : '$0.00'} per gram
-            </p>
-          </div>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Vault Value */}
-            <div className="rounded-2xl bg-[#1C1C1E] border border-white/5 p-5 flex flex-col justify-between h-32">
-              <div>
-                 <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Vault Value</h3>
-                 <div className="text-3xl font-bold text-white">
-                    {formatCurrency(data?.inventoryValue?.marketValue || data?.inventoryValue?.value || 0).replace('$','')} <span className="text-sm font-normal text-gray-500">$</span>
-                 </div>
-                 <div className="text-3xl font-bold text-white absolute hidden">
-                    {formatCurrency(data?.inventoryValue?.marketValue || data?.inventoryValue?.value || 0)}
-                 </div>
-                 <div className="text-3xl font-bold text-white mt-1">
-                    ${(data?.inventoryValue?.marketValue || data?.inventoryValue?.value || 0).toLocaleString()}
-                 </div>
-              </div>
-              <div className="self-start px-2 py-1 rounded bg-[#064E3B] text-accent-green text-[10px] font-bold border border-accent-green/20">
-                +{formatWeight(data?.inventoryValue?.weight || 0)} in stock
-              </div>
-            </div>
-
-            {/* Outstanding */}
-            <div className="rounded-2xl bg-[#1C1C1E] border border-white/5 p-5 flex flex-col justify-between h-32">
-              <div>
-                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Outstanding</h3>
-                <div className="text-3xl font-bold text-white mt-1">
-                    ${(data?.outstandingAdvances?.totalOutstanding || 0).toLocaleString()}
+          {/* Spot Price Card - Primary Focus */}
+          <div className="relative w-full rounded-3xl bg-[#151517] border border-white/5 p-6 overflow-hidden shadow-2xl">
+             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50 pointer-events-none"></div>
+             <div className="relative z-10">
+                <div className="flex justify-between items-start mb-4">
+                   <div>
+                       <h2 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Gold Spot Price</h2>
+                       <div className="text-3xl font-bold text-primary" style={{ textShadow: '0 0 30px rgba(255, 215, 0, 0.3)' }}>
+                          {data?.spotPrice ? formatCurrency(data.spotPrice.perOz) : '$--'}<span className="text-base font-medium text-gray-500">/oz</span>
+                       </div>
+                   </div>
+                   <button 
+                       onClick={fetchDashboard}
+                       className="p-2 rounded-xl bg-white/5 border border-white/5 text-gray-400 hover:text-primary hover:border-primary/30 transition-all"
+                   >
+                       <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                   </button>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 flex items-center justify-center rounded-full bg-red-900/40 text-accent-red text-[10px] font-bold border border-red-900/50">
-                  {data?.outstandingAdvances?.count || 0}
-                </span>
-                <span className="text-xs text-gray-500">pending deals</span>
-              </div>
-            </div>
+                <div className="flex items-center gap-4 text-xs">
+                    <span className="text-gray-500">{formatCurrency(data?.spotPrice?.perGram || 0)}/g</span>
+                    {data?.spotPrice?.timestamp && (
+                        <span className="text-gray-600">Updated {new Date(data.spotPrice.timestamp).toLocaleTimeString()}</span>
+                    )}
+                </div>
+             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* Value Cards Grid */}
+          <div className="grid grid-cols-2 gap-3">
+             {/* Inventory Value */}
+             <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-5">
+                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Vault Value</div>
+                <div className="text-2xl font-bold text-accent-green mb-1">{formatCurrency(data?.inventoryValue?.value || 0)}</div>
+                <div className="text-xs text-gray-500">{formatWeight(data?.inventoryValue?.weight || 0)} in stock</div>
+             </div>
+
+             {/* Outstanding Advances */}
+             <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-5">
+                <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Advances Out</div>
+                <div className="text-2xl font-bold text-accent-red mb-1">{formatCurrency(data?.outstandingAdvances?.totalOutstanding || 0)}</div>
+                <div className="text-xs text-gray-500">{data?.outstandingAdvances?.count || 0} pending</div>
+             </div>
+          </div>
+
+          {/* Quick Actions */}
           <div className="grid grid-cols-3 gap-3">
-            <button 
-              onClick={() => setShowBuyModal(true)}
-              className="flex flex-col items-center justify-center h-28 rounded-2xl bg-accent-green hover:bg-emerald-500 active:scale-95 transition-all shadow-glow-green group"
-            >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-2 group-hover:bg-white/30 transition-colors">
-                <span className="text-white font-bold text-xl">↓</span>
-              </div>
-              <span className="text-sm font-bold text-white tracking-wide">BUY</span>
-            </button>
-            <button 
-              onClick={() => setShowSellModal(true)}
-              className="flex flex-col items-center justify-center h-28 rounded-2xl bg-accent-red hover:bg-red-500 active:scale-95 transition-all shadow-glow-red group"
-            >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-2 group-hover:bg-white/30 transition-colors">
-                <span className="text-white font-bold text-xl">↑</span>
-              </div>
-              <span className="text-sm font-bold text-white tracking-wide">SELL</span>
-            </button>
-            <button 
-              onClick={() => setShowAdvanceModal(true)}
-              className="flex flex-col items-center justify-center h-28 rounded-2xl bg-primary hover:bg-yellow-400 active:scale-95 transition-all shadow-glow group"
-            >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-2 group-hover:bg-white/30 transition-colors">
-                <span className="text-white font-bold text-xl">$</span>
-              </div>
-              <span className="text-sm font-bold text-white tracking-wide">ADVANCE</span>
-            </button>
+             <button 
+                onClick={() => setShowBuyModal(true)}
+                className="rounded-2xl bg-accent-green/10 border border-accent-green/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+             >
+                <span className="text-xl">⬇️</span>
+                <span className="text-xs font-bold text-accent-green">BUY</span>
+             </button>
+             <button 
+                onClick={() => setShowSellModal(true)}
+                className="rounded-2xl bg-accent-red/10 border border-accent-red/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+             >
+                <span className="text-xl">⬆️</span>
+                <span className="text-xs font-bold text-accent-red">SELL</span>
+             </button>
+             <button 
+                onClick={() => setShowAdvanceModal(true)}
+                className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+             >
+                <span className="text-xl">💰</span>
+                <span className="text-xs font-bold text-primary">ADVANCE</span>
+             </button>
           </div>
 
           {/* Today's Activity */}
-          <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-6 h-40 flex flex-col justify-center">
+          <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-6">
             <div className="flex items-center gap-3 mb-6">
-              <span className="text-gray-500 text-lg">📅</span>
+              <Calendar className="w-5 h-5 text-gray-500" />
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Today's Activity</h3>
             </div>
             <div className="flex justify-between items-center text-center">
@@ -281,6 +260,35 @@ export default function GoldDashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Recent Transactions */}
+          {data?.recentTransactions && data.recentTransactions.length > 0 && (
+             <div className="rounded-3xl bg-[#1C1C1E] border border-white/5 p-5">
+                <div className="flex items-center justify-between mb-4">
+                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Recent Trades</h3>
+                </div>
+                <div className="space-y-3">
+                   {data.recentTransactions.slice(0, 5).map((tx) => (
+                      <div key={tx._id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+                         <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === 'buy' ? 'bg-accent-green/10 text-accent-green' : 'bg-accent-red/10 text-accent-red'}`}>
+                               {tx.type === 'buy' ? '↓' : '↑'}
+                            </div>
+                            <div>
+                               <div className="text-sm font-bold text-gray-200">{tx.supplierName || 'Unknown'}</div>
+                               <div className="text-[10px] text-gray-500">{formatWeight(tx.weightGrams)} • {tx.purity}</div>
+                            </div>
+                         </div>
+                         <div className="text-right">
+                            <div className={`text-sm font-bold ${tx.type === 'buy' ? 'text-accent-red' : 'text-accent-green'}`}>
+                               {tx.type === 'buy' ? '-' : '+'}{formatCurrency(tx.totalAmount)}
+                            </div>
+                         </div>
+                      </div>
+                   ))}
+                </div>
+             </div>
+          )}
         </main>
 
         <GoldBottomNav />

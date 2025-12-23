@@ -11,6 +11,7 @@ import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
 import { TransactionSkeleton } from '@/components/gold/Skeleton';
 import GoldBottomNav from '@/components/gold/GoldBottomNav';
+import { ArrowDown, ArrowUp } from 'lucide-react';
 
 interface Transaction {
   _id: string;
@@ -139,15 +140,15 @@ export default function TradePage() {
           <div className="flex gap-2">
             <button 
               onClick={() => setShowBuyModal(true)}
-              className="px-4 py-2 rounded-lg bg-[#064E3B] hover:brightness-110 text-accent-green text-xs font-bold border border-accent-green/20 transition-all active:scale-95 flex items-center gap-1"
+              className="px-5 py-2.5 rounded-xl bg-green-500/10 hover:bg-green-500/20 text-green-500 text-xs font-bold border border-green-500/50 transition-all active:scale-95 flex items-center gap-2"
             >
-              <span>⬇</span> BUY
+              <ArrowDown className="w-4 h-4" /> BUY
             </button>
             <button 
               onClick={() => setShowSellModal(true)}
-              className="px-4 py-2 rounded-lg bg-[#450A0A] hover:brightness-110 text-accent-red text-xs font-bold border border-accent-red/20 transition-all active:scale-95 flex items-center gap-1"
+              className="px-5 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-bold border border-red-500/50 transition-all active:scale-95 flex items-center gap-2"
             >
-              <span>⬆</span> SELL
+              <ArrowUp className="w-4 h-4" /> SELL
             </button>
           </div>
         </header>

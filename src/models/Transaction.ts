@@ -179,14 +179,13 @@ TransactionSchema.virtual('profitMargin').get(function () {
 });
 
 // Pre-save hook to generate receipt number
-TransactionSchema.pre('save', function (next) {
+TransactionSchema.pre('save', async function () {
   if (!this.receiptNumber) {
     const date = new Date();
     const prefix = this.type === 'buy' ? 'BUY' : 'SELL';
     const timestamp = date.getTime().toString(36).toUpperCase();
     this.receiptNumber = `${prefix}-${timestamp}`;
   }
-  next();
 });
 
 // Avoid model recompilation in development
