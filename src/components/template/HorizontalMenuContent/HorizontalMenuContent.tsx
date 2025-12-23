@@ -34,7 +34,7 @@ const HorizontalMenuContent = (props: HorizontalMenuContentProps) => {
     const { activedRoute } = useMenuActive(navigationTree, routeKey)
 
     return (
-        <div className="gap-1 hidden lg:flex">
+        <div className="gap-1 hidden lg:flex justify-center w-full">
             {navigationTree.map((nav) => (
                 <AuthorityCheck
                     key={nav.key}

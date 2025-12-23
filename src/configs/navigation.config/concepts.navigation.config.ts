@@ -13,7 +13,7 @@ const conceptsNavigationConfig: NavigationTree[] = [
         path: '',
         title: 'Project Management',
         translateKey: 'nav.projectManagement',
-        icon: 'concepts',
+        icon: 'uiNavigationMenu',
         type: NAV_ITEM_TYPE_TITLE,
         authority: [ADMIN, USER],
         meta: {
