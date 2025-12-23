@@ -14,7 +14,7 @@ import GradientButton from '@/components/gold/GradientButton';
 import { cachePrice, cacheSuppliers } from '@/lib/offline-storage';
 import { DashboardSkeleton } from '@/components/gold/Skeleton';
 import GoldBottomNav from '@/components/gold/GoldBottomNav';
-import { RefreshCw, Calendar } from 'lucide-react';
+import { RefreshCw, Calendar, ArrowDown, ArrowUp, DollarSign } from 'lucide-react';
 
 interface DashboardData {
   spotPrice: {
@@ -216,24 +216,30 @@ export default function GoldDashboardPage() {
           <div className="grid grid-cols-3 gap-3">
              <button 
                 onClick={() => setShowBuyModal(true)}
-                className="rounded-2xl bg-accent-green/10 border border-accent-green/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+                className="rounded-2xl bg-accent-green p-5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all shadow-lg"
              >
-                <span className="text-xl">⬇️</span>
-                <span className="text-xs font-bold text-accent-green">BUY</span>
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                   <ArrowDown className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-bold text-white">BUY</span>
              </button>
              <button 
                 onClick={() => setShowSellModal(true)}
-                className="rounded-2xl bg-accent-red/10 border border-accent-red/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+                className="rounded-2xl bg-accent-red p-5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all shadow-lg"
              >
-                <span className="text-xl">⬆️</span>
-                <span className="text-xs font-bold text-accent-red">SELL</span>
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                   <ArrowUp className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-sm font-bold text-white">SELL</span>
              </button>
              <button 
                 onClick={() => setShowAdvanceModal(true)}
-                className="rounded-2xl bg-primary/10 border border-primary/20 p-4 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all"
+                className="rounded-2xl bg-primary p-5 flex flex-col items-center justify-center gap-2 active:scale-95 transition-all shadow-lg"
              >
-                <span className="text-xl">💰</span>
-                <span className="text-xs font-bold text-primary">ADVANCE</span>
+                <div className="w-10 h-10 rounded-full bg-black/20 flex items-center justify-center">
+                   <DollarSign className="w-5 h-5 text-black" />
+                </div>
+                <span className="text-sm font-bold text-black">ADVANCE</span>
              </button>
           </div>
 

@@ -9,7 +9,7 @@ export interface IPriceHistory extends Document {
   pricePerOz: number; // Gold: per troy ounce
   pricePerGram: number;
   currency: string;
-  source: 'metals_api' | 'goldprice_org' | 'manual' | 'lbma';
+  source: 'metals_api' | 'goldprice_org' | 'goldapi' | 'freecurrencyapi' | 'exchangerate_host' | 'cached' | 'fallback' | 'manual' | 'lbma';
   timestamp: Date;
 }
 
@@ -34,7 +34,7 @@ const PriceHistorySchema = new Schema<IPriceHistory>(
     },
     source: {
       type: String,
-      enum: ['metals_api', 'goldprice_org', 'manual', 'lbma'],
+      enum: ['metals_api', 'goldprice_org', 'goldapi', 'freecurrencyapi', 'exchangerate_host', 'cached', 'fallback', 'manual', 'lbma'],
       required: true,
     },
     timestamp: {
