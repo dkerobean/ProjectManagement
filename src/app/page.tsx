@@ -4,7 +4,7 @@ import Landing from './(public-pages)/landing/components/Landing'
 
 // Import config inline to debug import issues
 const appConfig = {
-    authenticatedEntryPath: '/dashboards/project',
+    authenticatedEntryPath: '/gold',
     unAuthenticatedEntryPath: '/sign-in',
 }
 

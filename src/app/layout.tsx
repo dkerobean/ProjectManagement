@@ -46,6 +46,12 @@ export default async function RootLayout({
                 dir={theme.direction}
                 suppressHydrationWarning
             >
+                <head>
+                    <link rel="manifest" href="/manifest.json" />
+                    <meta name="theme-color" content="#ca8a04" />
+                    <meta name="apple-mobile-web-app-capable" content="yes" />
+                    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+                </head>
                 <body suppressHydrationWarning>
                     <AuthErrorBoundary>
                         <NextIntlClientProvider locale={locale} messages={messages}>
