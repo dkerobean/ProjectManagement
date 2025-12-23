@@ -4,6 +4,7 @@ import uiComponentsRoute from './uiComponentsRoute'
 import authRoute from './authRoute'
 import authDemoRoute from './authDemoRoute'
 import guideRoute from './guideRoute'
+import goldRoute from './goldRoute'
 // import othersRoute from './othersRoute'
 import type { Routes } from '@/@types/routes'
 
@@ -13,6 +14,7 @@ export const protectedRoutes: Routes = {
     ...authDemoRoute,
     ...conceptsRoute,
     ...guideRoute,
+    ...goldRoute,
 }
 
 export const publicRoutes: Routes = {
