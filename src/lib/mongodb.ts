@@ -12,12 +12,6 @@ declare global {
   } | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
-}
-
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections growing exponentially
@@ -30,6 +24,24 @@ if (!cached) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
+  const MONGODB_URI = process.env.MONGODB_URI;
+      
+  // If no URI during build, simple return or throw specific error handled by caller?
+  // But caller usually expects connection.
+  if (!MONGODB_URI) {
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+       console.warn('⚠️ MONGODB_URI is not defined, but skipping check during build.');
+       // We can't return a valid connection here. 
+       // If we return null, TS complains. 
+       // If the build process tries to USE the connection, it will crash anyway. 
+       // But often the error comes from top-level validation.
+       // So just by removing top-level validation, we might be safe.
+       // However, we still need to handle the runtime case.
+    }
+     // Runtime error if actually trying to connect without URI
+     throw new Error('Please define the MONGODB_URI environment variable');
+  }
+
   if (cached!.conn) {
     return cached!.conn;
   }
@@ -42,7 +54,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       socketTimeoutMS: 45000,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI!, opts);
+    cached!.promise = mongoose.connect(MONGODB_URI, opts);
   }
 
   try {
