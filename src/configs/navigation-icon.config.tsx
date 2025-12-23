@@ -1,3 +1,4 @@
+import {
     Puzzle,
     Palette,
     MessageCircle,
