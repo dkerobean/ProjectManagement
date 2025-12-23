@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import connectToDatabase from '@/lib/mongodb'
+import User from '@/models/User'
 
 export async function POST(request: NextRequest) {
     try {
@@ -13,84 +13,70 @@ export async function POST(request: NextRequest) {
             )
         }
 
-        console.log('🔐 Creating new user account for:', email)
-
-        // Create a Supabase client for authentication
-        const supabaseAuth = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-
-        // Create user with Supabase Auth
-        const { data: authData, error: authError } = await supabaseAuth.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    name: name,
-                },
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://project-management-delta-dun.vercel.app'}/sign-in?email_verified=true`
-            }
-        })
-
-        if (authError) {
-            console.error('❌ Supabase auth signup error:', authError)
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
             return NextResponse.json(
-                { error: { message: authError.message } },
+                { error: { message: 'Invalid email format' } },
                 { status: 400 }
             )
         }
 
-        if (!authData.user) {
-            console.error('❌ No user data returned from Supabase signup')
+        // Validate password strength
+        if (password.length < 6) {
             return NextResponse.json(
-                { error: { message: 'Failed to create user account' } },
-                { status: 500 }
+                { error: { message: 'Password must be at least 6 characters' } },
+                { status: 400 }
             )
         }
 
-        console.log('✅ Supabase auth signup successful for user:', authData.user.id)
+        console.log('🔐 Creating new user account for:', email)
 
-        // Create user profile in database using server client
-        try {
-            const supabase = await createSupabaseServerClient()
-            const { error: profileError } = await supabase
-                .from('users')
-                .insert([
-                    {
-                        id: authData.user.id,
-                        email: email,
-                        name: name,
-                        role: 'member',
-                        timezone: 'UTC',
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
-                    }
-                ])
+        // Connect to MongoDB
+        await connectToDatabase()
 
-            if (profileError) {
-                console.error('❌ Error creating user profile:', profileError)
-                // Note: User is already created in auth, but profile creation failed
-                // This is still considered a success for the user
-            } else {
-                console.log('✅ User profile created successfully')
-            }
-        } catch (profileError) {
-            console.error('❌ Exception creating user profile:', profileError)
-            // Continue - auth user is created successfully
+        // Check if user already exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() })
+        if (existingUser) {
+            console.log('❌ User already exists:', email)
+            return NextResponse.json(
+                { error: { message: 'An account with this email already exists' } },
+                { status: 409 }
+            )
         }
+
+        // Create new user (password will be hashed by pre-save hook)
+        const newUser = await User.create({
+            email: email.toLowerCase(),
+            password,
+            name,
+            role: 'member',
+            timezone: 'UTC',
+            isActive: true,
+        })
+
+        console.log('✅ User created successfully:', newUser._id)
 
         return NextResponse.json({
             message: 'Account created successfully',
             user: {
-                id: authData.user.id,
-                email: authData.user.email,
-                emailConfirmed: !!authData.user.email_confirmed_at,
+                id: newUser._id.toString(),
+                email: newUser.email,
+                name: newUser.name,
             }
         })
 
     } catch (error) {
         console.error('❌ Sign up API error:', error)
+        
+        // Handle mongoose validation errors
+        if (error instanceof Error && error.name === 'ValidationError') {
+            return NextResponse.json(
+                { error: { message: 'Invalid data provided' } },
+                { status: 400 }
+            )
+        }
+
         return NextResponse.json(
             { error: { message: 'An unexpected error occurred. Please try again.' } },
             { status: 500 }

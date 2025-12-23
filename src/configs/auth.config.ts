@@ -3,7 +3,8 @@ import validateCredential from '../server/actions/user/validateCredential'
 import Credentials from 'next-auth/providers/credentials'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import connectToDatabase from '@/lib/mongodb'
+import User from '@/models/User'
 
 import type { SignInCredential } from '@/@types/auth'
 
@@ -17,7 +18,8 @@ export default {
             clientId: process.env.GOOGLE_AUTH_CLIENT_ID,
             clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
         }),
-        Credentials({            async authorize(credentials) {
+        Credentials({
+            async authorize(credentials) {
                 /** validate credentials from backend here */
                 const user = await validateCredential(
                     credentials as SignInCredential,
@@ -39,7 +41,9 @@ export default {
                 }
             },
         }),
-    ],    callbacks: {        async jwt({ token, user, account, trigger, session }) {
+    ],
+    callbacks: {
+        async jwt({ token, user, account, trigger, session }) {
             // Following Context7 best practices for JWT callbacks
             console.log('🔍 JWT Callback:', { 
                 trigger, 
@@ -83,7 +87,8 @@ export default {
             
             console.log('🔍 JWT - Final token:', { sub: token.sub, role: token.role, email: token.email })
             return token
-        },        async session({ session, token }) {
+        },
+        async session({ session, token }) {
             // CRITICAL: Keep session callback minimal and fast (Context7 best practice)
             console.log('🔍 Session Callback:', { 
                 hasSession: !!session, 
@@ -122,42 +127,41 @@ export default {
             }
         },
         async signIn({ user, account }) {
-            // Handle OAuth providers (Google, GitHub)
+            // Handle OAuth providers (Google, GitHub) - create user in MongoDB
             if (account?.provider !== 'credentials') {
                 try {
-                    const supabase = await createSupabaseServerClient()
+                    await connectToDatabase()
 
-                    // Check if user exists in our database
-                    const { data: existingUser } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('email', user.email)
-                        .single()
+                    // Check if user exists in MongoDB
+                    const existingUser = await User.findOne({ email: user.email?.toLowerCase() })
 
                     if (!existingUser) {
-                        // Create new user profile
-                        const { error } = await supabase
-                            .from('users')
-                            .insert({
-                                id: user.id,
-                                email: user.email!,
-                                name: user.name || '',
-                                avatar_url: user.image || null,
-                                timezone: 'UTC',
-                                role: 'member',
-                            })
-
-                        if (error) {
-                            console.error('Error creating user profile:', error)
-                            return false
+                        // Create new user profile in MongoDB
+                        await User.create({
+                            email: user.email?.toLowerCase(),
+                            password: 'oauth-no-password-' + Date.now(), // Placeholder for OAuth users
+                            name: user.name || 'User',
+                            avatar: user.image || null,
+                            role: 'member',
+                            timezone: 'UTC',
+                            isActive: true,
+                        })
+                        console.log('✅ OAuth user created in MongoDB:', user.email)
+                    } else {
+                        // Update avatar if changed
+                        if (user.image && existingUser.avatar !== user.image) {
+                            await User.findByIdAndUpdate(existingUser._id, { avatar: user.image })
                         }
+                        console.log('✅ OAuth user exists in MongoDB:', user.email)
                     }
                 } catch (error) {
-                    console.error('Error in signIn callback:', error)
-                    return false
+                    console.error('❌ Error in signIn callback:', error)
+                    // Don't block login for database errors
+                    return true
                 }
             }
             return true
         },
     },
 } satisfies NextAuthConfig
+
