@@ -108,185 +108,163 @@ export default function TradePage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-800 via-gray-900 to-black text-white pb-28">
-      {/* Modern Sticky Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-white/5 px-4 h-16 flex items-center justify-between safe-area-top">
-        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-yellow-500">
-          History
-        </h1>
-        <div className="flex gap-2">
-          <GradientButton
-            variantType="success"
-            size="sm"
-            className="rounded-lg text-xs font-bold px-3 shadow-none"
-            onClick={() => setShowBuyModal(true)}
-          >
-            ⬇️ Buy
-          </GradientButton>
-          <GradientButton
-            variantType="danger"
-            size="sm"
-            className="rounded-lg text-xs font-bold px-3 shadow-none"
-            onClick={() => setShowSellModal(true)}
-          >
-            ⬆️ Sell
-          </GradientButton>
-        </div>
-      </header>
-
-      <main className="max-w-lg mx-auto px-4 pt-20 space-y-4">
-        {/* Filter Tabs */}
-        <div className="bg-gray-800/50 backdrop-blur-sm p-1 rounded-2xl flex gap-1 border border-white/5 sticky top-20 z-40">
-          {(['all', 'buy', 'sell'] as Filter[]).map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
-                filter === f
-                  ? f === 'buy'
-                    ? 'bg-green-500/10 text-green-500 shadow-[0_0_10px_rgba(34,197,94,0.1)]'
-                    : f === 'sell'
-                    ? 'bg-red-500/10 text-red-500 shadow-[0_0_10px_rgba(239,68,68,0.1)]'
-                    : 'bg-amber-500/10 text-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.1)]'
-                  : 'text-gray-500 hover:text-gray-300'
-              }`}
+    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
+      <div className="w-full max-w-md bg-white dark:bg-[#1C1C1E] min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+        {/* Header */}
+        <header className="px-5 pt-12 pb-4 flex justify-between items-center bg-white dark:bg-[#1C1C1E] z-10 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-primary tracking-tight">History</h1>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setShowBuyModal(true)}
+              className="px-4 py-2 rounded-xl bg-accent-green hover:bg-emerald-600 text-white text-xs font-bold shadow-glow-green transition-all active:scale-95"
             >
-              {f === 'all' && 'All Trades'}
-              {f === 'buy' && 'Buys'}
-              {f === 'sell' && 'Sells'}
+              ⬇ Buy
             </button>
-          ))}
-        </div>
-
-        {/* Transaction List */}
-        {loading ? (
-          <div className="space-y-3">
-             <TransactionSkeleton />
-             <TransactionSkeleton />
-             <TransactionSkeleton />
-             <TransactionSkeleton />
+            <button 
+              onClick={() => setShowSellModal(true)}
+              className="px-4 py-2 rounded-xl bg-accent-red hover:bg-red-600 text-white text-xs font-bold shadow-glow-red transition-all active:scale-95"
+            >
+              ⬆ Sell
+            </button>
           </div>
-        ) : transactions.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-4xl mb-2 opacity-50">📝</div>
-            <div className="text-gray-500">No transactions found</div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {transactions.map((tx, index) => (
-              <motion.div
-                key={tx._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: Math.min(index * 0.05, 0.5) }}
-              >
-                <GlassCard 
-                  className={`p-4 border-l-4 ${
-                    tx.type === 'buy' ? 'border-l-green-500' : 'border-l-red-500'
-                  }`}
-                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xl shrink-0 ${
-                        tx.type === 'buy' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
-                      }`}>
-                        {tx.type === 'buy' ? '⬇️' : '⬆️'}
-                      </div>
-                      <div>
-                        <div className="font-bold text-white text-sm">{tx.supplierName}</div>
-                        <div className="text-xs text-gray-500 font-mono">
-                          {tx.receiptNumber}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-lg font-bold tracking-tight ${
-                        tx.type === 'buy' ? 'text-green-400' : 'text-red-400'
-                      }`}>
-                        {formatCurrency(tx.totalAmount)}
-                      </div>
-                      <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">
-                        {formatDate(tx.createdAt)}
-                      </div>
-                    </div>
-                  </div>
+        </header>
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-3 gap-2 text-xs mb-3">
-                    <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
-                      <div className="text-gray-500 text-[10px] uppercase font-bold mb-0.5">Weight</div>
-                      <div className="font-bold text-gray-200">{tx.weightGrams}g</div>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
-                      <div className="text-gray-500 text-[10px] uppercase font-bold mb-0.5">Purity</div>
-                      <div className="font-bold text-gray-200">{tx.purity}</div>
-                    </div>
-                    <div className="bg-white/5 rounded-lg p-2 text-center border border-white/5">
-                      <div className="text-gray-500 text-[10px] uppercase font-bold mb-0.5">Price/g</div>
-                      <div className="font-bold text-amber-500">{formatCurrency(tx.buyingPricePerGram)}</div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 ${
-                        getPaymentBadge(tx.paymentMethod).color
-                      } bg-opacity-20 text-white/90`}>
-                        {getPaymentBadge(tx.paymentMethod).icon} {tx.paymentMethod.replace('_', ' ')}
-                      </span>
-                      <span className="text-gray-500 flex items-center gap-1">
-                        <span>📍</span> {tx.location.replace('_', ' ')}
-                      </span>
-                    </div>
-                    {tx.notes && (
-                      <span className="text-gray-500 truncate max-w-24 italic text-[10px]">
-                        "{tx.notes}"
-                      </span>
-                    )}
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
-
-            {/* Load More */}
-            {hasMore && (
+        <main className="flex-1 px-4 pb-28 overflow-y-auto space-y-4 pt-2">
+          {/* Filter Tabs */}
+          <div className="bg-surface-card p-1 rounded-2xl flex gap-1 border border-white/5 sticky top-0 z-20 shadow-sm mb-4">
+             {(['all', 'buy', 'sell'] as Filter[]).map((f) => (
               <button
-                onClick={loadMore}
-                className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 text-sm font-bold transition border border-white/5"
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`flex-1 py-3 rounded-xl text-xs font-bold transition-all duration-300 ${
+                  filter === f
+                    ? f === 'buy'
+                      ? 'bg-accent-green/10 text-accent-green shadow-sm'
+                      : f === 'sell'
+                      ? 'bg-accent-red/10 text-accent-red shadow-sm'
+                      : 'bg-primary/10 text-primary shadow-sm'
+                    : 'text-gray-500 hover:text-gray-300 bg-transparent'
+                }`}
               >
-                Load More History
+                {f === 'all' && 'All Trades'}
+                {f === 'buy' && 'Buys'}
+                {f === 'sell' && 'Sells'}
               </button>
-            )}
+            ))}
           </div>
-        )}
-      </main>
 
-      {/* Modals */}
-      <PurchaseModal
-        isOpen={showBuyModal}
-        onClose={() => setShowBuyModal(false)}
-        onSuccess={() => {
-          setShowBuyModal(false);
-          setPage(1);
-          fetchTransactions(1, false);
-        }}
-        type="buy"
-      />
-      <PurchaseModal
-        isOpen={showSellModal}
-        onClose={() => setShowSellModal(false)}
-        onSuccess={() => {
-          setShowSellModal(false);
-          setPage(1);
-          fetchTransactions(1, false);
-        }}
-        type="sell"
-      />
+          {/* Transaction List */}
+          {loading ? (
+             <div className="space-y-3">
+               <TransactionSkeleton />
+               <TransactionSkeleton />
+               <TransactionSkeleton />
+             </div>
+          ) : transactions.length === 0 ? (
+            <div className="text-center py-20 opacity-50">
+               <span className="text-4xl block mb-2">📄</span>
+               <span className="text-sm font-medium">No transactions found</span>
+            </div>
+          ) : (
+             <div className="space-y-4">
+               {/* Group by date if possible, but for now flat list to match structure */}
+               <div className="relative">
+                  {/* Timeline Line */}
+                  <div className="absolute left-6 top-4 bottom-4 w-px bg-gradient-to-b from-gray-800 via-gray-700 to-gray-800"></div>
+                  
+                  {transactions.map((tx, index) => (
+                    <motion.div 
+                      key={tx._id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="relative pl-14 mb-6 group"
+                    >
+                       {/* Timeline Dot */}
+                       <div className={`absolute left-[20px] top-6 w-3 h-3 rounded-full border-2 border-[#1C1C1E] z-10 ${tx.type === 'buy' ? 'bg-accent-green box-shadow-[0_0_0_4px_rgba(16,185,129,0.2)]' : 'bg-accent-red box-shadow-[0_0_0_4px_rgba(239,68,68,0.2)]'}`}></div>
+                       
+                       {/* Card */}
+                       <div className="bg-surface-card border border-white/5 rounded-2xl p-4 shadow-sm hover:border-primary/20 transition-all">
+                          <div className="flex justify-between items-start mb-3">
+                             <div>
+                                <h3 className="text-sm font-bold text-gray-200">{tx.supplierName}</h3>
+                                <p className="text-[10px] text-gray-500 font-mono mt-0.5">{tx.receiptNumber}</p>
+                             </div>
+                             <div className="text-right">
+                                <span className={`text-sm font-bold block ${tx.type === 'buy' ? 'text-accent-green' : 'text-accent-red'}`}>
+                                   {tx.type === 'buy' ? '-' : '+'}{formatCurrency(tx.totalAmount)}
+                                </span>
+                                <span className="text-[10px] text-gray-600">{new Date(tx.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                             </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 mb-3">
+                             <span className="bg-surface-dark px-2 py-1 rounded text-[10px] font-bold text-gray-300 border border-white/5">
+                               {tx.weightGrams}g
+                             </span>
+                             <span className="bg-surface-dark px-2 py-1 rounded text-[10px] font-bold text-gray-400 border border-white/5">
+                               {tx.purity}
+                             </span>
+                             <span className="bg-primary/5 px-2 py-1 rounded text-[10px] font-bold text-primary border border-primary/10">
+                               {formatCurrency(tx.buyingPricePerGram)}/g
+                             </span>
+                          </div>
+                          
+                          <div className="pt-3 border-t border-white/5 flex justify-between items-center">
+                             <div className="flex items-center gap-1.5">
+                                <span className="text-xs grayscale opacity-70">
+                                   {getPaymentBadge(tx.paymentMethod).icon}
+                                </span>
+                                <span className="text-[10px] font-medium text-gray-500 uppercase">
+                                   {tx.paymentMethod.replace(/_/g, ' ')}
+                                </span>
+                             </div>
+                             <span className="text-[10px] text-gray-600 flex items-center gap-1">
+                                <span>📍</span> {tx.location.replace(/_/g, ' ')}
+                             </span>
+                          </div>
+                       </div>
+                    </motion.div>
+                  ))}
+               </div>
+               
+               {hasMore && (
+                  <button 
+                    onClick={loadMore}
+                    className="w-full py-3 rounded-xl bg-surface-card hover:bg-white/5 text-xs font-bold text-gray-400 border border-white/5 transition-colors"
+                  >
+                    Load More History
+                  </button>
+               )}
+             </div>
+          )}
+        </main>
 
-      {/* Shared Bottom Navigation */}
-      <GoldBottomNav />
+        {/* Modals */}
+        <PurchaseModal
+          isOpen={showBuyModal}
+          onClose={() => setShowBuyModal(false)}
+          onSuccess={() => {
+            setShowBuyModal(false);
+            setPage(1);
+            fetchTransactions(1, false);
+          }}
+          type="buy"
+        />
+        <PurchaseModal
+          isOpen={showSellModal}
+          onClose={() => setShowSellModal(false)}
+          onSuccess={() => {
+             setShowSellModal(false);
+             setPage(1);
+             fetchTransactions(1, false);
+          }}
+          type="sell"
+        />
+
+        {/* Shared Bottom Navigation */}
+        <GoldBottomNav />
+      </div>
     </div>
   );
 }

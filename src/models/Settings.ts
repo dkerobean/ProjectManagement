@@ -21,7 +21,7 @@ export interface ISettings extends Document {
   commodityType: 'gold' | 'oil' | 'gas';
   
   // Price Settings
-  priceApiSource: 'metals_api' | 'goldprice_org' | 'manual';
+  priceApiSource: 'metals_api' | 'goldprice_org' | 'goldapi' | 'manual';
   priceApiKey?: string;
   manualSpotPrice?: number;
   lastPriceUpdate?: Date;
@@ -102,7 +102,7 @@ const SettingsSchema = new Schema<ISettings>(
     // Price Settings
     priceApiSource: {
       type: String,
-      enum: ['metals_api', 'goldprice_org', 'manual'],
+      enum: ['metals_api', 'goldprice_org', 'goldapi', 'manual'],
       default: 'manual',
     },
     priceApiKey: String,

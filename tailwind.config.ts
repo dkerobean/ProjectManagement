@@ -58,7 +58,22 @@ const config: Config = {
 		},
 		extend: {
 			colors: {
-				'primary': 'var(--primary)',
+				// New luxury gold theme
+				primary: "#D4AF37", // Gold color
+				"primary-dark": "#B8962E",
+				"background-light": "#F3F4F6",
+				"background-dark": "#18181B", // Zinc 900
+				"surface-dark": "#27272A", // Zinc 800
+				"surface-darker": "#121212", // Very dark for cards
+				"surface-card": "#1E1E20",
+				"accent-green": "#10B981", // Emerald 500
+				"accent-red": "#EF4444", // Red 500
+				"accent-blue": "#3B82F6", // Blue 500
+				"accent-purple": "#8B5CF6", // Violet 500
+				"accent-orange": "#F97316", // Orange 500
+				"accent-cyan": "#06B6D4", // Cyan 500
+
+				// Existing variables
 				'primary-deep': 'var(--primary-deep)',
 				'primary-mild': 'var(--primary-mild)',
 				'primary-subtle': 'var(--primary-subtle)',
@@ -82,6 +97,19 @@ const config: Config = {
 				'gray-800': 'var(--gray-800)',
 				'gray-900': 'var(--gray-900)',
 				'gray-950': 'var(--gray-950)',
+			},
+			borderRadius: {
+				DEFAULT: "0.75rem", // 12px
+				"xl": "1rem", // 16px
+				"2xl": "1.5rem", // 24px
+				"3xl": "2rem", // 32px
+			},
+			boxShadow: {
+				'glow': '0 0 20px rgba(212, 175, 55, 0.15)',
+				'glow-green': '0 0 15px rgba(16, 185, 129, 0.1)',
+				'glow-red': '0 0 15px rgba(239, 68, 68, 0.1)',
+				'glow-subtle': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+				'inner-light': 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
 			},
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			typography: (theme: any) => ({
