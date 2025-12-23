@@ -3,8 +3,7 @@ import validateCredential from '../server/actions/user/validateCredential'
 import Credentials from 'next-auth/providers/credentials'
 import Github from 'next-auth/providers/github'
 import Google from 'next-auth/providers/google'
-import connectToDatabase from '@/lib/mongodb'
-import User from '@/models/User'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 import type { SignInCredential } from '@/@types/auth'
 
@@ -18,9 +17,8 @@ export default {
             clientId: process.env.GOOGLE_AUTH_CLIENT_ID,
             clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
         }),
-        Credentials({
-            async authorize(credentials) {
-                /** validate credentials from MongoDB */
+        Credentials({            async authorize(credentials) {
+                /** validate credentials from backend here */
                 const user = await validateCredential(
                     credentials as SignInCredential,
                 )
@@ -41,9 +39,8 @@ export default {
                 }
             },
         }),
-    ],
-    callbacks: {
-        async jwt({ token, user, account, trigger, session }) {
+    ],    callbacks: {        async jwt({ token, user, account, trigger, session }) {
+            // Following Context7 best practices for JWT callbacks
             console.log('🔍 JWT Callback:', { 
                 trigger, 
                 hasUser: !!user, 
@@ -59,9 +56,10 @@ export default {
                 return token
             }
 
-            // Handle initial sign in
+            // Handle initial sign in - keep this minimal and fast
             if (account && user) {
                 console.log('🔍 JWT - Processing initial sign-in for:', user.email)
+                // Use data from authorize function if available
                 if (user.role) {
                     token.role = user.role
                     token.timezone = user.timezone || 'UTC'
@@ -71,19 +69,22 @@ export default {
                     token.authority = user.authority || [user.role]
                     console.log('✅ JWT - User data from authorize:', { role: user.role, email: user.email })
                 } else {
-                    token.role = 'member'
+                    // Minimal fallback - avoid database calls in JWT callback
+                    const adminEmails = ['admin@projectmgt.com', 'superadmin@projectmgt.com', 'frogman@gmail.com']
+                    token.role = adminEmails.includes(user.email || '') ? 'admin' : 'member'
                     token.timezone = 'UTC'
                     token.preferences = undefined
                     token.avatar_url = user.image
                     token.name = user.name
                     token.authority = [token.role]
+                    console.log('✅ JWT - Using fallback data for:', user.email)
                 }
             }
             
             console.log('🔍 JWT - Final token:', { sub: token.sub, role: token.role, email: token.email })
             return token
-        },
-        async session({ session, token }) {
+        },        async session({ session, token }) {
+            // CRITICAL: Keep session callback minimal and fast (Context7 best practice)
             console.log('🔍 Session Callback:', { 
                 hasSession: !!session, 
                 hasUser: !!session?.user, 
@@ -92,12 +93,14 @@ export default {
                 sessionEmail: session?.user?.email 
             })
             
+            // Enhanced error handling - return session as-is if any issues
             if (!session?.user || !token) {
                 console.error('❌ Session callback - missing session or token')
                 return session
             }
 
             try {
+                // Simple, fast session construction - exactly like Context7 examples
                 const enhancedSession = {
                     ...session,
                     user: {
@@ -114,29 +117,40 @@ export default {
                 return enhancedSession
             } catch (error) {
                 console.error('❌ Session callback error:', error)
+                // Return original session on any error
                 return session
             }
         },
         async signIn({ user, account }) {
-            // Handle OAuth providers (Google, GitHub) - create user in MongoDB
+            // Handle OAuth providers (Google, GitHub)
             if (account?.provider !== 'credentials') {
                 try {
-                    await connectToDatabase()
+                    const supabase = await createSupabaseServerClient()
 
-                    // Check if user exists in MongoDB
-                    const existingUser = await User.findOne({ email: user.email })
+                    // Check if user exists in our database
+                    const { data: existingUser } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('email', user.email)
+                        .single()
 
                     if (!existingUser) {
-                        // Create new user in MongoDB
-                        await User.create({
-                            email: user.email,
-                            password: `oauth_${Date.now()}_${Math.random().toString(36)}`, // Placeholder for OAuth
-                            name: user.name || user.email?.split('@')[0] || 'User',
-                            avatar: user.image || null,
-                            timezone: 'UTC',
-                            role: 'member',
-                        })
-                        console.log('✅ Created new OAuth user in MongoDB:', user.email)
+                        // Create new user profile
+                        const { error } = await supabase
+                            .from('users')
+                            .insert({
+                                id: user.id,
+                                email: user.email!,
+                                name: user.name || '',
+                                avatar_url: user.image || null,
+                                timezone: 'UTC',
+                                role: 'member',
+                            })
+
+                        if (error) {
+                            console.error('Error creating user profile:', error)
+                            return false
+                        }
                     }
                 } catch (error) {
                     console.error('Error in signIn callback:', error)
