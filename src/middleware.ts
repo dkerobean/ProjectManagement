@@ -96,7 +96,7 @@ export default auth((req) => {
         if (isSignedIn) {
             /** Redirect to authenticated entry path if signed in & path is auth route */
             return Response.redirect(
-                new URL('/dashboards/project', nextUrl),
+                new URL('/gold', nextUrl),
             )
         }
         return
