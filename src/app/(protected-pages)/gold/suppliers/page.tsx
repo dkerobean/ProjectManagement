@@ -121,11 +121,11 @@ export default function SuppliersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
-      <div className="w-full max-w-md bg-white dark:bg-[#1C1C1E] min-h-screen shadow-2xl relative overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-neutral p-safe-top pb-safe-bottom bg-background-dark text-gray-100 font-sans flex justify-center items-start selection:bg-primary selection:text-white">
+      <div className="w-full max-w-md bg-background-dark min-h-screen relative overflow-hidden flex flex-col">
         {/* Header */}
-        <header className="px-5 pt-12 pb-4 flex justify-between items-center bg-white dark:bg-[#1C1C1E] z-10 sticky top-0 backdrop-blur-md bg-opacity-90 dark:bg-opacity-90">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-primary tracking-tight">People</h1>
+        <header className="px-5 pt-12 pb-4 flex justify-between items-center z-10 sticky top-0 bg-background-dark/90 backdrop-blur-md">
+          <h1 className="text-3xl font-bold text-primary tracking-tight">People</h1>
           <button 
              onClick={() => setShowAddModal(true)}
              className="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-primary-dark hover:brightness-110 text-black text-xs font-bold shadow-glow transition-all active:scale-95 flex items-center gap-2"
