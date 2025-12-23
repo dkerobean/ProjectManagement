@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
 import { ReportSkeleton } from '@/components/gold/Skeleton';
+import GoldBottomNav from '@/components/gold/GoldBottomNav';
 
 interface ReportData {
   period: {
@@ -371,32 +372,8 @@ export default function ReportsPage() {
         )}
       </main>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-xl border-t border-white/5"></div>
-        <div className="relative max-w-lg mx-auto flex justify-around items-center h-16 px-2">
-           <a href="/gold" className="flex flex-col items-center justify-center w-16 h-full gap-1 text-gray-500 hover:text-white transition-colors">
-            <span className="text-xl opacity-70">🏠</span>
-            <span className="text-[10px] font-medium">Home</span>
-          </a>
-          <a href="/gold/trade" className="flex flex-col items-center justify-center w-16 h-full gap-1 text-gray-500 hover:text-white transition-colors">
-            <span className="text-xl opacity-70">💰</span>
-            <span className="text-[10px] font-medium">Trade</span>
-          </a>
-          <a href="/gold/vault" className="flex flex-col items-center justify-center w-16 h-full gap-1 text-gray-500 hover:text-white transition-colors">
-            <span className="text-xl opacity-70">🏦</span>
-            <span className="text-[10px] font-medium">Vault</span>
-          </a>
-          <a href="/gold/suppliers" className="flex flex-col items-center justify-center w-16 h-full gap-1 text-gray-500 hover:text-white transition-colors">
-            <span className="text-xl opacity-70">👥</span>
-            <span className="text-[10px] font-medium">People</span>
-          </a>
-          <a href="/gold/reports" className="flex flex-col items-center justify-center w-16 h-full gap-1 text-amber-400">
-            <span className="text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">📊</span>
-            <span className="text-[10px] font-bold">Reports</span>
-          </a>
-        </div>
-      </div>
+      {/* Shared Bottom Navigation */}
+      <GoldBottomNav />
     </div>
   );
 }

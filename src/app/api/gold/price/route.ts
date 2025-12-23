@@ -15,8 +15,8 @@ import Settings from '@/models/Settings';
 // Convert troy ounces to grams
 const OZ_TO_GRAMS = 31.1035;
 
-// Cache duration: 1 hour (24 req/day = 720/month, well within 1000 limit)
-const CACHE_DURATION_MS = 1 * 60 * 60 * 1000; // 1 hour
+// Cache duration: 15 minutes (more frequent price updates)
+const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes
 
 // Try to fetch from Metals-API
 async function fetchFromMetalsAPI(apiKey: string): Promise<{ price: number; source: string } | null> {

@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
+import GoldBottomNav from '@/components/gold/GoldBottomNav';
 
 interface InventoryItem {
   _id: string;
@@ -352,33 +353,8 @@ export default function VaultPage() {
         </div>
       )}
 
-      {/* Modern Glass Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2">
-        <div className="bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50 mx-auto max-w-lg">
-          <div className="flex justify-around items-center p-2">
-            {[
-              { label: 'Home', icon: '🏠', href: '/gold' },
-              { label: 'Trade', icon: '📋', href: '/gold/trade' },
-              { label: 'Vault', icon: '🏦', href: '/gold/vault', active: true },
-              { label: 'People', icon: '👥', href: '/gold/suppliers' },
-              { label: 'Reports', icon: '📊', href: '/gold/reports' },
-            ].map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 w-16
-                  ${item.active 
-                    ? 'text-amber-400 bg-white/5 shadow-[0_0_10px_rgba(251,191,36,0.1)] -translate-y-2' 
-                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                  }`}
-              >
-                <span className="text-xl">{item.icon}</span>
-                <span className="text-[10px] font-medium">{item.label}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </nav>
+      {/* Shared Bottom Navigation */}
+      <GoldBottomNav />
     </div>
   );
 }

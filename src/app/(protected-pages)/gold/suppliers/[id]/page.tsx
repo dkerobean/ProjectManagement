@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import AdvanceModal from '@/components/gold/AdvanceModal';
+import GoldBottomNav from '@/components/gold/GoldBottomNav';
 
 interface Supplier {
   _id: string;
@@ -416,31 +417,8 @@ export default function SupplierDetailPage() {
         }}
       />
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 px-2 py-2 z-20">
-        <div className="max-w-lg mx-auto flex justify-around items-center">
-          <a href="/gold" className="flex flex-col items-center gap-1 text-gray-400 hover:text-yellow-400 px-4 py-2 transition">
-            <span className="text-xl">🏠</span>
-            <span className="text-xs">Home</span>
-          </a>
-          <a href="/gold/trade" className="flex flex-col items-center gap-1 text-gray-400 hover:text-yellow-400 px-4 py-2 transition">
-            <span className="text-xl">💰</span>
-            <span className="text-xs">Trade</span>
-          </a>
-          <a href="/gold/vault" className="flex flex-col items-center gap-1 text-gray-400 hover:text-yellow-400 px-4 py-2 transition">
-            <span className="text-xl">🏦</span>
-            <span className="text-xs">Vault</span>
-          </a>
-          <a href="/gold/suppliers" className="flex flex-col items-center gap-1 text-yellow-400 px-4 py-2">
-            <span className="text-xl">👥</span>
-            <span className="text-xs">People</span>
-          </a>
-          <a href="/gold/reports" className="flex flex-col items-center gap-1 text-gray-400 hover:text-yellow-400 px-4 py-2 transition">
-            <span className="text-xl">📊</span>
-            <span className="text-xs">Reports</span>
-          </a>
-        </div>
-      </nav>
+      {/* Shared Bottom Navigation */}
+      <GoldBottomNav />
     </div>
   );
 }
