@@ -13,6 +13,7 @@ import GlassCard from '@/components/gold/GlassCard';
 import GradientButton from '@/components/gold/GradientButton';
 import { cachePrice, cacheSuppliers } from '@/lib/offline-storage';
 import { DashboardSkeleton } from '@/components/gold/Skeleton';
+import { Home, ClipboardList, Landmark, Users, BarChart } from 'lucide-react';
 
 interface DashboardData {
   spotPrice: {
@@ -351,17 +352,16 @@ export default function GoldDashboardPage() {
           </div>
         </div>
       </main>
-
       {/* Modern Glass Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 pt-2">
         <div className="bg-gray-900/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50 mx-auto max-w-lg">
           <div className="flex justify-around items-center p-2">
             {[
-              { label: 'Home', icon: '🏠', href: '/gold', active: true },
-              { label: 'Trade', icon: '📋', href: '/gold/trade' },
-              { label: 'Vault', icon: '🏦', href: '/gold/vault' },
-              { label: 'People', icon: '👥', href: '/gold/suppliers' },
-              { label: 'Reports', icon: '📊', href: '/gold/reports' },
+              { label: 'Home', icon: <Home className="w-6 h-6" />, href: '/gold', active: true },
+              { label: 'Trade', icon: <ClipboardList className="w-6 h-6" />, href: '/gold/trade' },
+              { label: 'Vault', icon: <Landmark className="w-6 h-6" />, href: '/gold/vault' },
+              { label: 'People', icon: <Users className="w-6 h-6" />, href: '/gold/suppliers' },
+              { label: 'Reports', icon: <BarChart className="w-6 h-6" />, href: '/gold/reports' },
             ].map((item) => (
               <a
                 key={item.label}
@@ -372,7 +372,7 @@ export default function GoldDashboardPage() {
                     : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                   }`}
               >
-                <span className="text-xl">{item.icon}</span>
+                {item.icon}
                 <span className="text-[10px] font-medium">{item.label}</span>
               </a>
             ))}
