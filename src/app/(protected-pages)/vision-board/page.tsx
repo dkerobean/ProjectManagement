@@ -3,6 +3,7 @@
 /**
  * Vision Board Page
  * Comprehensive visual goal board with images, text, and affirmations
+ * Full CRUD functionality with Supabase backend
  */
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,14 +12,9 @@ import {
   Image as ImageIcon, 
   Type, 
   Sparkles, 
-  Target, 
-  Filter,
   Maximize2,
-  Settings,
   Trash2,
-  Edit3,
   X,
-  Upload,
   Link as LinkIcon,
   Briefcase,
   Heart,
@@ -27,8 +23,12 @@ import {
   Dumbbell,
   Home,
   GraduationCap,
-  Star
+  Star,
+  Loader2,
+  RefreshCw,
+  Check
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 // Category definitions with icons and colors
 const CATEGORIES = [
@@ -42,37 +42,175 @@ const CATEGORIES = [
   { id: 'growth', name: 'Growth', icon: GraduationCap, color: '#06B6D4' },
 ];
 
+// Default sample items (shown when no database items exist)
+const DEFAULT_ITEMS = [
+  { id: 'demo-1', type: 'image' as const, content: '/vision-board/vision_luxury_lifestyle_1768041865403.png', caption: 'Luxury Lifestyle', category: 'finance' },
+  { id: 'demo-2', type: 'affirmation' as const, content: 'I am attracting wealth and abundance every day', caption: '', category: 'finance' },
+  { id: 'demo-3', type: 'image' as const, content: '/vision-board/travel.png', caption: 'World Travel Adventures', category: 'travel' },
+  { id: 'demo-4', type: 'text' as const, content: 'Build a 7-figure business by 2027', caption: '', category: 'career' },
+  { id: 'demo-5', type: 'image' as const, content: '/vision-board/vision_health_fitness_1768041899793.png', caption: 'Peak Fitness & Wellness', category: 'health' },
+  { id: 'demo-6', type: 'image' as const, content: '/vision-board/family.png', caption: 'Loving Family', category: 'relationships' },
+  { id: 'demo-7', type: 'image' as const, content: '/vision-board/vision_success_career_1768041880581.png', caption: 'Career Success', category: 'career' },
+];
+
 interface VisionBoardItem {
   id: string;
   type: 'image' | 'text' | 'affirmation';
   content: string;
   caption?: string;
   category: string;
-  width: number;
-  height: number;
+  board_id?: string;
 }
 
-// Sample items for demo with locally generated images
-const SAMPLE_ITEMS: VisionBoardItem[] = [
-  { id: '1', type: 'image', content: '/vision-board/vision_luxury_lifestyle_1768041865403.png', caption: 'Luxury Lifestyle', category: 'finance', width: 200, height: 150 },
-  { id: '2', type: 'affirmation', content: 'I am attracting wealth and abundance every day', category: 'finance', width: 250, height: 100 },
-  { id: '3', type: 'image', content: '/vision-board/travel.png', caption: 'World Travel Adventures', category: 'travel', width: 200, height: 150 },
-  { id: '4', type: 'text', content: 'Build a 7-figure business by 2027', category: 'career', width: 200, height: 80 },
-  { id: '5', type: 'image', content: '/vision-board/vision_health_fitness_1768041899793.png', caption: 'Peak Fitness & Wellness', category: 'health', width: 180, height: 140 },
-  { id: '6', type: 'affirmation', content: 'I am healthy, strong, and full of energy', category: 'health', width: 220, height: 100 },
-  { id: '7', type: 'image', content: '/vision-board/family.png', caption: 'Loving Family', category: 'relationships', width: 200, height: 150 },
-  { id: '8', type: 'image', content: '/vision-board/vision_success_career_1768041880581.png', caption: 'Career Success', category: 'career', width: 180, height: 140 },
-  { id: '9', type: 'affirmation', content: 'I am worthy of love, success, and happiness', category: 'growth', width: 240, height: 100 },
-  { id: '10', type: 'text', content: 'Own my dream home with ocean view', category: 'home', width: 200, height: 80 },
-];
+interface VisionBoard {
+  id: string;
+  name: string;
+  user_id: string;
+  vision_board_items?: VisionBoardItem[];
+}
 
 export default function VisionBoardPage() {
-  const [items, setItems] = useState<VisionBoardItem[]>(SAMPLE_ITEMS);
+  const [items, setItems] = useState<VisionBoardItem[]>(DEFAULT_ITEMS);
+  const [board, setBoard] = useState<VisionBoard | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showVisualization, setShowVisualization] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<VisionBoardItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
+  // Form state
   const [addType, setAddType] = useState<'image' | 'text' | 'affirmation'>('image');
+  const [formContent, setFormContent] = useState('');
+  const [formCaption, setFormCaption] = useState('');
+  const [formCategory, setFormCategory] = useState('general');
+
+  // Fetch vision board and items
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/vision-board');
+      const json = await res.json();
+      
+      if (json.success && json.data && json.data.length > 0) {
+        const userBoard = json.data[0];
+        setBoard(userBoard);
+        if (userBoard.vision_board_items && userBoard.vision_board_items.length > 0) {
+          setItems(userBoard.vision_board_items);
+        }
+      }
+    } catch (error) {
+      console.log('Using demo data - API not connected or user not logged in');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Create board if user doesn't have one
+  const ensureBoard = async (): Promise<string | null> => {
+    if (board?.id) return board.id;
+    
+    try {
+      const res = await fetch('/api/vision-board', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'My Vision Board' }),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setBoard(json.data);
+        return json.data.id;
+      }
+    } catch (error) {
+      console.error('Failed to create board:', error);
+    }
+    return null;
+  };
+
+  // Add new item
+  const handleAddItem = async () => {
+    if (!formContent.trim()) {
+      toast.error('Please enter content');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const boardId = await ensureBoard();
+      
+      if (boardId) {
+        // Save to database
+        const res = await fetch('/api/vision-board/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            board_id: boardId,
+            type: addType,
+            content: formContent,
+            caption: formCaption,
+            category: formCategory,
+          }),
+        });
+        const json = await res.json();
+        
+        if (json.success) {
+          setItems([json.data, ...items.filter(i => !i.id.startsWith('demo-'))]);
+          toast.success('Item added!');
+        } else {
+          throw new Error(json.error);
+        }
+      } else {
+        // Demo mode - add locally
+        const newItem: VisionBoardItem = {
+          id: `local-${Date.now()}`,
+          type: addType,
+          content: formContent,
+          caption: formCaption,
+          category: formCategory,
+        };
+        setItems([newItem, ...items]);
+        toast.success('Item added (demo mode)');
+      }
+      
+      // Reset form
+      setFormContent('');
+      setFormCaption('');
+      setFormCategory('general');
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Failed to add item:', error);
+      toast.error('Failed to add item');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Delete item
+  const handleDeleteItem = async (id: string) => {
+    // Optimistic update
+    const previousItems = [...items];
+    setItems(items.filter(item => item.id !== id));
+
+    try {
+      if (!id.startsWith('demo-') && !id.startsWith('local-')) {
+        const res = await fetch(`/api/vision-board/items?id=${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        if (!json.success) {
+          throw new Error(json.error);
+        }
+      }
+      toast.success('Item deleted');
+    } catch (error) {
+      // Revert on error
+      setItems(previousItems);
+      toast.error('Failed to delete');
+    }
+  };
 
   // Filter items by category
   const filteredItems = activeCategory === 'all' 
@@ -81,11 +219,6 @@ export default function VisionBoardPage() {
 
   const getCategoryColor = (categoryId: string) => {
     return CATEGORIES.find(c => c.id === categoryId)?.color || '#FFD700';
-  };
-
-  const handleDeleteItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
-    setSelectedItem(null);
   };
 
   return (
@@ -97,9 +230,18 @@ export default function VisionBoardPage() {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-amber-500 bg-clip-text text-transparent">
               Vision Board
             </h1>
-            <p className="text-xs text-gray-500 mt-0.5">Visualize your dreams</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {board ? board.name : 'Visualize your dreams'}
+            </p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={fetchData}
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-gray-400 hover:text-white"
+              title="Refresh"
+            >
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            </button>
             <button
               onClick={() => setShowVisualization(true)}
               className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all text-gray-400 hover:text-white"
@@ -143,75 +285,83 @@ export default function VisionBoardPage() {
 
       {/* Vision Board Grid */}
       <main className="px-4 py-6 max-w-7xl mx-auto">
-        <motion.div 
-          layout
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                whileHover={{ scale: 1.02, y: -4 }}
-                onClick={() => setSelectedItem(item)}
-                className="relative group cursor-pointer"
-              >
-                {/* Item Card */}
-                <div 
-                  className={`rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm transition-all hover:border-white/20 hover:shadow-xl ${
-                    item.type === 'affirmation' ? 'bg-gradient-to-br from-purple-900/30 to-indigo-900/30' : ''
-                  }`}
-                  style={{ 
-                    borderLeftColor: getCategoryColor(item.category),
-                    borderLeftWidth: '3px'
-                  }}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 text-yellow-500 animate-spin" />
+          </div>
+        ) : (
+          <motion.div 
+            layout
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          >
+            <AnimatePresence mode="popLayout">
+              {filteredItems.map((item) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  className="relative group cursor-pointer"
                 >
-                  {item.type === 'image' ? (
-                    <div className="relative">
-                      <img 
-                        src={item.content} 
-                        alt={item.caption || 'Vision'} 
-                        className="w-full h-40 object-cover"
-                      />
-                      {item.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
-                          <p className="text-sm font-medium text-white">{item.caption}</p>
-                        </div>
-                      )}
-                    </div>
-                  ) : item.type === 'affirmation' ? (
-                    <div className="p-5 min-h-[120px] flex items-center justify-center">
-                      <div className="text-center">
-                        <Sparkles className="w-5 h-5 text-purple-400 mx-auto mb-2" />
-                        <p className="text-sm font-medium text-purple-200 italic">"{item.content}"</p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-4 min-h-[100px] flex items-center">
-                      <p className="text-sm font-medium text-gray-200">{item.content}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Hover Actions */}
-                <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}
-                    className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white"
+                  {/* Item Card */}
+                  <div 
+                    className={`rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm transition-all hover:border-white/20 hover:shadow-xl ${
+                      item.type === 'affirmation' ? 'bg-gradient-to-br from-purple-900/30 to-indigo-900/30' : ''
+                    }`}
+                    style={{ 
+                      borderLeftColor: getCategoryColor(item.category),
+                      borderLeftWidth: '3px'
+                    }}
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                    {item.type === 'image' ? (
+                      <div className="relative">
+                        <img 
+                          src={item.content} 
+                          alt={item.caption || 'Vision'} 
+                          className="w-full h-40 object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/vision-board/vision_luxury_lifestyle_1768041865403.png';
+                          }}
+                        />
+                        {item.caption && (
+                          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+                            <p className="text-sm font-medium text-white">{item.caption}</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : item.type === 'affirmation' ? (
+                      <div className="p-5 min-h-[120px] flex items-center justify-center">
+                        <div className="text-center">
+                          <Sparkles className="w-5 h-5 text-purple-400 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-purple-200 italic">"{item.content}"</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-4 min-h-[100px] flex items-center">
+                        <p className="text-sm font-medium text-gray-200">{item.content}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Hover Actions */}
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleDeleteItem(item.id); }}
+                      className="p-1.5 rounded-lg bg-red-500/80 hover:bg-red-500 text-white"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
 
         {/* Empty State */}
-        {filteredItems.length === 0 && (
+        {!loading && filteredItems.length === 0 && (
           <div className="text-center py-20">
             <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
               <ImageIcon className="w-8 h-8 text-gray-500" />
@@ -257,15 +407,15 @@ export default function VisionBoardPage() {
               <div className="p-5 space-y-4">
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { type: 'image', icon: ImageIcon, label: 'Image' },
-                    { type: 'text', icon: Type, label: 'Goal Text' },
-                    { type: 'affirmation', icon: Sparkles, label: 'Affirmation' },
+                    { type: 'image' as const, icon: ImageIcon, label: 'Image' },
+                    { type: 'text' as const, icon: Type, label: 'Goal Text' },
+                    { type: 'affirmation' as const, icon: Sparkles, label: 'Affirmation' },
                   ].map((option) => {
                     const Icon = option.icon;
                     return (
                       <button
                         key={option.type}
-                        onClick={() => setAddType(option.type as any)}
+                        onClick={() => setAddType(option.type)}
                         className={`p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
                           addType === option.type
                             ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400'
@@ -286,6 +436,8 @@ export default function VisionBoardPage() {
                       <LinkIcon className="w-4 h-4 text-gray-500" />
                       <input
                         type="text"
+                        value={formContent}
+                        onChange={(e) => setFormContent(e.target.value)}
                         placeholder="Paste image URL..."
                         className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
                       />
@@ -294,6 +446,8 @@ export default function VisionBoardPage() {
                       <Type className="w-4 h-4 text-gray-500" />
                       <input
                         type="text"
+                        value={formCaption}
+                        onChange={(e) => setFormCaption(e.target.value)}
                         placeholder="Caption (optional)"
                         className="flex-1 bg-transparent text-sm text-white placeholder:text-gray-500 outline-none"
                       />
@@ -305,6 +459,8 @@ export default function VisionBoardPage() {
                 {(addType === 'text' || addType === 'affirmation') && (
                   <textarea
                     rows={3}
+                    value={formContent}
+                    onChange={(e) => setFormContent(e.target.value)}
                     placeholder={addType === 'affirmation' ? 'I am...' : 'Describe your goal...'}
                     className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder:text-gray-500 outline-none resize-none"
                   />
@@ -314,13 +470,20 @@ export default function VisionBoardPage() {
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.filter(c => c.id !== 'all').map((category) => {
                     const Icon = category.icon;
+                    const isSelected = formCategory === category.id;
                     return (
                       <button
                         key={category.id}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent hover:border-white/10"
+                        onClick={() => setFormCategory(category.id)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                          isSelected
+                            ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                            : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-transparent'
+                        }`}
                       >
                         <Icon className="w-3.5 h-3.5" style={{ color: category.color }} />
                         {category.name}
+                        {isSelected && <Check className="w-3 h-3 ml-1" />}
                       </button>
                     );
                   })}
@@ -328,10 +491,21 @@ export default function VisionBoardPage() {
 
                 {/* Submit Button */}
                 <button
-                  onClick={() => setShowAddModal(false)}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-bold text-sm hover:brightness-110 transition-all"
+                  onClick={handleAddItem}
+                  disabled={saving || !formContent.trim()}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-black font-bold text-sm hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Add to Board
+                  {saving ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      Add to Board
+                    </>
+                  )}
                 </button>
               </div>
             </motion.div>
